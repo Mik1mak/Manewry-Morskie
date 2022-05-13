@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using CellLib;
 
 namespace ManewryMorskie
 {
     public class InternationalWaterManager
     {
         private readonly Dictionary<Unit, int> daysOnInternationalWater = new();
-        private readonly MapPoint[] internationalWaters;
+        private readonly IEnumerable<CellLocation> internationalWaters;
         private readonly int turnsOnInternationalWaterLimit;
-        private readonly Map map;
+        private readonly RectangleCellMap<MapField> map;
 
         public event EventHandler<Unit>? InternedUnit;
 
-        public InternationalWaterManager(Map map,
-            MapPoint[] internationalWaters,
+        public InternationalWaterManager(RectangleCellMap<MapField> map,
+            IEnumerable<CellLocation> internationalWaters,
             int turnsOnInternationalWaterLimit = 3)
         {
             this.map = map;
@@ -34,7 +35,7 @@ namespace ManewryMorskie
         {
             List<Unit> onInternationalWater = new();
 
-            foreach (MapPoint point in internationalWaters)
+            foreach (CellLocation point in internationalWaters)
             {
                 Unit? unit = map[point].Unit;
 

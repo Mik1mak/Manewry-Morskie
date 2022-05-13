@@ -1,22 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace ManewryMorskie
+namespace CellLib
 {
-    public class FieldEnumerator : IEnumerator<MapField>
+    public class CellsEnumerator<T> : IEnumerator<T>
     {
-        private MapField[][] fields;
+        private T[][] fields;
 
         private int currentRow = 0;
         private int currentColumn = -1;
 
-        public FieldEnumerator(MapField[][] fields)
+        public CellsEnumerator(T[][] fields)
         {
             this.fields = fields;
         }
 
-        public MapField Current => fields[currentRow][currentColumn];
-        object IEnumerator.Current => fields[currentRow][currentColumn];
+        public T Current => fields[currentColumn][currentRow];
+        object IEnumerator.Current => fields[currentColumn][currentRow];
 
         public void Dispose()
         {
@@ -33,7 +33,7 @@ namespace ManewryMorskie
                 currentRow++;
             }
 
-            return currentRow != fields.Length;
+            return currentRow != fields[0].Length;
         }
 
         public void Reset()
