@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CellLib
 {
-    public class RectangleCellMap<T> : IEnumerable<T> where T : new()
+    public class RectangleCellMap<T> : IEnumerable<T> where T : notnull, new()
     {
         protected T[][] fields;
 

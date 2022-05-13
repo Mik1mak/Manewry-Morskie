@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace CellLib
 {
-    public class CellsEnumerator<T> : IEnumerator<T>
+    public class CellsEnumerator<T> : IEnumerator<T> where T : notnull
     {
-        private T[][] fields;
+        private readonly T[][] fields;
 
         private int currentRow = 0;
         private int currentColumn = -1;
@@ -18,10 +18,7 @@ namespace CellLib
         public T Current => fields[currentColumn][currentRow];
         object IEnumerator.Current => fields[currentColumn][currentRow];
 
-        public void Dispose()
-        {
-            fields = null;
-        }
+        public void Dispose(){}
 
         public bool MoveNext()
         {

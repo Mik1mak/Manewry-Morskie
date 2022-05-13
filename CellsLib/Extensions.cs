@@ -55,6 +55,21 @@ namespace CellLib
 
             return list;
         }
+        public static IList<CellLocation> GetNext(this (int, int) start, Ways ways, int length = 1) 
+            => GetNext((CellLocation)start, ways, length);
+
+        public static IList<CellLocation> GetRegion(this CellLocation from, CellLocation to)
+        {
+            List<CellLocation> list = new();
+
+            for (int col = from.Column; col <= to.Column; col++)
+                for (int row = from.Row; row <= to.Row; row++)
+                    list.Add((col, row));
+
+            return list;
+        }
+        public static IList<CellLocation> GetRegion(this (int, int) from, CellLocation to) 
+            => GetRegion((CellLocation)from, to);
 
         public static void AddRange<T>(this ICollection<T> target, ICollection<T> source)
         {

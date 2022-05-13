@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CellLib;
 
 namespace ManewryMorskie
@@ -22,15 +23,6 @@ namespace ManewryMorskie
             this.turnsOnInternationalWaterLimit = turnsOnInternationalWaterLimit;
         }
 
-        public void Track(IEnumerable<Unit> units)
-        {
-            foreach (Unit unit in units)
-                daysOnInternationalWater[unit] = 0;
-        }
-
-        public void Track(params Unit[] units) => Track(units);
-        public void Untrack(Unit unit) => daysOnInternationalWater.Remove(unit);
-
         public void Iterate()
         {
             List<Unit> onInternationalWater = new();
@@ -43,17 +35,22 @@ namespace ManewryMorskie
                     continue;
 
                 onInternationalWater.Add(unit);
-                daysOnInternationalWater[unit]++;
+
+                if(!daysOnInternationalWater.TryAdd(unit, 1))
+                    daysOnInternationalWater[unit]++;
             }
 
+            foreach (var item in daysOnInternationalWater)
+                if (!onInternationalWater.Contains(item.Key))
+                    daysOnInternationalWater[item.Key] = 0;
+
             foreach (Unit unit in onInternationalWater)
-            {
                 if(daysOnInternationalWater[unit] > turnsOnInternationalWaterLimit)
                 {
-                    Untrack(unit);
+                    daysOnInternationalWater.Remove(unit);
                     InternedUnit?.Invoke(this, unit);
                 }
-            }
+                    
         }
     }
 }
