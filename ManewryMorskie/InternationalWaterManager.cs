@@ -15,12 +15,11 @@ namespace ManewryMorskie
         public event EventHandler<Unit>? InternedUnit;
 
         public InternationalWaterManager(RectangleCellMap<MapField> map,
-            IEnumerable<CellLocation> internationalWaters,
             int turnsOnInternationalWaterLimit = 3)
         {
             this.map = map;
-            this.internationalWaters = internationalWaters;
             this.turnsOnInternationalWaterLimit = turnsOnInternationalWaterLimit;
+            internationalWaters = map.Keys.Where(l => map[l].InternationalWater).ToList();
         }
 
         public void Iterate()

@@ -10,6 +10,8 @@ namespace ManewryMorskie
         protected abstract IEnumerable<Type> StrongerUnitsIfTheyAttackFirst { get; }
 
         public abstract uint Step { get; }
+        public virtual uint AttackRange => Step;
+
         public (bool canBeDestroyed, bool onlyIfAttackFirst) CanBeDestroyedBy(Unit u)
         {
             bool simplyStronger = StrongerUnits.Any(t => t == u.GetType());

@@ -9,6 +9,8 @@ namespace ManewryMorskie
 {
     public class MapField
     {
+        public bool InternationalWater { get; set; } = false;
+        public Ways Barriers { get; set; } = Ways.None;
         public Player? Owner { get; set; }
         public Unit? Unit { get; set; }
     }
@@ -16,17 +18,12 @@ namespace ManewryMorskie
     public class Board
     {
         private InternationalWaterManager internationalWaterManager;
-        private BarrierManager barrierManager;
         protected RectangleCellMap<MapField> map;
 
-        public Board(RectangleCellMap<MapField> map, 
-            IEnumerable<CellLocation> internationalWaters, 
-            IEnumerable<(CellLocation, CellLocation)> barriers)
+        public Board(RectangleCellMap<MapField> map)
         {
             this.map = map;
-            internationalWaterManager = new InternationalWaterManager(map, internationalWaters);
-            barrierManager = new BarrierManager();
-            barrierManager.AddRange(barriers);
+            internationalWaterManager = new InternationalWaterManager(map);
         }
 
         public void Place(Unit unit, CellLocation location)

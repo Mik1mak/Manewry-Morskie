@@ -2,7 +2,7 @@
 
 namespace CellLib
 {
-    public struct CellLocation
+    public struct CellLocation : IEquatable<CellLocation>
     {
         public int Row { get; set; }
         public int Column { get; set; }
@@ -58,7 +58,10 @@ namespace CellLib
             if(obj is CellLocation b)
                 return this == b;
             return base.Equals(obj);
+        
         }
+        public bool Equals(CellLocation other) => this == other;
+
         public override int GetHashCode()
         {
             return HashCode.Combine(Row, Column);

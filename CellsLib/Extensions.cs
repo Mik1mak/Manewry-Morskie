@@ -24,15 +24,15 @@ namespace CellLib
         public static IEnumerable<Ways> AllDirections { get; } = new DirectionsGroup(1);
         public static IEnumerable<Ways> MainDirections { get; } = new DirectionsGroup(2);
 
-        public static bool Contain(this Ways ways, Ways way) => (ways & way) != Ways.None;
+        public static bool Contain(this Ways ways, Ways way) => (ways & way) == way;
 
-        public static Ways NextWay(this Ways way, int step)
+        public static Ways NextWay(this Ways way, uint step)
         {
-            int val = (int)way << step;
+            int val = (int)way << (int)step;
             return (Ways)(val == 256 ? 1 : val);
         }
 
-        public static IList<CellLocation> GetNext(this CellLocation start, Ways ways, int length = 1)
+        public static IList<CellLocation> NextLocations(this CellLocation start, Ways ways, int length = 1)
         {
             List<CellLocation> list = new()
             {
@@ -55,26 +55,23 @@ namespace CellLib
 
             return list;
         }
-        public static IList<CellLocation> GetNext(this (int, int) start, Ways ways, int length = 1) 
-            => GetNext((CellLocation)start, ways, length);
+        public static IList<CellLocation> NextLocations(this (int, int) start, Ways ways, int length = 1) 
+            => NextLocations((CellLocation)start, ways, length);
 
-        public static IList<CellLocation> GetRegion(this CellLocation from, CellLocation to)
+        public static IList<CellLocation> Region(this CellLocation from, CellLocation to)
         {
             List<CellLocation> list = new();
 
-            for (int col = from.Column; col <= to.Column; col++)
-                for (int row = from.Row; row <= to.Row; row++)
+            CellLocation fixedFrom = (Math.Min(from.Column, to.Column), Math.Min(from.Row, to.Row));
+            CellLocation fixedTo = (Math.Max(from.Column, to.Column), Math.Max(from.Row, to.Row));
+
+            for (int col = fixedFrom.Column; col <= fixedTo.Column; col++)
+                for (int row = fixedFrom.Row; row <= fixedTo.Row; row++)
                     list.Add((col, row));
 
             return list;
         }
-        public static IList<CellLocation> GetRegion(this (int, int) from, CellLocation to) 
-            => GetRegion((CellLocation)from, to);
-
-        public static void AddRange<T>(this ICollection<T> target, ICollection<T> source)
-        {
-            foreach (T item in source)
-                target.Add(item);
-        }
+        public static IList<CellLocation> Region(this (int, int) from, CellLocation to) 
+            => Region((CellLocation)from, to);
     }
 }

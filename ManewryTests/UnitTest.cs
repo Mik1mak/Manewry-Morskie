@@ -44,7 +44,7 @@ namespace ManewryTests
         {
             CellLocation pivot = (3, 3);
 
-            IList<CellLocation> locations = pivot.GetNext(Ways.Right | Ways.BottomLeft, 2);
+            IList<CellLocation> locations = pivot.NextLocations(Ways.Right | Ways.BottomLeft, 2);
 
             CellLocation[] expectedLocations = new[]
             {
@@ -65,7 +65,12 @@ namespace ManewryTests
         [Test]
         public void SelectRegion()
         {
-            IEnumerable<CellLocation> cellLocations = (1, 1).GetRegion((3, 3));
+            IEnumerable<CellLocation>[] cellLocations = new[]
+            {
+                (1, 1).Region((3, 3)),
+                (3, 1).Region((1, 3)),
+                (3, 3).Region((1, 1)),
+            };
 
             IEnumerable<CellLocation> expectedLocations = new CellLocation[]
             {
@@ -80,33 +85,10 @@ namespace ManewryTests
                 (3,3),
             };
 
-            foreach (CellLocation location in expectedLocations)
-                if (!cellLocations.Contains(location))
+            foreach (IEnumerable<CellLocation> cellLocationSet in cellLocations)
+                if (!expectedLocations.SequenceEqual(cellLocationSet, EqualityComparer<CellLocation>.Default))
                     Assert.Fail();
-
-            Assert.Pass();
-        }
-
-        [Test]
-        public void BarrierManager()
-        {
-            var manager = new BarrierManager();
-
-            CellLocation refer = (0, 0);
-
-            manager.Add((refer, (0, 1)));
-            manager.Add(((1, 0), refer));
-
-            Ways barriers = manager.GetBarriers(refer);
-
-            if (!barriers.Contain(Ways.Right))
-                Assert.Fail();
-            if(!barriers.Contain(Ways.Top))
-                Assert.Fail();
-            if (barriers.Contain(Ways.TopRight))
-                Assert.Fail();
-            if (barriers.Contain(Ways.Bottom))
-                Assert.Fail();
+                
 
             Assert.Pass();
         }
@@ -124,7 +106,9 @@ namespace ManewryTests
             map[(6, 7)].Unit = podwodny;
             map[(6, 9)].Unit = pancernik;
 
-            var manager = new InternationalWaterManager(map, (5,8).GetNext(Ways.All), 3);
+            map.MarkInternationalWaters((5, 8).NextLocations(Ways.All));
+
+            var manager = new InternationalWaterManager(map, 3);
 
             manager.InternedUnit += (sender, unit) => 
             {
@@ -151,6 +135,47 @@ namespace ManewryTests
 
             for (int i = 0; i < 2; i++, ++ticks)
                 manager.Iterate();
+        }
+
+        [Test]
+        public void BarrierBuilder()
+        {
+            RectangleCellMap<MapField> map = new(12, 18);
+
+            BarrierBuilder barierBuilder = new(map);
+            barierBuilder
+                .AddRange((0, 3).NextLocations(Ways.Right).Select(l => (l, l + Ways.Top)))
+                .AddRange((3, 3).NextLocations(Ways.Right).Select(l => (l, l + Ways.Top)))
+                .AddRange((5, 1).NextLocations(Ways.Right, 3).Select(l => (l, l + Ways.Top)))
+                .AddRange((10, 2).NextLocations(Ways.Right).Select(l => (l, l + Ways.Top)))
+                .AddRange((1, 3).NextLocations(Ways.Right).Select(l => (l, l + Ways.Right)))
+                .AddRange((4, 3).NextLocations(Ways.Bottom).Select(l => (l, l + Ways.Right)))
+                .AddRange((10, 2).NextLocations(Ways.Bottom).Select(l => (l, l + Ways.Left)))
+                .Add(((8, 1), (9, 1)))
+                .AddSimmetricBarriers()
+                .BuildBarriers();
+
+            List<(CellLocation, Ways)> expected = new()
+            {
+                ((0, 3), Ways.Top | Ways.Left),
+                ((11, 17), Ways.Top | Ways.Right),
+
+                ((4, 3), Ways.Top | Ways.Right),
+                ((1, 3), Ways.Top | Ways.Right),
+                ((2, 3), Ways.Right | Ways.Left),
+                ((3, 3), Ways.Top | Ways.Left),
+
+                ((9, 1), Ways.Right | Ways.Left),
+                ((6, 15), Ways.Top | Ways.Right),
+                ((9, 14), Ways.Left | Ways.Right),
+                ((4, 16), Ways.Bottom),
+            };
+
+            foreach (var item in expected)
+                if (map[item.Item1].Barriers != item.Item2)
+                    Assert.Fail();
+
+            Assert.Pass();
         }
     }
 }

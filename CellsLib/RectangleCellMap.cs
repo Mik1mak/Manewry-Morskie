@@ -11,6 +11,8 @@ namespace CellLib
         public int Width => fields.Length; //columns
         public int Height => fields[0].Length; //rows
 
+        public IEnumerable<CellLocation> Keys => (0, 0).Region((Width-1, Height-1));
+
         public RectangleCellMap(T[][] fields)
         {
             this.fields = fields;
@@ -33,6 +35,13 @@ namespace CellLib
         {
             get => fields[key.Column][Height - 1 - key.Row];
             protected set => fields[key.Column][Height - 1 - key.Row] = value;
+        }
+
+        public T MiddleSimmetricElement(CellLocation key)
+        {
+            return this[new CellLocation(
+                column: Width - 1 - key.Column,
+                row: Height - 1 - key.Row)];
         }
 
         public IEnumerator<T> GetEnumerator() => new CellsEnumerator<T>(fields);
