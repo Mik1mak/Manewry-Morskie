@@ -1,40 +1,33 @@
 ﻿using CellLib;
 using System.Collections;
-using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System;
 
 namespace ManewryMorskie
 {
-    public class MapField
-    {
-        public bool InternationalWater { get; set; } = false;
-        public Ways Barriers { get; set; } = Ways.None;
-        public Player? Owner { get; set; }
-        public Unit? Unit { get; set; }
-    }
 
     public class Board
     {
-        private InternationalWaterManager internationalWaterManager;
+        
+        private readonly TurnCounter turnCounter;
         protected RectangleCellMap<MapField> map;
 
-        public Board(RectangleCellMap<MapField> map)
+        public Board(RectangleCellMap<MapField> map, TurnCounter turnCounter)
         {
             this.map = map;
-            internationalWaterManager = new InternationalWaterManager(map);
+            this.turnCounter = turnCounter;
         }
 
         public void Place(Unit unit, CellLocation location)
         {
-            throw new NotImplementedException();
             map[location].Unit = unit;
+            //map[location].Owner = turnCounter.CurrentPlayer;
         }
 
-        public Unit Take(CellLocation location)
+        public Unit? Take(CellLocation location)
         {
-            throw new NotImplementedException();
+            //map[location].Owner = null;
             return map[location].Unit;
         }
     }

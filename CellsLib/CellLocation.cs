@@ -66,5 +66,11 @@ namespace CellLib
         {
             return HashCode.Combine(Row, Column);
         }
+
+        public bool IsInRadius(CellLocation point, int radius = 1)
+        {
+            double dist = Math.Sqrt(Math.Pow(Row - point.Row, 2) + Math.Pow(Column - point.Column, 2));
+            return radius <= dist;
+        }
     }
 }

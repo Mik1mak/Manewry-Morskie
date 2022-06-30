@@ -8,9 +8,10 @@ namespace ManewryMorskie
     public class InternationalWaterManager
     {
         private readonly Dictionary<Unit, int> daysOnInternationalWater = new();
-        private readonly IEnumerable<CellLocation> internationalWaters;
-        private readonly int turnsOnInternationalWaterLimit;
         private readonly RectangleCellMap<MapField> map;
+
+        public IEnumerable<CellLocation> InternationalWaters { get; }
+        public int TurnsOnInternationalWaterLimit { get; }
 
         public event EventHandler<Unit>? InternedUnit;
 
@@ -18,15 +19,15 @@ namespace ManewryMorskie
             int turnsOnInternationalWaterLimit = 3)
         {
             this.map = map;
-            this.turnsOnInternationalWaterLimit = turnsOnInternationalWaterLimit;
-            internationalWaters = map.Keys.Where(l => map[l].InternationalWater).ToList();
+            this.TurnsOnInternationalWaterLimit = turnsOnInternationalWaterLimit;
+            InternationalWaters = map.Keys.Where(l => map[l].InternationalWater).ToList();
         }
 
         public void Iterate()
         {
             List<Unit> onInternationalWater = new();
 
-            foreach (CellLocation point in internationalWaters)
+            foreach (CellLocation point in InternationalWaters)
             {
                 Unit? unit = map[point].Unit;
 
@@ -44,7 +45,7 @@ namespace ManewryMorskie
                     daysOnInternationalWater[item.Key] = 0;
 
             foreach (Unit unit in onInternationalWater)
-                if(daysOnInternationalWater[unit] > turnsOnInternationalWaterLimit)
+                if(daysOnInternationalWater[unit] > TurnsOnInternationalWaterLimit)
                 {
                     daysOnInternationalWater.Remove(unit);
                     InternedUnit?.Invoke(this, unit);
