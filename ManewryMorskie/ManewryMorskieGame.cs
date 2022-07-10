@@ -3,24 +3,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ManewryMorskie
 {
-    public class ManewryMorskieGame
+
+    public class ManewryMorskieGame : IGame
     {
-        private readonly InternationalWaterManager internationalWaterManager;
-        private readonly RectangleCellMap<MapField> map;
-        private readonly GameEndDetector endDetector;
+        private InternationalWaterManager internationalWaterManager;
+        private StandardMap map;
+        private GameEndDetector endDetector;
+        private PlayerManager playerManager;
 
         private readonly TurnCounter turnManager = new();
-        private readonly PlayerManager playerManager;
+
+        public bool AsyncPlacing { get; set; } = false;
 
         public ManewryMorskieGame(Player player1, Player player2)
         {
-            playerManager = new(turnManager);
-            playerManager.AddPlayer(player1).AddPlayer(player2);
+            if(new Random().Next(0, 2) == 0)
+                playerManager = new(turnManager, player1, player2);
+            else
+                playerManager = new(turnManager, player2, player1);
 
-            map = MapSetups.Standard(player1, player2);
+            map = StandardMap.DefaultMap(playerManager);
 
             internationalWaterManager = new InternationalWaterManager(map);
 
@@ -68,9 +75,60 @@ namespace ManewryMorskie
             foreach (Player player in playerManager)
                 if(player.Fleet.Units.Contains(e))
                 {
+                    player.UserInterface.DisplayMessage($"Jednostka {e} została internowana, ponieważ przebywała przez " +
+                        $"{internationalWaterManager.TurnsOnInternationalWaterLimit} tury na wodach międzynarodowych!");
                     player.Fleet.Destroy(e);
                     return;
                 }
+        }
+
+        public Task Start(CancellationToken token)
+        {
+            //ustawianie: predefiniowane, własne - przez listę - format: >jednostaka (dostępnych)
+            PlacePawns(token);
+
+            throw new NotImplementedException();
+
+
+            //rozgrywka:
+            //kolorowanie pól pionków zdolnych do ruchu | ustawienia miny jeśli trałowiec
+             //zaznaczenie pionka: wybranie go
+                //kolorowanie dostępnych pól do poruszenia się lub postawienia miny i statków do zaatakowania lub rozbrojenia
+                    //wybranie pola do przemieszczenia się lub postawienia miny - wybór między przemieszczeniem a postawieniem jeśli trałowiec
+                        //wybranie przemieszczenia - wykonanie ruchu - koniec tury
+                        //wybranie postawienie - postawienie - pytanie o pozyche końcową
+                            //wybranie pozycji końcowej - wykonanie ruchu - koniec tury
+                    //wybranie pola do ataku lub rozbrojenia - wybór między atakiem a rozbrojeniem jeśli trałowiec
+                        //podświetlenie możliwych pozycji końcowych
+                            //wybranie pozycji końcowej - wykonanie ruchu, koniec tury
+
+
+            return Task.CompletedTask;
+        }
+
+        private void PlacePawns(CancellationToken token)
+        {
+            IPlacingManager currentPlacingMgr = new PawnsPlacingManager(map, playerManager, playerManager.CurrentPlayer);
+            Task currentPlayerPlacingTask = Task.Run(async () => await currentPlacingMgr.PlacePawns(token));
+
+            if (!AsyncPlacing)
+                Task.WaitAll(currentPlayerPlacingTask);
+
+            IPlacingManager opositePlacingMgr
+                = new PawnsPlacingManager(map, playerManager, playerManager.GetOpositePlayer(playerManager.CurrentPlayer));
+            Task opositePlayerPlacingTask = Task.Run(async () => await opositePlacingMgr.PlacePawns(token));
+
+            Task.WaitAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
+        }
+
+        public Task PauseOrResume()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Reset()
+        {
+            throw new NotImplementedException();
         }
     }
 }

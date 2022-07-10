@@ -9,12 +9,17 @@ namespace CellLib
     {
         private class DirectionsGroup : IEnumerable<Ways>
         {
+            private readonly int startDirection;
             private readonly int step;
-            public DirectionsGroup(int step) => this.step = step;
+            public DirectionsGroup(int step, Ways startWay = Ways.Top)
+            {
+                this.step = step;
+                startDirection = (int)startWay;
+            }
 
             public IEnumerator<Ways> GetEnumerator()
             {
-                for (int i = 1; i <= (int)Ways.All; i <<= step)
+                for (int i = startDirection; i <= (int)Ways.All; i <<= step)
                     yield return (Ways)i;
             }
 
@@ -23,6 +28,8 @@ namespace CellLib
 
         public static IEnumerable<Ways> AllDirections { get; } = new DirectionsGroup(1);
         public static IEnumerable<Ways> MainDirections { get; } = new DirectionsGroup(2);
+        public static IEnumerable<Ways> VerticalDirections { get; } = new DirectionsGroup(4);
+        public static IEnumerable<Ways> HorizontalDirections { get; } = new DirectionsGroup(4, Ways.Right);
 
         public static bool Contain(this Ways ways, Ways way) => (ways & way) == way;
 

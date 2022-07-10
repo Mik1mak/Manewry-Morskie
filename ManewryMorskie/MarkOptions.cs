@@ -4,13 +4,9 @@
     {
         None = 0,
         Standard = 1,
-        Important = 2,
-        Warning = 4,
-
-        EmptyFrame = 8,
-        StandardFrame = 16,
-        ImportantFrame = 32,
-        WarningFrame = 64,
+        Select = 2,
+        Selected = 3,
+        Attack = 4,
     }
 
 }

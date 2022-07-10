@@ -46,7 +46,7 @@ namespace ManewryMorskie
             Player current = playersManager.GetPlayerOfTurn(currentTurn);
             Player enemy = playersManager.GetOpositePlayer(current);
 
-            if (enemy.Fleet.DestroyedUnitsCount<Bateria>() == 2)
+            if (enemy.Fleet.DestroyedUnitsCount<Bateria>() == 4)
             {
                 GameEnded?.Invoke(this, new GameEnd(current, GameEndReason.DestroyedBatteries));
                 return;

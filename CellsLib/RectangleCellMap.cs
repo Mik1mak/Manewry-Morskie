@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CellLib
 {
-    public class RectangleCellMap<T> : IEnumerable<T> where T : notnull, new()
+    public class RectangleCellMap<T> : IEnumerable<T> where T : class, new()
     {
         protected T[][] fields;
 
@@ -31,17 +31,33 @@ namespace CellLib
             }
         }
 
-        public T this[CellLocation key]
+        public CellLocation? LocationOf(T value)
+        {
+            foreach (CellLocation location in Keys)
+                if (this[location] == value)
+                    return location;
+
+            return null;
+        }
+
+        public virtual T this[CellLocation key]
         {
             get => fields[key.Column][Height - 1 - key.Row];
             protected set => fields[key.Column][Height - 1 - key.Row] = value;
         }
 
-        public T MiddleSimmetricElement(CellLocation key)
+        public T MiddleSimmetricElementTo(CellLocation key)
         {
             return this[new CellLocation(
                 column: Width - 1 - key.Column,
                 row: Height - 1 - key.Row)];
+        }
+
+        public virtual void Clear()
+        {
+            foreach (T[] lineofCells in fields)
+                for (int i = 0; i < lineofCells.Length; i++)
+                    lineofCells[i] = new();
         }
 
         public IEnumerator<T> GetEnumerator() => new CellsEnumerator<T>(fields);

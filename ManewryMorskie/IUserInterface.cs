@@ -11,10 +11,11 @@ namespace ManewryMorskie
         public event EventHandler<CellLocation>? ClickedLocation;
         public event EventHandler<int>? ChoosenOptionId;
 
-        public Task DisplayOptionsMenu(IList<string> options, CellLocation location);
+        public Task DisplayOptionsMenu(string title, params string[] options);
+        public Task DisplayContextOptionsMenu(CellLocation location, params string[] options);
         public Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode);
         public Task ExecuteMove(Move mv);
-        public Task DisplayMessage(string message);
+        public Task DisplayMessage(string message, MessageType msgType = MessageType.Standard);
     }
 
 }

@@ -17,5 +17,7 @@ namespace ManewryMorskie
             TurnNumber++;
             TurnChanged?.Invoke(this, TurnNumber);
         }
+
+        internal void Reset() => TurnNumber = 0;
     }
 }

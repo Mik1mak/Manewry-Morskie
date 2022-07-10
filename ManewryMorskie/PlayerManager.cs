@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,28 +7,25 @@ namespace ManewryMorskie
 {
     public class PlayerManager : IEnumerable<Player>
     {
-        private readonly List<Player> players = new();
         private readonly TurnCounter turnCommander;
 
-        public PlayerManager(TurnCounter turnCommander)
+        public PlayerManager(TurnCounter turnCommander, Player bottomPlayer, Player topPlayer)
         {
             this.turnCommander = turnCommander;
+            BottomPlayer = bottomPlayer;
+            TopPlayer = topPlayer;
         }
 
-        public PlayerManager AddPlayer(Player player) 
-        {
-            players.Add(player);
-            return this;
-        }
-
+        public Player TopPlayer { get; private set; }
+        public Player BottomPlayer { get; private set; }
         public Player CurrentPlayer => GetPlayerOfTurn(turnCommander.TurnNumber);
-        public Player GetPlayerOfTurn(int turnNumber) => players[turnNumber % players.Count];
+        public Player GetPlayerOfTurn(int turnNumber) => turnNumber % 2 == 0 ? BottomPlayer : TopPlayer;
 
-        public IEnumerable<Player> GetOpositePlayers(Player current) => players.Where(p => current != p);
-        public IEnumerable<Player> GetOpositePlayers() => players.Where(p => CurrentPlayer != p);
+        public IEnumerable<Player> GetOpositePlayers(Player current) => this.Where(p => current != p);
+        public IEnumerable<Player> GetOpositePlayers() => this.Where(p => CurrentPlayer != p);
 
-        public Player GetOpositePlayer(Player current) => players.First(p => current != p);
-        public Player GetOpositePlayer() => players.First(p => CurrentPlayer != p);
+        public Player GetOpositePlayer(Player current) => this.First(p => current != p);
+        public Player GetOpositePlayer() => this.First(p => CurrentPlayer != p);
 
         public void WriteToPlayers(Player current, string msgToCurrent, string msgToOthers)
         {
@@ -39,7 +37,12 @@ namespace ManewryMorskie
 
         public void WriteToPlayers(string msgToCurrent, string msgToOthers) => WriteToPlayers(CurrentPlayer, msgToCurrent, msgToOthers);
 
-        public IEnumerator<Player> GetEnumerator() => players.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => players.GetEnumerator();
+
+        public IEnumerator<Player> GetEnumerator()
+        {
+            yield return BottomPlayer;
+            yield return TopPlayer;
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

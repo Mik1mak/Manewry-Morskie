@@ -1,7 +1,7 @@
 ﻿namespace ManewryMorskie
 {
 
-    public abstract class Player
+    public class Player
     {
         public Player(IUserInterface userInterface)
         {
