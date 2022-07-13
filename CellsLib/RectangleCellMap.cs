@@ -11,6 +11,8 @@ namespace CellLib
         public int Width => fields.Length; //columns
         public int Height => fields[0].Length; //rows
 
+        public int Count => Width * Height;
+
         public IEnumerable<CellLocation> Keys => (0, 0).Region((Width-1, Height-1));
 
         public RectangleCellMap(T[][] fields)

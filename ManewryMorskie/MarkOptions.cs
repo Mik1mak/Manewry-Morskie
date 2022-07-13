@@ -3,10 +3,15 @@
     public enum MarkOptions
     {
         None = 0,
-        Standard = 1,
-        Select = 2,
-        Selected = 3,
-        Attack = 4,
+        Standard,
+        Selectable,
+        Selected,
+        Moveable,
+        Moved,
+        Attackable,
+        Attacked,
+        Minable,
+        Mined,
     }
 
 }

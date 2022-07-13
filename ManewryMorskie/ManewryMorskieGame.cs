@@ -1,6 +1,4 @@
-﻿using CellLib;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -18,7 +16,7 @@ namespace ManewryMorskie
 
         private readonly TurnCounter turnManager = new();
 
-        public bool AsyncPlacing { get; set; } = false;
+        public bool AsyncGame { get; set; } = false;
 
         public ManewryMorskieGame(Player player1, Player player2)
         {
@@ -49,7 +47,7 @@ namespace ManewryMorskie
                         msgToCurrent: "Zwycięstwo! Zniszczyłeś okręt desantowy przeciwnika!",
                         msgToOthers: "Porażka! Przeciwnik zniszczył Twój okręt desantowy!");
                     break;
-                case GameEndReason.DestroyedBatteries:
+                case GameEndReason.DestroyedOkretyRakietowe:
 
                     break;
                 case GameEndReason.OkretDesantowyReachedEnemyField:
@@ -63,7 +61,7 @@ namespace ManewryMorskie
             internationalWaterManager.Iterate();
         }
 
-        private void InternationalWaterManager_InternedUnit(object sender, Unit e)
+        private async void InternationalWaterManager_InternedUnit(object sender, Unit e)
         {
             foreach (MapField field in internationalWaterManager.InternationalWaters.Select(location => map[location]))
                 if (field.Unit == e)
@@ -75,21 +73,18 @@ namespace ManewryMorskie
             foreach (Player player in playerManager)
                 if(player.Fleet.Units.Contains(e))
                 {
-                    player.UserInterface.DisplayMessage($"Jednostka {e} została internowana, ponieważ przebywała przez " +
+                    await player.UserInterface.DisplayMessage($"Jednostka {e} została internowana, ponieważ przebywała przez " +
                         $"{internationalWaterManager.TurnsOnInternationalWaterLimit} tury na wodach międzynarodowych!");
                     player.Fleet.Destroy(e);
                     return;
                 }
         }
 
-        public Task Start(CancellationToken token)
+        public async Task Start(CancellationToken token)
         {
             //ustawianie: predefiniowane, własne - przez listę - format: >jednostaka (dostępnych)
             PlacePawns(token);
-
-            throw new NotImplementedException();
-
-
+            
             //rozgrywka:
             //kolorowanie pól pionków zdolnych do ruchu | ustawienia miny jeśli trałowiec
              //zaznaczenie pionka: wybranie go
@@ -102,8 +97,13 @@ namespace ManewryMorskie
                         //podświetlenie możliwych pozycji końcowych
                             //wybranie pozycji końcowej - wykonanie ruchu, koniec tury
 
+            while(!endDetector.GameIsEnded)
+            {
+                
 
-            return Task.CompletedTask;
+            }
+
+
         }
 
         private void PlacePawns(CancellationToken token)
@@ -111,7 +111,7 @@ namespace ManewryMorskie
             IPlacingManager currentPlacingMgr = new PawnsPlacingManager(map, playerManager, playerManager.CurrentPlayer);
             Task currentPlayerPlacingTask = Task.Run(async () => await currentPlacingMgr.PlacePawns(token));
 
-            if (!AsyncPlacing)
+            if (!AsyncGame)
                 Task.WaitAll(currentPlayerPlacingTask);
 
             IPlacingManager opositePlacingMgr

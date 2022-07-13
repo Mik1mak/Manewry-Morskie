@@ -75,7 +75,7 @@ namespace ManewryMorskie
 
                 await currentPlayer.UserInterface.DisplayMessage("Rozmieść swoje pionki na planszy", MessageType.SideMessage);
                 selectable = map.Keys.Where(l => map[l].Owner == currentPlayer && map[l].Unit == null);
-                await currentPlayer.UserInterface.MarkCells(selectable, MarkOptions.Select);
+                await currentPlayer.UserInterface.MarkCells(selectable, MarkOptions.Selectable);
 
                 if(selectable.Any())
                 {
@@ -104,7 +104,7 @@ namespace ManewryMorskie
                 return;
 
             selected = e;
-            await currentPlayer.UserInterface.MarkCells(selectable!, MarkOptions.Select);
+            await currentPlayer.UserInterface.MarkCells(selectable!, MarkOptions.Selectable);
             await currentPlayer.UserInterface.MarkCells(new[] { selected!.Value }, MarkOptions.Selected);
             await currentPlayer.UserInterface.DisplayMessage("Wybierz jednostkę jaką chcesz umieścić", MessageType.SideMessage);
             await currentPlayer.UserInterface.DisplayContextOptionsMenu(e, unitsToPlace.Select(vp => $"{vp.Key.Name} ({vp.Value})").ToArray());

@@ -58,8 +58,16 @@ namespace ManewryMorskie
             Ways result = Ways.None;
 
             foreach (Ways way in CellLib.Extensions.MainDirections)
+            {
                 if (IsBarrierBetween(location, location + way))
+                {
                     result |= way;
+
+                    if (IsBarrierBetween(location, location + way.NextWay(2)))
+                        result |= way.NextWay(1);
+                }
+            }
+                
 
             return result;
         }

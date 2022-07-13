@@ -11,7 +11,17 @@ namespace ManewryMorskie
         private const int STANDARD_WIDTH = 12;
         private const int STANDARD_HEIGHT = 18;
 
-        public event EventHandler MapChanged;
+        public event EventHandler? MapChanged;
+
+        public bool TopEntrencesAreProtected => EntrencesIsProtected(DefaultTopEnterences);
+        public bool BottomEntrecesAreProtected => EntrencesIsProtected(DefaultBottomEnterences);
+
+        private bool EntrencesIsProtected(IEnumerable<CellLocation> entrecesLocations)
+        {
+            return entrecesLocations
+                .All(entrenceLocation => CellLib.Extensions.HorizontalDirections
+                    .Any(horizontalWay => this[entrenceLocation + horizontalWay].Unit != null));
+        }
 
         public static IEnumerable<CellLocation> DefaultTopEnterences { get; } = new CellLocation[]
         {
@@ -82,6 +92,23 @@ namespace ManewryMorskie
         {
             base.Clear();
             MapChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public Ways AvaibleWaysFrom(CellLocation location)
+        {
+            Ways waysWithoutBarriers = ~this[location].Barriers;
+            Ways output = Ways.None;
+
+            foreach (Ways way in waysWithoutBarriers.EverySingleWay())
+                if (this[location + way].Unit == null)
+                    output |= way;
+
+            return output;
+        }
+
+        public IEnumerable<CellLocation> LocationsWithPlayersUnits(Player player)
+        {
+            return Keys.Where(location => player.Fleet.Units.Contains(this[location].Unit));
         }
     }
 }

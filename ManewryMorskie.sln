@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryMorskie", "ManewryMo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryMorskieRazor", "ManewryMorskieRazor\ManewryMorskieRazor.csproj", "{981674E3-0ED4-4D4F-A6FD-9BCACC00F7A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManewryTests", "ManewryTests\ManewryTests.csproj", "{0625F1B8-EFD4-4CDA-8CED-B19838DE094F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryTests", "ManewryTests\ManewryTests.csproj", "{0625F1B8-EFD4-4CDA-8CED-B19838DE094F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CellLib", "CellsLib\CellLib.csproj", "{A737BFF0-019F-4D6A-9666-6212978067BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CellLib", "CellsLib\CellLib.csproj", "{A737BFF0-019F-4D6A-9666-6212978067BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -9,10 +9,6 @@ namespace ManewryTests
 {
     public class Tests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
 
         [Test]
         public void FieldIteratorTest()
@@ -177,5 +173,48 @@ namespace ManewryTests
 
             Assert.Pass();
         }
+
+        [Test]
+        public void DirectionsGroups()
+        {
+            IEnumerable<(IEnumerable<Ways>, IEnumerable<Ways>)> tests = new (IEnumerable<Ways>, IEnumerable<Ways>)[]
+            {
+                (CellLib.Extensions.AllDirections, new Ways[]
+                {
+                    Ways.Top,
+                    Ways.TopRight,
+                    Ways.Right,
+                    Ways.BottomRight,
+                    Ways.Bottom,
+                    Ways.BottomLeft,
+                    Ways.Left,
+                    Ways.TopLeft,
+                }),
+                (CellLib.Extensions.MainDirections, new Ways[]
+                {
+                    Ways.Top,
+                    Ways.Right,
+                    Ways.Bottom,
+                    Ways.Left,
+                }),
+                (CellLib.Extensions.HorizontalDirections, new Ways[]
+                {
+                    Ways.Right,
+                    Ways.Left,
+                }),
+                (CellLib.Extensions.VerticalDirections, new Ways[]
+                {
+                    Ways.Top,
+                    Ways.Bottom,
+                }),
+            };
+
+            foreach (var test in tests)
+                if (!test.Item1.SequenceEqual(test.Item2))
+                    Assert.Fail();
+
+            Assert.Pass();
+        }
+    
     }
 }

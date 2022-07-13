@@ -6,7 +6,7 @@ namespace ManewryMorskie
 {
     public enum GameEndReason
     {
-        DestroyedBatteries,
+        DestroyedOkretyRakietowe,
         DestroyedOkretDesantowy,
         OkretDesantowyReachedEnemyField,
     }
@@ -25,14 +25,15 @@ namespace ManewryMorskie
 
     public class GameEndDetector
     {
-        private readonly RectangleCellMap<MapField> map;
+        private readonly StandardMap map;
         private readonly TurnCounter turnCommander;
         private readonly PlayerManager playersManager;
 
         public event EventHandler<GameEnd>? GameEnded;
+        public bool GameIsEnded { get; private set; } = false;
+        public GameEnd? GameEndResult { get; private set; } = null;
 
-
-        public GameEndDetector(RectangleCellMap<MapField> map, TurnCounter turnCommander, PlayerManager playersManager)
+        public GameEndDetector(StandardMap map, TurnCounter turnCommander, PlayerManager playersManager)
         {
             this.map = map;
             this.turnCommander = turnCommander;
@@ -46,25 +47,38 @@ namespace ManewryMorskie
             Player current = playersManager.GetPlayerOfTurn(currentTurn);
             Player enemy = playersManager.GetOpositePlayer(current);
 
-            if (enemy.Fleet.DestroyedUnitsCount<Bateria>() == 4)
+            //jeśli wejścia gracza są chronione a przeciwnik stracił wszystkie okrętyRakietowe
+            if (enemy.Fleet.UnitsCount<OkretRakietowy>() == 0)
             {
-                GameEnded?.Invoke(this, new GameEnd(current, GameEndReason.DestroyedBatteries));
-                return;
+                if(playersManager.TopPlayer == current ? map.TopEntrencesAreProtected : map.BottomEntrecesAreProtected)
+                {
+                    EndGame(current, GameEndReason.DestroyedOkretyRakietowe);
+                    return;
+                }
+                
             }
-            else if(enemy.Fleet.DestroyedUnitsCount<OkretDesantowy>() == 1)
+            else if(enemy.Fleet.UnitsCount<OkretDesantowy>() == 0) //jeśli przeciwnik stracił wszystkie okręty desantowe
             {
-                GameEnded?.Invoke(this, new GameEnd(current, GameEndReason.DestroyedOkretDesantowy));
+                EndGame(current, GameEndReason.DestroyedOkretDesantowy);
                 return;
             }
 
+            //jeśli okręt desantowy wpłynął do portu przeciwnika
             foreach (MapField field in map)
                 if(field.Owner == enemy && field.Unit != null)
-                    if(current.Fleet.Units.Contains(field.Unit))
+                    if(current.Fleet.Units.Contains(field.Unit) && field.Unit.GetType() == typeof(OkretDesantowy))
                     {
-                        GameEnded?.Invoke(this, new GameEnd(current, GameEndReason.OkretDesantowyReachedEnemyField));
+                        EndGame(current, GameEndReason.OkretDesantowyReachedEnemyField);
                         return;
                     }
 
+        }
+
+        private void EndGame(Player currentPlayer, GameEndReason reason)
+        {
+            GameEndResult = new GameEnd(currentPlayer, reason);
+            GameIsEnded = true;
+            GameEnded?.Invoke(this, GameEndResult.Value);
         }
     }
 }

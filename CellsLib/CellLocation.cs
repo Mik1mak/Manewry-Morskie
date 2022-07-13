@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace CellLib
 {
-    public struct CellLocation : IEquatable<CellLocation>
+    public struct CellLocation : IEquatable<CellLocation>, IEnumerable<CellLocation>
     {
         public int Row { get; set; }
         public int Column { get; set; }
@@ -72,5 +74,11 @@ namespace CellLib
             double dist = Math.Sqrt(Math.Pow(Row - point.Row, 2) + Math.Pow(Column - point.Column, 2));
             return radius <= dist;
         }
+
+        public IEnumerator<CellLocation> GetEnumerator()
+        {
+            yield return this;
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

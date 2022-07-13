@@ -2,6 +2,7 @@
 {
     public enum MessageType
     {
+        Empty,
         Standard,
         Warning,
         Error,
