@@ -33,7 +33,7 @@ namespace ManewryMorskie
                 parent.map[setMineLocation].Unit = mine;
 
                 foreach (Player player in parent.playerManager)
-                    await player.UserInterface.PlacePawn(setMineLocation, player.Color, mine.ToString());
+                    await player.UserInterface.PlacePawn(setMineLocation, player.Color, false, mine.ToString());
 
                 foreach ((MoveChecker? moveChecker, IList<ICellAction> actions) in parent.selectable.Values)
                 {

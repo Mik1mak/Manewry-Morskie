@@ -153,16 +153,16 @@ namespace ManewryTests
 
             List<(CellLocation, Ways)> expected = new()
             {
-                ((0, 3), Ways.Top | Ways.Left),
-                ((11, 17), Ways.Top | Ways.Right),
+                ((0, 3), Ways.Top | Ways.Left | Ways.TopLeft),
+                ((11, 17), Ways.Top | Ways.Right | Ways.TopRight),
 
-                ((4, 3), Ways.Top | Ways.Right),
-                ((1, 3), Ways.Top | Ways.Right),
+                ((4, 3), Ways.Top | Ways.Right | Ways.TopRight),
+                ((1, 3), Ways.Top | Ways.Right | Ways.TopRight),
                 ((2, 3), Ways.Right | Ways.Left),
-                ((3, 3), Ways.Top | Ways.Left),
+                ((3, 3), Ways.Top | Ways.Left | Ways.TopLeft),
 
                 ((9, 1), Ways.Right | Ways.Left),
-                ((6, 15), Ways.Top | Ways.Right),
+                ((6, 15), Ways.Top | Ways.Right | Ways.TopRight),
                 ((9, 14), Ways.Left | Ways.Right),
                 ((4, 16), Ways.Bottom),
             };

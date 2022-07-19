@@ -75,7 +75,7 @@ namespace ManewryMorskie
         private void SetBorder(IEnumerable<CellLocation> where, Ways border)
         {
             foreach (CellLocation location in where)
-                map[location].Barriers |= border;
+                Add((location, location + border));
         }
 
         public void BuildBarriers()

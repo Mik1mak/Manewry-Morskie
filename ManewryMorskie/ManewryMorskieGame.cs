@@ -42,8 +42,6 @@ namespace ManewryMorskie
 
         private void EndDetector_GameEnded(object sender, GameEnd e)
         {
-            throw new NotImplementedException();
-
             switch(e.GameEndReason)
             {
                 case GameEndReason.DestroyedOkretDesantowy:
@@ -52,10 +50,14 @@ namespace ManewryMorskie
                         msgToOthers: "Porażka! Przeciwnik zniszczył Twój okręt desantowy!");
                     break;
                 case GameEndReason.DestroyedOkretyRakietowe:
-
+                    playerManager.WriteToPlayers(e.Winner!,
+                        msgToCurrent: "Zwycięstwo! Zniszczyłeś okręty rakietowe przeciwnika utrzymując obronę portu!",
+                        msgToOthers: "Porażka! Przeciwnik zniszczył Twóje okręty rakietowe utrzymując obronę portu!");
                     break;
                 case GameEndReason.OkretDesantowyReachedEnemyField:
-
+                    playerManager.WriteToPlayers(e.Winner!,
+                        msgToCurrent: "Zwycięstwo! Twój okręt desantowy wpłynął do portu przeciwnika!",
+                        msgToOthers: "Porażka! Okręt desantowy przeciwnika wpłynął do Twojego portu!");
                     break;
             }
         }
@@ -107,17 +109,6 @@ namespace ManewryMorskie
 
             Task.WaitAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
 
-            //rozgrywka:
-            //kolorowanie pól pionków zdolnych do ruchu | ustawienia miny jeśli trałowiec
-            //zaznaczenie pionka: wybranie go
-            //kolorowanie dostępnych pól do poruszenia się lub postawienia miny i statków do zaatakowania lub rozbrojenia
-            //wybranie pola do przemieszczenia się lub postawienia miny - wybór między przemieszczeniem a postawieniem jeśli trałowiec
-            //wybranie przemieszczenia - wykonanie ruchu - koniec tury
-            //wybranie postawienie - postawienie - pytanie o pozyche końcową
-            //wybranie pozycji końcowej - wykonanie ruchu - koniec tury
-            //wybranie pola do ataku lub rozbrojenia - wybór między atakiem a rozbrojeniem jeśli trałowiec
-            //podświetlenie możliwych pozycji końcowych
-            //wybranie pozycji końcowej - wykonanie ruchu, koniec tury
 
             TurnManager turnMgr = new(map, playerManager);
 
