@@ -12,6 +12,8 @@
         Attacked,
         Minable,
         Mined,
+        Disarmable,
+        Disarmed,
     }
 
 }

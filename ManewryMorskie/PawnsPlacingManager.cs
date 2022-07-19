@@ -49,7 +49,7 @@ namespace ManewryMorskie
 
             foreach (CellLocation location in entries)
                 foreach (Ways way in CellLib.Extensions.HorizontalDirections)
-                    PlaceUnit(location + way, new Bateria(), currentPlayer);
+                    await PlaceUnit(location + way, new Bateria(), currentPlayer);
 
             state = State.WaitingForChooseMode;
             currentPlayer.UserInterface.ChoosenOptionId += ChoosePlacingOption;
@@ -58,11 +58,16 @@ namespace ManewryMorskie
             token.ThrowIfCancellationRequested();
         }
 
-        private void PlaceUnit(CellLocation location, Unit unit, Player player)
+        private async ValueTask PlaceUnit(CellLocation location, Unit unit, Player player)
         {
             player.Fleet.Set(unit);
             map[location].Unit = unit;
             unitsToPlace[unit.GetType()]--;
+
+            bool isBattery = unit is Bateria;
+
+            await player.UserInterface.PlacePawn(location, player.Color, isBattery, unit.ToString());
+            await players.GetOpositePlayer(player).UserInterface.PlacePawn(location, player.Color, isBattery);
         }
 
         private async void ChoosePlacingOption(object sender, int e)
@@ -105,7 +110,7 @@ namespace ManewryMorskie
 
             selected = e;
             await currentPlayer.UserInterface.MarkCells(selectable!, MarkOptions.Selectable);
-            await currentPlayer.UserInterface.MarkCells(new[] { selected!.Value }, MarkOptions.Selected);
+            await currentPlayer.UserInterface.MarkCells(selected!.Value, MarkOptions.Selected);
             await currentPlayer.UserInterface.DisplayMessage("Wybierz jednostkę jaką chcesz umieścić", MessageType.SideMessage);
             await currentPlayer.UserInterface.DisplayContextOptionsMenu(e, unitsToPlace.Select(vp => $"{vp.Key.Name} ({vp.Value})").ToArray());
 
@@ -116,11 +121,11 @@ namespace ManewryMorskie
             }
         }
 
-        private void ChoosePawnType(object sender, int e)
+        private async void ChoosePawnType(object sender, int e)
         {
             Type chosenUnitType = unitsToPlace.Skip(e+1).First().Key;
             Unit newUnit = (Unit)Activator.CreateInstance(chosenUnitType);
-            PlaceUnit(selected!.Value, newUnit, currentPlayer);
+            await PlaceUnit(selected!.Value, newUnit, currentPlayer);
 
             state = State.PawnChoosen;
             currentPlayer.UserInterface.ChoosenOptionId -= ChoosePawnType;

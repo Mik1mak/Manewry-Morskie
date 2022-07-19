@@ -6,7 +6,7 @@ namespace ManewryMorskie
     public class OkretDesantowy : Unit
     {
         public override uint Step => 1;
-        protected override IEnumerable<Type> StrongerUnitsIfTheyAttackFirst => Array.Empty<Type>();
+
         protected override IEnumerable<Type> StrongerUnits => _strongerUnits;
         private readonly static Type[] _strongerUnits = new[]
         {

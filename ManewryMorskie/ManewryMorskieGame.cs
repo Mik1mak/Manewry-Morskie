@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CellLib;
+using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -13,6 +14,7 @@ namespace ManewryMorskie
         private StandardMap map;
         private GameEndDetector endDetector;
         private PlayerManager playerManager;
+        private MoveExecutor executor;
 
         private readonly TurnCounter turnManager = new();
 
@@ -34,6 +36,8 @@ namespace ManewryMorskie
 
             endDetector = new GameEndDetector(map, turnManager, playerManager);
             endDetector.GameEnded += EndDetector_GameEnded;
+
+            executor = new(map, playerManager);
         }
 
         private void EndDetector_GameEnded(object sender, GameEnd e)
@@ -63,62 +67,68 @@ namespace ManewryMorskie
 
         private async void InternationalWaterManager_InternedUnit(object sender, Unit e)
         {
-            foreach (MapField field in internationalWaterManager.InternationalWaters.Select(location => map[location]))
+            foreach (CellLocation location in internationalWaterManager.InternationalWaters)
+            {
+                MapField field = map[location];
+
                 if (field.Unit == e)
                 {
-                    field.Unit = null;
-                    break;
-                }
+                    foreach (Player player in playerManager)
+                    {
+                        await player.UserInterface.TakeOffPawn(location);
 
-            foreach (Player player in playerManager)
-                if(player.Fleet.Units.Contains(e))
-                {
-                    await player.UserInterface.DisplayMessage($"Jednostka {e} została internowana, ponieważ przebywała przez " +
-                        $"{internationalWaterManager.TurnsOnInternationalWaterLimit} tury na wodach międzynarodowych!");
-                    player.Fleet.Destroy(e);
+                        if (player.Fleet.Units.Contains(e))
+                        {
+                            await player.UserInterface.DisplayMessage($"Jednostka {e} została internowana, ponieważ przebywała przez " +
+                                $"{internationalWaterManager.TurnsOnInternationalWaterLimit} tury na wodach międzynarodowych!");
+                            player.Fleet.Destroy(e);
+                        }
+                    }
+                        
+
+                    field.Unit = null;
                     return;
                 }
+            }   
         }
 
         public async Task Start(CancellationToken token)
         {
             //ustawianie: predefiniowane, własne - przez listę - format: >jednostaka (dostępnych)
-            PlacePawns(token);
-            
-            //rozgrywka:
-            //kolorowanie pól pionków zdolnych do ruchu | ustawienia miny jeśli trałowiec
-             //zaznaczenie pionka: wybranie go
-                //kolorowanie dostępnych pól do poruszenia się lub postawienia miny i statków do zaatakowania lub rozbrojenia
-                    //wybranie pola do przemieszczenia się lub postawienia miny - wybór między przemieszczeniem a postawieniem jeśli trałowiec
-                        //wybranie przemieszczenia - wykonanie ruchu - koniec tury
-                        //wybranie postawienie - postawienie - pytanie o pozyche końcową
-                            //wybranie pozycji końcowej - wykonanie ruchu - koniec tury
-                    //wybranie pola do ataku lub rozbrojenia - wybór między atakiem a rozbrojeniem jeśli trałowiec
-                        //podświetlenie możliwych pozycji końcowych
-                            //wybranie pozycji końcowej - wykonanie ruchu, koniec tury
-
-            while(!endDetector.GameIsEnded)
-            {
-                
-
-            }
-
-
-        }
-
-        private void PlacePawns(CancellationToken token)
-        {
             IPlacingManager currentPlacingMgr = new PawnsPlacingManager(map, playerManager, playerManager.CurrentPlayer);
-            Task currentPlayerPlacingTask = Task.Run(async () => await currentPlacingMgr.PlacePawns(token));
+            Task currentPlayerPlacingTask = currentPlacingMgr.PlacePawns(token);
 
             if (!AsyncGame)
                 Task.WaitAll(currentPlayerPlacingTask);
 
             IPlacingManager opositePlacingMgr
                 = new PawnsPlacingManager(map, playerManager, playerManager.GetOpositePlayer(playerManager.CurrentPlayer));
-            Task opositePlayerPlacingTask = Task.Run(async () => await opositePlacingMgr.PlacePawns(token));
+            Task opositePlayerPlacingTask = opositePlacingMgr.PlacePawns(token);
 
             Task.WaitAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
+
+            //rozgrywka:
+            //kolorowanie pól pionków zdolnych do ruchu | ustawienia miny jeśli trałowiec
+            //zaznaczenie pionka: wybranie go
+            //kolorowanie dostępnych pól do poruszenia się lub postawienia miny i statków do zaatakowania lub rozbrojenia
+            //wybranie pola do przemieszczenia się lub postawienia miny - wybór między przemieszczeniem a postawieniem jeśli trałowiec
+            //wybranie przemieszczenia - wykonanie ruchu - koniec tury
+            //wybranie postawienie - postawienie - pytanie o pozyche końcową
+            //wybranie pozycji końcowej - wykonanie ruchu - koniec tury
+            //wybranie pola do ataku lub rozbrojenia - wybór między atakiem a rozbrojeniem jeśli trałowiec
+            //podświetlenie możliwych pozycji końcowych
+            //wybranie pozycji końcowej - wykonanie ruchu, koniec tury
+
+            TurnManager turnMgr = new(map, playerManager);
+
+            while (!endDetector.GameIsEnded)
+            {
+                Move move = await turnMgr.MakeMove(token);
+                await executor.Execute(move);
+
+                turnManager.NextTurn();
+            }
+
         }
 
         public Task PauseOrResume()

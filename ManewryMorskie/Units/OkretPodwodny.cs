@@ -7,15 +7,10 @@ namespace ManewryMorskie
     {
         public override uint Step => 2;
 
-        protected override IEnumerable<Type> StrongerUnitsIfTheyAttackFirst => _strongerUnitsIfTheyAttackFirst;
-        private readonly static Type[] _strongerUnitsIfTheyAttackFirst = new Type[]
-        {
-            typeof(Niszczyciel),
-        };
         protected override IEnumerable<Type> StrongerUnits => _strongerUnits;
         private readonly static Type[] _strongerUnits = new[]
         {
-            typeof(OkretPodwodny),
+            typeof(Niszczyciel),
             typeof(Eskortowiec),
             typeof(Mina),
             typeof(Bateria),

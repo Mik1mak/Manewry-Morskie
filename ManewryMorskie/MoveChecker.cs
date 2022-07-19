@@ -9,30 +9,37 @@ namespace ManewryMorskie
     {
         private StandardMap map;
         private PlayerManager playerMgr;
-        private CellLocation source;
         private IPathFinder? pathFinder;
+
+        public CellLocation From { get; private set; }
+
 
         public MoveChecker(StandardMap map, PlayerManager playerMgr, CellLocation source)
         {
             this.map = map;
             this.playerMgr = playerMgr;
-            this.source = source;
+            this.From = source;
 
-            if (map[source].Unit == null)
-                pathFinder = new DijkstraPathFinder(map, source);
+            UpdatePaths();
+        }
+
+        public void UpdatePaths()
+        {
+            if (map[From].Unit == null)
+                pathFinder = new DijkstraPathFinder(map, From);
         }
 
         public IEnumerable<CellLocation> Moveable()
         {
-            if (map[source].Unit == null)
+            if (map[From].Unit == null)
                 return Array.Empty<CellLocation>();
 
-            return pathFinder!.CellsWhereDistanceFromSourceIsLowerThan(map[source].Unit!.Step + 1);
+            return pathFinder!.CellsWhereDistanceFromSourceIsLowerThan(map[From].Unit!.Step + 1);
         }
 
         public IEnumerable<CellLocation> AttackableOrDisarmable()
         {
-            Unit? unit = map[source].Unit;
+            Unit? unit = map[From].Unit;
 
             if (unit == null)
                 return Array.Empty<CellLocation>();
@@ -47,13 +54,13 @@ namespace ManewryMorskie
 
         public IEnumerable<CellLocation> Minable()
         {
-            if (map[source].Unit == null || map[source].Unit!.GetType() != typeof(Tralowiec))
+            if (map[From].Unit == null || map[From].Unit!.GetType() != typeof(Tralowiec))
                 return Array.Empty<CellLocation>();
 
             if(playerMgr.CurrentPlayer.Fleet.UsedMines >= Fleet.UnitLimits[typeof(Mina)])
                 return Array.Empty<CellLocation>();
 
-            return pathFinder!.CellsWhereDistanceFromSourceIsLowerThan(map[source].Unit!.Step + 2);
+            return From.SquereRegion(1);
         }
 
         public IEnumerable<CellLocation> PathTo(CellLocation target)
@@ -66,10 +73,13 @@ namespace ManewryMorskie
 
         public bool UnitIsSelectable()
         {
-            if (map[source].Unit == null)
+            if (map[From].Unit == null)
                 return false;
 
-            return AttackableOrDisarmable().Count() > 0 || Moveable().Count() > 0 || Minable().Count() > 0;
+            if (map[From].Unit!.GetType() == typeof(Mina))
+                return false;
+
+            return AttackableOrDisarmable().Any() || Moveable().Any() || Minable().Any();
         }
     }
 }

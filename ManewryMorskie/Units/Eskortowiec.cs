@@ -6,12 +6,10 @@ namespace ManewryMorskie
     public class Eskortowiec : Unit
     {
         public override uint Step => 3;
-        protected override IEnumerable<Type> StrongerUnitsIfTheyAttackFirst => Array.Empty<Type>();
 
         protected override IEnumerable<Type> StrongerUnits => _strongerUnits;
         private readonly static Type[] _strongerUnits = new[]
         {
-            typeof(Eskortowiec),
             typeof(Pancernik),
             typeof(OkretRakietowy),
             typeof(Krazownik),

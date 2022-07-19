@@ -31,12 +31,12 @@ namespace ManewryMorskie
 
         public int ActiveUnitsCount<T>() where T : Unit
         {
-            return units.Count(u => u.GetType() == typeof(T));
+            return units.Count(u => u is T);
         }
 
         public int DestroyedUnitsCount<T>() where T : Unit
         {
-            return destroyedUnits.Count(u => u.GetType() == typeof(T));
+            return destroyedUnits.Count(u => u is T);
         }
 
         public int UnitsCount<T>() where T : Unit

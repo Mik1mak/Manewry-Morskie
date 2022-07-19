@@ -4,40 +4,27 @@ using System;
 
 namespace ManewryMorskie
 {
+    public enum BattleResult
+    {
+        None,
+        TargetDestroyed,
+        SourceDestroyed,
+        Draw,
+    }
+
     public class Move
     {
         public CellLocation From { get; set; }
         public CellLocation To { get; set; }
         public string SourceUnitDescription { get; set; } = string.Empty;
-        public string? DestinationUnitDescription { get; set; }
+        public string? TargetUnitDescription { get; set; }
 
-        private CellLocation? disarm;
-        public CellLocation? Disarm
-        {
-            get => disarm;
-            set
-            {
-                if (!attack.HasValue && value.HasValue)
-                    disarm = value;
-                else
-                    throw new InvalidOperationException();
-            }
-        }
+        public CellLocation? Disarm { get; set; }
+        public CellLocation? Attack { get; set; }
 
-        private CellLocation? attack;
-        public CellLocation? Attack 
-        {
-            get => attack;
-            set
-            {
-                if (!disarm.HasValue && value.HasValue)
-                    attack = value;
-                else
-                    throw new InvalidOperationException();
-            }
-        }
-        //TODO info kto pokonany
+        public BattleResult Result { get; set; } = BattleResult.None;
 
-        public IEnumerable<CellLocation> Path { get; set; } = new HashSet<CellLocation>();
+        public ICollection<CellLocation> SetMines { get; set; } = Array.Empty<CellLocation>();
+        public IEnumerable<CellLocation> Path { get; set; } = Array.Empty<CellLocation>();
     }
 }

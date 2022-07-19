@@ -16,6 +16,9 @@ namespace ManewryMorskie
         public Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode);
         public Task ExecuteMove(Move mv);
         public Task DisplayMessage(string message, MessageType msgType = MessageType.Standard);
+
+        public Task TakeOffPawn(CellLocation location);
+        public Task PlacePawn(CellLocation location, int playerColor, bool battery = false, string pawnDescription = "");
     }
 
 }

@@ -6,15 +6,11 @@ namespace ManewryMorskie
     public class Niszczyciel : Unit
     {
         public override uint Step => 4;
-        protected override IEnumerable<Type> StrongerUnitsIfTheyAttackFirst => _strongerUnitsIfTheyAttackFirst;
-        private readonly static Type[] _strongerUnitsIfTheyAttackFirst = new Type[]
-        {
-            typeof(OkretPodwodny),
-        };
+
         protected override IEnumerable<Type> StrongerUnits => _strongerUnits;
         private readonly static Type[] _strongerUnits = new[]
         {
-            typeof(Niszczyciel),
+            typeof(OkretPodwodny),
             typeof(OkretRakietowy),
             typeof(Krazownik),
             typeof(Pancernik),
