@@ -35,11 +35,15 @@ namespace CellLib
 
         public static bool Contain(this Ways ways, Ways way) => (ways & way) == way;
 
-        public static Ways NextWay(this Ways way, uint step)
+        public static Ways NextWay(this Ways way, uint steps)
         {
-            int fixedStep = (int)step % 8;
+            int fixedStep = (int)steps % 8;
             int val = (int)way << fixedStep;
-            return (Ways)(val == 256 ? 1 : val);
+
+            if (val >= 256)
+                val >>= 8;
+
+            return (Ways)val;
         }
 
         public static IList<CellLocation> NextLocations(this CellLocation start, Ways ways, int length = 1)

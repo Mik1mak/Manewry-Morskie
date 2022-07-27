@@ -153,18 +153,20 @@ namespace ManewryTests
 
             List<(CellLocation, Ways)> expected = new()
             {
-                ((0, 3), Ways.Top | Ways.Left | Ways.TopLeft),
-                ((11, 17), Ways.Top | Ways.Right | Ways.TopRight),
+                ((0, 3), Ways.Top | Ways.Left | Ways.TopLeft | Ways.TopRight | Ways.BottomLeft),
+                ((11, 17), Ways.Top | Ways.Right | Ways.TopRight | Ways.TopLeft | Ways.BottomRight),
 
-                ((4, 3), Ways.Top | Ways.Right | Ways.TopRight),
-                ((1, 3), Ways.Top | Ways.Right | Ways.TopRight),
+                ((4, 3), Ways.Top | Ways.Right | Ways.TopRight | Ways.TopLeft | Ways.BottomRight),
+                ((1, 3), Ways.Top | Ways.Right | Ways.TopRight | Ways.TopLeft),
                 ((2, 3), Ways.Right | Ways.Left),
-                ((3, 3), Ways.Top | Ways.Left | Ways.TopLeft),
+                ((3, 3), Ways.Top | Ways.Left | Ways.TopLeft | Ways.TopRight),
 
-                ((9, 1), Ways.Right | Ways.Left),
-                ((6, 15), Ways.Top | Ways.Right | Ways.TopRight),
+                ((9, 1), Ways.Right | Ways.Left | Ways.TopRight),
+                ((6, 15), Ways.Top | Ways.Right | Ways.TopRight | Ways.TopLeft | Ways.BottomRight),
                 ((9, 14), Ways.Left | Ways.Right),
-                ((4, 16), Ways.Bottom),
+                ((4, 16), Ways.Bottom | Ways.BottomLeft | Ways.BottomRight),
+
+                ((6, 1), Ways.TopLeft | Ways.Top | Ways.TopRight)
             };
 
             foreach (var item in expected)
@@ -215,6 +217,28 @@ namespace ManewryTests
 
             Assert.Pass();
         }
-    
+
+
+        [Test]
+        public void NextWay()
+        {
+            List <(Ways way, uint step, Ways expected)> tests = new()
+            {
+                (Ways.Top, 1, Ways.TopRight),
+                (Ways.Top, 8, Ways.Top),
+                (Ways.Top, 7, Ways.TopLeft),
+                (Ways.Top, 4, Ways.Bottom),
+                (Ways.Top, 10, Ways.Right),
+
+                (Ways.TopLeft, 1, Ways.Top),
+                (Ways.TopLeft, 3, Ways.Right),
+            };
+
+            foreach (var (way, step, expected) in tests)
+                if (way.NextWay(step) != expected)
+                    Assert.Fail();
+
+            Assert.Pass();
+        }
     }
 }
