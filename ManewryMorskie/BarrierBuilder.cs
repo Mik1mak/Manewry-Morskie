@@ -67,7 +67,7 @@ namespace ManewryMorskie
                         result |= way.NextWay(1);
                 }
             }
-                
+
 
             return result;
         }
