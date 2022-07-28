@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryTests", "ManewryTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CellLib", "CellsLib\CellLib.csproj", "{A737BFF0-019F-4D6A-9666-6212978067BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManewryMorskie.WebApp", "ManewryMorskie.WebApp\ManewryMorskie.WebApp.csproj", "{C11B7C48-9880-4A93-B3FB-28CFB9718811}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryMorskie.WebApp", "ManewryMorskie.WebApp\ManewryMorskie.WebApp.csproj", "{C11B7C48-9880-4A93-B3FB-28CFB9718811}"
 	ProjectSection(ProjectDependencies) = postProject
 		{981674E3-0ED4-4D4F-A6FD-9BCACC00F7A5} = {981674E3-0ED4-4D4F-A6FD-9BCACC00F7A5}
 	EndProjectSection

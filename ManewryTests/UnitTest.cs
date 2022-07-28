@@ -220,7 +220,7 @@ namespace ManewryTests
 
 
         [Test]
-        public void NextWay()
+        public void RotateWays()
         {
             List <(Ways way, uint step, Ways expected)> tests = new()
             {
@@ -232,10 +232,17 @@ namespace ManewryTests
 
                 (Ways.TopLeft, 1, Ways.Top),
                 (Ways.TopLeft, 3, Ways.Right),
+
+                (Ways.Right | Ways.BottomRight, 2, Ways.Bottom | Ways.BottomLeft),
+                (Ways.Left | Ways.TopLeft, 1, Ways.TopLeft | Ways.Top),
+                (Ways.Right | Ways.Bottom, 2, Ways.Left | Ways.Bottom),
+                (Ways.Left | Ways.Bottom, 4, Ways.Top | Ways.Right),
+
+                (Ways.Top | Ways.Right | Ways.Bottom | Ways.Left, 1, Ways.TopRight | Ways.BottomRight | Ways.BottomLeft | Ways.TopLeft),
             };
 
             foreach (var (way, step, expected) in tests)
-                if (way.NextWay(step) != expected)
+                if (way.RotateWays(step) != expected)
                     Assert.Fail();
 
             Assert.Pass();

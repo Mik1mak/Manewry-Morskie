@@ -1,0 +1,69 @@
+﻿<BSNavbar Color="BSColor.Dark" IsDark="true">
+    <form class="container-fluid flex-row justify-content-between">
+        <BSNavbarBrand MarginLeftAndRight="Margins.ExtraSmall">Manewry Morskie</BSNavbarBrand>
+        <BSNav Class="d-flex flex-row">
+            <BSNavItem IsDropdown="true">
+                <BSButtonGroup DropdownPlacement="Placement.BottomEnd">
+                    <BSDropdown IsDiv="true" Class="dropdown-menu-dark">
+                        <Toggler>
+                            <BSToggle IsButton="true" IsOutlined="true" Color="BSColor.Light" MarginLeftAndRight="Margins.Small">
+                                <span class="oi oi-media-play"></span>
+                                <span class="d-none d-md-inline">  Nowa Gra</span>
+                            </BSToggle>
+                        </Toggler>
+                        <Content>
+                            <BSDropdownItem>Hot Seat</BSDropdownItem>
+                            <BSDropdownItem IsDisabled="true">Online</BSDropdownItem>
+                        </Content>
+                    </BSDropdown>
+                </BSButtonGroup>
+            </BSNavItem> 
+            <BSNavItem IsDropdown="true">
+                <BSButtonGroup DropdownPlacement="Placement.BottomEnd">
+                    <BSDropdown IsDiv="true" Class="dropdown-menu-dark">
+                        <Toggler>
+                            <BSToggle IsButton="true" IsOutlined="true" Color="BSColor.Light" MarginLeftAndRight="Margins.Small">
+                                <span class="oi oi-question-mark"></span>
+                                <span class="d-none d-md-inline">  Zasady</span>
+                            </BSToggle>
+                        </Toggler>
+                        <Content>
+                            <BSDropdownItem>Instrukcja</BSDropdownItem>
+                            <BSDropdownItem>Tabela jednostek</BSDropdownItem>
+                        </Content>
+                    </BSDropdown>
+                </BSButtonGroup>
+            </BSNavItem>
+            <BSNavItem IsDropdown="true">
+                <BSButtonGroup MarginLeftAndRight="Margins.Small">
+                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => ChangeZoom(-20)">
+                        <span class="oi oi-zoom-out"></span>
+                        <span class="d-none d-md-inline"> Oddal</span>
+                    </BSButton>
+                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => Zoom = DEFAULT_ZOOM">
+                        @Zoom%
+                    </BSButton>
+                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => ChangeZoom(20)">
+                        <span class="oi oi-zoom-in"></span>
+                        <span class="d-none d-md-inline"> Przybliż</span>
+                    </BSButton>
+                </BSButtonGroup>
+            </BSNavItem>
+        </BSNav>
+    </form>
+</BSNavbar>
+
+@code 
+{
+    private const int MAX_ZOOM = 200;
+    private const int MIN_ZOOM = 100;
+    private const int DEFAULT_ZOOM = MIN_ZOOM;
+
+    public int Zoom { get; set; } = DEFAULT_ZOOM;
+
+    public void ChangeZoom(int step)
+    {
+        if(Zoom + step <= MAX_ZOOM && Zoom + step >= MIN_ZOOM)
+            Zoom += step;
+    }
+}

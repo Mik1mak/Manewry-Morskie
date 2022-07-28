@@ -63,16 +63,16 @@ namespace ManewryMorskie
                 {
                     result |= way;
 
-                    CellLocation neighbourCell = location + way.NextWay(2);
+                    CellLocation neighbourCell = location + way.RotateWays(2);
 
                     if (IsBarrierBetween(location, neighbourCell)
                         || IsBarrierBetween(neighbourCell, neighbourCell + way))
-                        result |= way.NextWay(1);
+                        result |= way.RotateWays(1);
 
-                    neighbourCell = location + way.NextWay(6);
+                    neighbourCell = location + way.RotateWays(6);
 
                     if (IsBarrierBetween(neighbourCell, neighbourCell + way))
-                        result |= way.NextWay(7);
+                        result |= way.RotateWays(7);
                 }
             }
 

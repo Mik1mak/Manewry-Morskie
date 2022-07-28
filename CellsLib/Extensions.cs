@@ -35,13 +35,13 @@ namespace CellLib
 
         public static bool Contain(this Ways ways, Ways way) => (ways & way) == way;
 
-        public static Ways NextWay(this Ways way, uint steps)
+        public static Ways RotateWays(this Ways ways, uint stepsToRight)
         {
-            int fixedStep = (int)steps % 8;
-            int val = (int)way << fixedStep;
+            int fixedStep = (int)stepsToRight % 8;
+            int val = (int)ways << fixedStep;
 
             if (val >= 256)
-                val >>= 8;
+                val = (val % 256) + (val >> 8);
 
             return (Ways)val;
         }

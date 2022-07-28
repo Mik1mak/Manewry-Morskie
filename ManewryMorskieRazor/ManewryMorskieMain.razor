@@ -1,33 +1,33 @@
-﻿@using Blazor.Extensions
-@using Blazor.Extensions.Canvas.Canvas2D
-
-<img @ref="boardImage" hidden id="boardImage" src="_content/ManewryMorskieRazor/Board.svg" />
-
-<div>
-    <BECanvas Width="720" Height="1080" @ref="canvasReference" ></BECanvas>
-</div>
-
+﻿<ManewryMorskieNav />
+<BSContainer>
+    <BSRow>
+        <BSCol>
+            StatusBar
+        </BSCol>
+    </BSRow>
+    <BSRow>
+        <BSCol>
+            Canvas
+        </BSCol>
+    </BSRow>
+</BSContainer>
 
 @code
 {
-    private ElementReference boardImage;
 
-    private Canvas2DContext? context;
-    protected BECanvasComponent? canvasReference;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    public class Cell
     {
-        this.context = await this.canvasReference.CreateCanvas2DAsync();
+        public Cell()
+        {
+        }
+    }
 
-        await Task.Delay(2);
-
-        await this.context.BeginBatchAsync();
-
-        await this.context.DrawImageAsync(boardImage, 0, 0, 720, 1080);
-
-        await this.context.SetFontAsync("24px serif");
-        await this.context.StrokeTextAsync(boardImage.Id, 10, 20);
-
-        await this.context.EndBatchAsync();
+    public class Board : RectangleCellMap<Cell>
+    {
+        public Board() : base(12, 18)
+        {
+            
+        }
     }
 }
