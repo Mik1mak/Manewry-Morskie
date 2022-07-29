@@ -1,6 +1,21 @@
-﻿<BSNavbar Color="BSColor.Dark" IsDark="true">
+﻿<MyBSModal Id="instruction-modal" Header="Zasady gry">
+    <Content>
+        <div class="d-flex flex-column">
+            <iframe style="min-height:580px" class="flex-grow" src="_content/ManewryMorskieRazor/texts/GameInstruction.html"></iframe>
+        </div>
+    </Content>
+</MyBSModal>
+<MyBSModal Id="table-modal" Header="Jednostki">
+    <Content>
+        <div class="d-flex flex-column">
+            <iframe style="min-height:580px" class="flex-grow" src="_content/ManewryMorskieRazor/texts/UnitsPowerTable.html"></iframe>
+        </div>
+    </Content>
+</MyBSModal>
+
+<BSNavbar Color="BSColor.Dark" IsDark="true">
     <form class="container-fluid flex-row justify-content-between">
-        <BSNavbarBrand MarginLeftAndRight="Margins.ExtraSmall">Manewry Morskie</BSNavbarBrand>
+        <BSNavbarBrand MarginLeftAndRight="Margins.ExtraSmall" Class="d-none d-md-inline">Manewry Morskie</BSNavbarBrand>
         <BSNav Class="d-flex flex-row">
             <BSNavItem IsDropdown="true">
                 <BSButtonGroup DropdownPlacement="Placement.BottomEnd">
@@ -28,22 +43,26 @@
                             </BSToggle>
                         </Toggler>
                         <Content>
-                            <BSDropdownItem>Instrukcja</BSDropdownItem>
-                            <BSDropdownItem>Tabela jednostek</BSDropdownItem>
+                            <BSDropdownItem 
+                                Attributes='new Dictionary<string, object>(){{"data-bs-toggle", "modal"}, {"data-bs-target", "#instruction-modal"}}'>
+                                Zasady gry</BSDropdownItem>
+                            <BSDropdownItem
+                                Attributes='new Dictionary<string, object>(){{"data-bs-toggle", "modal"}, {"data-bs-target", "#table-modal"}}'>
+                                Tabela jednostek</BSDropdownItem>
                         </Content>
                     </BSDropdown>
                 </BSButtonGroup>
             </BSNavItem>
             <BSNavItem IsDropdown="true">
                 <BSButtonGroup MarginLeftAndRight="Margins.Small">
-                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => ChangeZoom(-20)">
+                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => ChangeZoom(-20)" IsDisabled="@CanZoomOut">
                         <span class="oi oi-zoom-out"></span>
                         <span class="d-none d-md-inline"> Oddal</span>
                     </BSButton>
                     <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => Zoom = DEFAULT_ZOOM">
                         @Zoom%
                     </BSButton>
-                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => ChangeZoom(20)">
+                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => ChangeZoom(20)" IsDisabled="@CannotZoomIn">
                         <span class="oi oi-zoom-in"></span>
                         <span class="d-none d-md-inline"> Przybliż</span>
                     </BSButton>
@@ -55,11 +74,14 @@
 
 @code 
 {
-    private const int MAX_ZOOM = 200;
+    private const int MAX_ZOOM = 260;
     private const int MIN_ZOOM = 100;
     private const int DEFAULT_ZOOM = MIN_ZOOM;
 
-    public int Zoom { get; set; } = DEFAULT_ZOOM;
+    public int Zoom { get; private set; } = DEFAULT_ZOOM;
+
+    private bool CanZoomOut => Zoom == MIN_ZOOM;
+    private bool CannotZoomIn => Zoom == MAX_ZOOM;
 
     public void ChangeZoom(int step)
     {

@@ -1,0 +1,48 @@
+﻿<div id="@Id" class="modal" tabindex="-1" data-bs-keyboard="@BsKeyboard" data-bs-backdrop="@BsBackdrop">
+    <div class="@ModalClasses">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Header</h5>
+                @if(!IsStatic)
+                {
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>    
+                }
+            </div>
+            <div class="modal-body">
+                @Content
+            </div>
+            @if(Footer is not null)
+            {
+                <div class="modal-footer">
+                    @Footer
+                </div>    
+            }
+        </div>
+    </div>
+</div>
+
+
+@code 
+{
+    [Parameter]
+    public string? Id { get; set; }
+
+    [Parameter]
+    public string? Header { get; set; }
+
+    [Parameter]
+    public bool IsStatic { get; set; } = false;
+
+    [Parameter]
+    public bool IsLarge { get; set; } = true;
+
+    private string BsKeyboard => IsStatic ? "false" : "true";
+    private string BsBackdrop => IsStatic ? "static" : "true";
+    private string ModalClasses => IsLarge ? "modal-dialog modal-lg" : "modal-dialog";
+
+    [Parameter]
+    public RenderFragment? Content { get; set; }
+
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+}

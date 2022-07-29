@@ -1,5 +1,6 @@
 using BlazorStrap;
 using ManewryMorskie.WebApp;
+using ManewryMorskieRazor;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -9,5 +10,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddBlazorStrap();
+builder.Services.AddScoped<BootstrapInterop>();
+builder.Services.AddScoped<DialogService>();
 
 await builder.Build().RunAsync();

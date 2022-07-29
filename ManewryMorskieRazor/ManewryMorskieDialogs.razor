@@ -1,0 +1,96 @@
+﻿@implements IDisposable
+
+@inject DialogService DialogService
+@inject BootstrapInterop Bootstrap
+
+<MyBSModal Id="@MESSAGE_MODAL_ID" IsLarge="false" Header="Informacja">
+    <Content>
+        @Message.message
+    </Content>
+</MyBSModal>
+
+<MyBSModal Id="@OPTIONS_MODAL_ID" IsStatic="true" IsLarge="false" Header="@OptionsTitle">
+    <Content>
+        <div clss="list-group">
+            @if(OptionsSet != null)
+            {
+                foreach(var (option, index) in OptionsSet.Select((option, index) => (option, index)))
+                {
+                    <a href="#" class="list-group-item list-group-item-action list-group-item-primary p-2 mt-1"
+                        @onclick="async () => await ChooseOption(index)">
+                        @option
+                    </a>
+                }
+            }
+                
+        </div>
+    </Content>
+</MyBSModal>
+
+@if(!string.IsNullOrEmpty(SideMessage))
+{
+    <div class="bg-info bg-gradient p-1 text-center">@SideMessage</div>
+}
+
+@code
+{
+    public const string MESSAGE_MODAL_ID = "message-modal";
+    public const string OPTIONS_MODAL_ID = "options-modal";
+
+    public string SideMessage { get; private set; } = string.Empty;
+    public (string message, MessageType msgType) Message { get; private set; }
+
+    public string OptionsTitle { get; private set; } = "Wybierz";
+    private string[]? OptionsSet;
+
+    protected override void OnInitialized()
+    {
+        DialogService.NewMessage += OnMessage;
+        DialogService.NewOptionsSet += OnNewOptionsSet;
+    }
+
+    public async Task OnMessage(string msg, MessageType msgType)
+    {
+        await InvokeAsync(async () =>
+        {
+            if (msgType == MessageType.SideMessage)
+            {
+                SideMessage = msg;
+            }
+            else if (msgType == MessageType.Empty)
+            {
+                SideMessage = string.Empty;
+            }
+            else
+            {
+                Message = (msg, msgType);
+                await Bootstrap.ToogleModal(MESSAGE_MODAL_ID, true);
+            }
+
+            StateHasChanged();
+        });
+    }
+
+    public async Task OnNewOptionsSet(string title, string[] options)
+    {
+        await InvokeAsync(async () =>
+        {
+            OptionsTitle = title;
+            OptionsSet = options;
+            await Bootstrap.ToogleModal(OPTIONS_MODAL_ID, true);
+            StateHasChanged();
+        });
+    }
+
+    private async ValueTask ChooseOption(int optionId)
+    {
+        DialogService.ChooseOption(optionId);
+        await Bootstrap.ToogleModal(OPTIONS_MODAL_ID, false);
+    }
+
+    public void Dispose()
+    {
+        DialogService.NewMessage -= OnMessage;
+        DialogService.NewOptionsSet -= OnNewOptionsSet;
+    }
+}
