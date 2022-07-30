@@ -1,4 +1,5 @@
 ﻿using CellLib;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,29 +30,41 @@ namespace ManewryMorskie
                 (MoveChecker? moveChecker, _)= parent.selectable[locationToSelect];
 
                 foreach (CellLocation moveableLocation in moveChecker!.Moveable())
-                    parent.selectable[moveableLocation].actions.Add(new MoveAction(moveableLocation, moveChecker));
+                    AddAction(moveableLocation, new MoveAction(moveableLocation, moveChecker));
 
                 foreach (CellLocation minableLocation in moveChecker!.Minable())
-                    parent.selectable[minableLocation].actions.Add(new SetMineAction(minableLocation, parent));
+                    AddAction(minableLocation, new SetMineAction(minableLocation, parent));
 
                 foreach (CellLocation attackableOrDisarmableLcation in moveChecker!.AttackableOrDisarmable())
                 {
+                    Unit attacker = parent.map[parent.selectedUnitLocation!.Value].Unit!;
+                    Unit target = parent.map[attackableOrDisarmableLcation].Unit!;
+                    MoveChecker checker = parent.selectable[parent.selectedUnitLocation!.Value].moveChecker!;
+
                     AttackAction atkAction = new(
-                        parent.map[parent.selectedUnitLocation!.Value].Unit!,
-                        parent.map[attackableOrDisarmableLcation].Unit!,
+                        attacker,
+                        target,
                         parent.playerManager,
-                        parent.selectable[attackableOrDisarmableLcation].moveChecker!,
+                        checker,
                         attackableOrDisarmableLcation);
 
-                    parent.selectable[attackableOrDisarmableLcation].actions.Add(atkAction);
+                    AddAction(attackableOrDisarmableLcation, atkAction);
 
                     if (parent.map[locationToSelect].Unit?.GetType() == typeof(Tralowiec))
-                        parent.selectable[attackableOrDisarmableLcation].actions.Add(new DiasrmAction(atkAction));
+                        AddAction(attackableOrDisarmableLcation, new DiasrmAction(atkAction));
                 }
 
                 await parent.PlayerUi.DisplayMessage("Wybierz działanie", MessageType.SideMessage);
 
                 return await Task.FromResult(false);
+            }
+
+            private void AddAction(CellLocation location, ICellAction action)
+            {
+                if (!parent.selectable.ContainsKey(location))
+                    parent.selectable.Add(location, (null, new List<ICellAction>()));
+
+                parent.selectable[location].actions.Add(action);
             }
 
             private void ClearNonSelectableUnitActions()

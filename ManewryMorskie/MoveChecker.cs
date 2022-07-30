@@ -20,7 +20,7 @@ namespace ManewryMorskie
             this.playerMgr = playerMgr;
             this.From = source;
 
-            UpdatePaths();
+            pathFinder = new DijkstraPathFinder(map, From);
         }
 
         public void UpdatePaths()

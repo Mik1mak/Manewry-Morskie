@@ -101,13 +101,13 @@ namespace ManewryMorskie
             Task currentPlayerPlacingTask = currentPlacingMgr.PlacePawns(token);
 
             if (!AsyncGame)
-                Task.WaitAll(currentPlayerPlacingTask);
+                await Task.WhenAll(currentPlayerPlacingTask);
 
             IPlacingManager opositePlacingMgr
                 = new PawnsPlacingManager(map, playerManager, playerManager.GetOpositePlayer(playerManager.CurrentPlayer));
             Task opositePlayerPlacingTask = opositePlacingMgr.PlacePawns(token);
 
-            Task.WaitAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
+            await Task.WhenAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
 
 
             TurnManager turnMgr = new(map, playerManager);

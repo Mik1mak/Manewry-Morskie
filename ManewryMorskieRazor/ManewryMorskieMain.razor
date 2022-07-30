@@ -1,8 +1,30 @@
-﻿<ManewryMorskieToolBar />
-<ManewryMorskieDialogs />
+﻿@inject DialogService Dialogs
 
+<div class="d-flex h-100 flex-column">
+    <ManewryMorskieToolBar />
+    <ManewryMorskieDialogs />
+    <div id="game-bg" class="w-100 flex-grow-1 text-light overflow-auto">
+        <div id="board" class="scaled">
+            <table>
+                @for (uint i = 1; i <= HEIGHT; i++)
+                {
+                    uint row = HEIGHT - i;
 
+                    <tr class="board-row">
+                        @for (uint j = 0; j < WIDTH; j++)
+                        {
+                            uint column = j;
+
+                            <BoardCell Row="row" Column="column" />
+                        }
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+</div>
 @code
 {
-
+    public const int WIDTH = 12;
+    public const int HEIGHT = 18;
 }

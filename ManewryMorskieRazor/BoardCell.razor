@@ -1,0 +1,84 @@
+﻿@implements IDisposable
+
+@inject BoardService BoardService
+@inject UserInterface ui
+
+<td class="board-cell" @onclick="CellClicked">
+    <div class="@CellCss">
+        @if(!string.IsNullOrEmpty(UnitLabel))
+        {
+            <span class="unit-label">@UnitLabel</span>
+        }
+    </div>
+</td>
+
+@code 
+{
+    [Parameter]
+    public uint Row { get; set; }
+
+    [Parameter]
+    public uint Column { get; set; }
+
+    private CellLocation Location => ((int)Column, (int)Row);
+
+    public string? UnitLabel { get; set; }
+
+    public string CellCss { get; private set; } = "board-cell-mark";
+
+    protected override void OnInitialized()
+    {
+        BoardService[Location].CellMarked += MarkCell;
+        BoardService[Location].PawnPlaced += PlacePawn;
+    }
+
+    private void CellClicked()
+    {
+        ui.Click(Location);
+    }
+
+    private async Task MarkCell(MarkOptions option)
+    {
+        await InvokeAsync(() =>
+        {
+            string baseStr = "board-cell-mark ";
+
+            switch(option)
+            {
+                case MarkOptions.None:
+                    CellCss = baseStr;
+                    break;
+                case MarkOptions.Selectable:
+                    CellCss = baseStr + "selectable-color";
+                    break;
+                case MarkOptions.Selected:
+                    CellCss = baseStr + "selected-color";
+                    break;
+               case MarkOptions.Moveable:
+                    CellCss = baseStr + "moveable-color";
+                    break;
+                default:
+                    CellCss = "board-cell-mark bg-info";
+                    break;
+            }
+
+            StateHasChanged();
+        });
+    }
+
+    private async Task PlacePawn(int playerColor, bool battery, string pawnDescription)
+    {
+        await InvokeAsync(() =>
+        {
+            UnitLabel = pawnDescription;
+
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        BoardService[Location].CellMarked -= MarkCell;
+        BoardService[Location].PawnPlaced -= PlacePawn;
+    }
+}

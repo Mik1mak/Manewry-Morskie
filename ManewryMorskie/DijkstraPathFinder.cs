@@ -42,7 +42,7 @@ namespace ManewryMorskie
                 CellLocation tmp = queue.Dequeue();
                 Ways neighborhood = map.AvaibleWaysFrom(tmp);
 
-                foreach (CellLocation neighbor in neighborhood.EverySingleWay().Select(way => tmp + way))
+                foreach (CellLocation neighbor in neighborhood.EverySingleWay().Select(way => tmp + way).Where(l => queue.Contains(l)))
                 {
                     int alt = distances[tmp] + 1;
 
@@ -50,6 +50,7 @@ namespace ManewryMorskie
                     {
                         distances[neighbor] = alt;
                         previousCells[neighbor] = tmp;
+
                         queue.UpdatePriority(neighbor, alt);
                     }
                 }

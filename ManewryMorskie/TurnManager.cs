@@ -99,20 +99,20 @@ namespace ManewryMorskie
 
         private async ValueTask UpdateMarks()
         {
-            Task mark = PlayerUi.MarkCells(map.Keys, MarkOptions.None);
+            await PlayerUi.MarkCells(map.Keys, MarkOptions.None);
 
             Dictionary<MarkOptions, HashSet<CellLocation>> buffer = new()
             {
                 { MarkOptions.Selectable, new() },
                 { MarkOptions.Minable, new() },
                 { MarkOptions.Attackable, new() },
+                { MarkOptions.Moveable, new() },
             };
 
             foreach (var item in selectable)
                 foreach (ICellAction option in item.Value.actions)
                     buffer[option.MarkMode].Add(item.Key);
 
-            Task.WaitAll(mark);
             foreach (var item in buffer)
                 await PlayerUi.MarkCells(item.Value, item.Key);
 

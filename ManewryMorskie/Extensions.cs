@@ -22,7 +22,7 @@ namespace ManewryMorskie
             this RectangleCellMap<MapField> map,
             params CellLocation[] internationalWaters)
         {
-            return map.MarkInternationalWaters(internationalWaters);
+            return map.MarkInternationalWaters((IEnumerable<CellLocation>)internationalWaters);
         }
     }
 }

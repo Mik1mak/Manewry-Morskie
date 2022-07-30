@@ -1,4 +1,6 @@
-﻿<MyBSModal Id="instruction-modal" Header="Zasady gry">
+﻿@inject GameService Game
+
+<MyBSModal Id="instruction-modal" Header="Zasady gry">
     <Content>
         <div class="d-flex flex-column">
             <iframe style="min-height:580px" class="flex-grow" src="_content/ManewryMorskieRazor/texts/GameInstruction.html"></iframe>
@@ -27,7 +29,7 @@
                             </BSToggle>
                         </Toggler>
                         <Content>
-                            <BSDropdownItem>Hot Seat</BSDropdownItem>
+                            <BSDropdownItem @onclick="async () => await Game.RunGame()">Hot Seat</BSDropdownItem>
                             <BSDropdownItem IsDisabled="true">Online</BSDropdownItem>
                         </Content>
                     </BSDropdown>
@@ -74,9 +76,9 @@
 
 @code 
 {
-    private const int MAX_ZOOM = 260;
-    private const int MIN_ZOOM = 100;
-    private const int DEFAULT_ZOOM = MIN_ZOOM;
+    private const int MAX_ZOOM = 200;
+    private const int MIN_ZOOM = 40;
+    private const int DEFAULT_ZOOM = 100;
 
     public int Zoom { get; private set; } = DEFAULT_ZOOM;
 

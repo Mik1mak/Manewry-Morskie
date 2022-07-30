@@ -62,7 +62,7 @@ namespace ManewryMorskie
         {
             Type unitType = unit.GetType();
 
-            if (UnitLimits[unitType] >= UnitsCount(unitType))
+            if (UnitLimits[unitType] <= UnitsCount(unitType))
                 throw new ArgumentException("The limit of this unit type has been reached.");
 
             units.Add(unit);

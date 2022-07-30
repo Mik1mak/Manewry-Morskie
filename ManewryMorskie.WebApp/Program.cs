@@ -1,4 +1,3 @@
-using BlazorStrap;
 using ManewryMorskie.WebApp;
 using ManewryMorskieRazor;
 using Microsoft.AspNetCore.Components.Web;
@@ -9,8 +8,6 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-builder.Services.AddBlazorStrap();
-builder.Services.AddScoped<BootstrapInterop>();
-builder.Services.AddScoped<DialogService>();
+builder.Services.AddManewryMorskieGame();
 
 await builder.Build().RunAsync();

@@ -62,9 +62,9 @@ namespace ManewryMorskie
                 MiddleSimmetricElementTo(location).Owner = players.TopPlayer;
             }
 
-            this.MarkInternationalWaters((5, 8).NextLocations(Ways.All))
-                .MarkInternationalWaters((6, 9).NextLocations(Ways.All))
-                .MarkInternationalWaters((6, 6), (5, 11));
+            this.MarkInternationalWaters((5, 8).NextLocations(Ways.All));
+            this.MarkInternationalWaters((6, 9).NextLocations(Ways.All));
+            this.MarkInternationalWaters((6, 6), (5, 11));
 
             foreach (MapField mapField in this)
                 mapField.PropertyChanged += MapField_PropertyChanged;

@@ -247,5 +247,14 @@ namespace ManewryTests
 
             Assert.Pass();
         }
+
+        //[Test]
+        //public void StandardMapTest()
+        //{
+        //    PlayerManager mgr = new(new(), new(null), new(null));
+        //    var map = StandardMap.DefaultMap(mgr);
+
+        //    Assert.Pass();
+        //}
     }
 }
