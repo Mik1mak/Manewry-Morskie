@@ -1,13 +1,16 @@
 ﻿@implements IDisposable
 
 @inject BoardService BoardService
-@inject UserInterface ui
+@inject UserInterface Ui
+@inject BoardTransformService BoardTransform
 
 <td class="board-cell" @onclick="CellClicked">
     <div class="@CellCss">
         @if(PawnOnCell.HasValue)
         {
-            <div class="@(PawnOnCell.Value.PawnCss)" title="@(PawnOnCell.Value.Label)">@(PawnOnCell.Value.Label)</div>
+            <div style="@pawnStyle" class="@(PawnOnCell.Value.PawnCss)" title="@(PawnOnCell.Value.Label)">
+                @(PawnOnCell.Value.Label)
+            </div>
         }
     </div>
 </td>
@@ -22,19 +25,22 @@
 
     private CellLocation Location => ((int)Column, (int)Row);
 
+    private string pawnStyle = string.Empty;
+
     public Pawn? PawnOnCell { get; private set; }
 
-    public string CellCss { get; private set; } = "board-cell-mark";
+    public string CellCss { get; private set; } = "board-cell-mark";    
 
     protected override void OnInitialized()
     {
         BoardService[Location].CellMarked += MarkCell;
         BoardService[Location].PawnPlaced += PlacePawn;
+        BoardTransform.TransformationChanged += Rotate;
     }
 
     private void CellClicked()
     {
-        ui.Click(Location);
+        Ui.Click(Location);
     }
 
     private async Task MarkCell(MarkOptions option)
@@ -87,10 +93,24 @@
         });
     }
 
+    private async Task Rotate(int zoom, bool horizontal)
+    {
+        await InvokeAsync(() =>
+        {
+            if (horizontal)
+                pawnStyle = "transform-origin: center; transform: rotate(-90deg)";
+            else
+                pawnStyle = string.Empty;
+
+            StateHasChanged();
+        });
+    }
+
     public void Dispose()
     {
         BoardService[Location].CellMarked -= MarkCell;
         BoardService[Location].PawnPlaced -= PlacePawn;
+        BoardTransform.TransformationChanged -= Rotate;
     }
 
     public struct Pawn

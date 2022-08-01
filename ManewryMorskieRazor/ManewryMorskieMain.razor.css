@@ -15,15 +15,6 @@
     border-radius: 15px;
 }
 
-.scaled {
-    /*transform: rotate(90deg);*/
-}
-
-.board-row
-{
-    
-}
-
 table
 {
     table-layout: fixed;

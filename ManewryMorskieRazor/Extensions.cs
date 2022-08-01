@@ -13,6 +13,7 @@ namespace ManewryMorskieRazor
         public static IServiceCollection AddManewryMorskieGame(this IServiceCollection services)
         {
             services.AddBlazorStrap();
+            services.AddScoped<BoardTransformService>();
             services.AddScoped<BootstrapInterop>();
             services.AddScoped<DialogService>();
             services.AddScoped<BoardService>();

@@ -1,4 +1,5 @@
 ﻿@inject GameService Game
+@inject BoardTransformService BoardTransform
 
 <MyBSModal Id="instruction-modal" Header="Zasady gry">
     <Content>
@@ -56,17 +57,24 @@
                 </BSButtonGroup>
             </BSNavItem>
             <BSNavItem IsDropdown="true">
-                <BSButtonGroup MarginLeftAndRight="Margins.Small">
-                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => ChangeZoom(-20)" IsDisabled="@CanZoomOut">
-                        <span class="oi oi-zoom-out"></span>
-                        <span class="d-none d-md-inline"> Oddal</span>
+                    <BSButton IsOutlined="true" Color="BSColor.Light" MarginLeftAndRight="Margins.Small"
+                        @onclick="async () => await BoardTransform.Rotate(!BoardTransform.Horizontal)">
+                        <span class="oi oi-loop-circular"></span>
+                        <span class="d-none d-lg-inline">  Obróć</span>
                     </BSButton>
-                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => Zoom = DEFAULT_ZOOM">
+            </BSNavItem>
+            <BSNavItem IsDropdown="true">
+                <BSButtonGroup MarginLeftAndRight="Margins.Small">
+                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="async () => await ChangeZoom(-15)" IsDisabled="@CanZoomOut">
+                        <span class="oi oi-zoom-out"></span>
+                        <span class="d-none d-lg-inline"> Oddal</span>
+                    </BSButton>
+                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="async () => await ChangeZoom(DEFAULT_ZOOM-Zoom)">
                         @Zoom%
                     </BSButton>
-                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="() => ChangeZoom(20)" IsDisabled="@CannotZoomIn">
+                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="async () => await ChangeZoom(15)" IsDisabled="@CannotZoomIn">
                         <span class="oi oi-zoom-in"></span>
-                        <span class="d-none d-md-inline"> Przybliż</span>
+                        <span class="d-none d-lg-inline"> Przybliż</span>
                     </BSButton>
                 </BSButtonGroup>
             </BSNavItem>
@@ -76,8 +84,8 @@
 
 @code 
 {
-    private const int MAX_ZOOM = 200;
-    private const int MIN_ZOOM = 40;
+    private const int MAX_ZOOM = 190;
+    private const int MIN_ZOOM = 55;
     private const int DEFAULT_ZOOM = 100;
 
     public int Zoom { get; private set; } = DEFAULT_ZOOM;
@@ -85,9 +93,12 @@
     private bool CanZoomOut => Zoom == MIN_ZOOM;
     private bool CannotZoomIn => Zoom == MAX_ZOOM;
 
-    public void ChangeZoom(int step)
+    public async ValueTask ChangeZoom(int step)
     {
         if(Zoom + step <= MAX_ZOOM && Zoom + step >= MIN_ZOOM)
+        {
             Zoom += step;
+            await BoardTransform.Zoom(Zoom);
+        }
     }
 }

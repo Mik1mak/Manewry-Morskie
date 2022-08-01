@@ -1,10 +1,14 @@
-﻿@inject DialogService Dialogs
+﻿@using System.Globalization
+@implements IDisposable
+
+@inject DialogService Dialogs
+@inject BoardTransformService BoardTransform
 
 <div class="d-flex h-100 flex-column">
     <ManewryMorskieToolBar />
     <ManewryMorskieDialogs />
     <div id="game-bg" class="w-100 flex-grow-1 text-light overflow-auto">
-        <div id="board" class="scaled">
+        <div id="board" style="@boardStyle">
             <table>
                 @for (uint i = 1; i <= HEIGHT; i++)
                 {
@@ -27,4 +31,31 @@
 {
     public const int WIDTH = 12;
     public const int HEIGHT = 18;
+
+    private string boardStyle = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        BoardTransform.TransformationChanged += ApplyTransformations;
+    }
+
+    private async Task ApplyTransformations(int zoom, bool horizontal)
+    {
+        await InvokeAsync(() =>
+        {
+            boardStyle = $"transform-origin: top center; transform: scale({(zoom/100f).ToString(CultureInfo.InvariantCulture)}) ";
+
+            if (horizontal)
+                boardStyle += "rotate(90deg) translate(50%, -50%)";
+
+            boardStyle += ";";
+
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        BoardTransform.TransformationChanged -= ApplyTransformations;
+    }
 }
