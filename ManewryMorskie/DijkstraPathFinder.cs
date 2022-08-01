@@ -8,6 +8,8 @@ namespace ManewryMorskie
 {
     public class DijkstraPathFinder : IPathFinder
     {
+        private const int BASE_NODE_WEIGHT = 256;
+
         private StandardMap map;
         private CellLocation pivot;
 
@@ -42,11 +44,14 @@ namespace ManewryMorskie
                 CellLocation tmp = queue.Dequeue();
                 Ways neighborhood = map.AvaibleWaysFrom(tmp);
 
-                foreach (CellLocation neighbor in neighborhood.EverySingleWay().Select(way => tmp + way).Where(l => queue.Contains(l)))
+                foreach (var (neighbor, way) in neighborhood.EverySingleWay()
+                    .Select(way => (tmp + way, way)).Where(l => queue.Contains(l.Item1)))
                 {
-                    int alt = distances[tmp] + 1;
+                    //int alt = distances[tmp] + BASE_NODE_WEIGHT;
+                    int alt = distances[tmp]
+                        + (CellLib.Extensions.MainDirections.Contains(way) ? BASE_NODE_WEIGHT : BASE_NODE_WEIGHT + 1);
 
-                    if(alt < distances[neighbor])
+                    if (alt < distances[neighbor])
                     {
                         distances[neighbor] = alt;
                         previousCells[neighbor] = tmp;
@@ -59,7 +64,7 @@ namespace ManewryMorskie
 
         public IEnumerable<CellLocation> CellsWhereDistanceFromSourceIsLowerThan(uint distance)
         {
-            return distances.Where(kvp => kvp.Value > 0 && kvp.Value < distance).Select(kvp => kvp.Key);
+            return distances.Where(kvp => kvp.Value > 0 && kvp.Value < distance*BASE_NODE_WEIGHT).Select(kvp => kvp.Key);
         }
 
         public IEnumerable<CellLocation> ShortestPathTo(CellLocation target)
