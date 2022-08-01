@@ -166,7 +166,9 @@ namespace ManewryTests
                 ((9, 14), Ways.Left | Ways.Right),
                 ((4, 16), Ways.Bottom | Ways.BottomLeft | Ways.BottomRight),
 
-                ((6, 1), Ways.TopLeft | Ways.Top | Ways.TopRight)
+                ((6, 1), Ways.TopLeft | Ways.Top | Ways.TopRight),
+
+                ((4,1), Ways.TopRight),
             };
 
             foreach (var item in expected)

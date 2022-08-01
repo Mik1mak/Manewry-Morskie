@@ -74,6 +74,14 @@ namespace ManewryMorskie
                     if (IsBarrierBetween(neighbourCell, neighbourCell + way))
                         result |= way.RotateWays(7);
                 }
+                else
+                {
+                    CellLocation locationOnRight = location + way.RotateWays(2);
+
+                    if (IsBarrierBetween(locationOnRight, locationOnRight + way)
+                        && IsBarrierBetween(locationOnRight + way, location + way))
+                        result |= way.RotateWays(1);
+                }
             }
 
 

@@ -19,7 +19,7 @@ namespace ManewryMorskie
             SetMines = new HashSet<CellLocation>()
         };
 
-        private CellLocation? selectedUnitLocation = new();
+        private CellLocation? selectedUnitLocation;
         private CancellationToken? cancellationToken;
         
         private IUserInterface PlayerUi => playerManager.CurrentPlayer.UserInterface;
@@ -92,7 +92,7 @@ namespace ManewryMorskie
 
             if (finishTurn)
             {
-                result.SourceUnitDescription = map[selectedUnitLocation!.Value].Unit!.ToString();
+                result.SourceUnitDescription = map[result.From].Unit!.ToString();
                 semaphore.Release();
             }
         }
@@ -104,14 +104,16 @@ namespace ManewryMorskie
             Dictionary<MarkOptions, HashSet<CellLocation>> buffer = new()
             {
                 { MarkOptions.Selectable, new() },
-                { MarkOptions.Minable, new() },
-                { MarkOptions.Attackable, new() },
                 { MarkOptions.Moveable, new() },
+                { MarkOptions.Attackable, new() },
+                { MarkOptions.Minable, new() },
+                { MarkOptions.Disarmable, new() },
             };
 
-            foreach (var item in selectable)
-                foreach (ICellAction option in item.Value.actions)
-                    buffer[option.MarkMode].Add(item.Key);
+            foreach (var (location, actions) in selectable.Select(kpv => (kpv.Key, kpv.Value.actions)))
+                foreach (ICellAction option in actions)
+                    buffer[option.MarkMode].Add(location);
+                    
 
             foreach (var item in buffer)
                 await PlayerUi.MarkCells(item.Value, item.Key);

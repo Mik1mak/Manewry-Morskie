@@ -38,6 +38,8 @@ namespace ManewryMorskie
         public void WriteToPlayers(string msgToCurrent, string msgToOthers) => WriteToPlayers(CurrentPlayer, msgToCurrent, msgToOthers);
 
 
+        public HashSet<IUserInterface> UniqueInferfaces => new(this.Select(p => p.UserInterface));
+
         public IEnumerator<Player> GetEnumerator()
         {
             yield return BottomPlayer;

@@ -59,7 +59,7 @@ namespace ManewryMorskie
 
         public IEnumerable<CellLocation> CellsWhereDistanceFromSourceIsLowerThan(uint distance)
         {
-            return distances.Where(kvp => kvp.Value < distance).Select(kvp => kvp.Key);
+            return distances.Where(kvp => kvp.Value > 0 && kvp.Value < distance).Select(kvp => kvp.Key);
         }
 
         public IEnumerable<CellLocation> ShortestPathTo(CellLocation target)

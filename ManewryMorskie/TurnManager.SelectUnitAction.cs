@@ -71,9 +71,11 @@ namespace ManewryMorskie
             {
                 foreach (var item in parent.selectable)
                 {
-                    ICellAction selectAction = item.Value.actions.First(o => o.GetType() == typeof(SelectUnitAction));
+                    ICellAction selectAction = item.Value.actions.FirstOrDefault(o => o is SelectUnitAction);
                     item.Value.actions.Clear();
-                    item.Value.actions.Add(selectAction);
+
+                    if(selectAction != default)
+                        item.Value.actions.Add(selectAction);
                 }
             }
         }

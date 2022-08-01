@@ -20,12 +20,12 @@ namespace ManewryMorskie
             this.playerMgr = playerMgr;
             this.From = source;
 
-            pathFinder = new DijkstraPathFinder(map, From);
+            UpdatePaths();
         }
 
         public void UpdatePaths()
         {
-            if (map[From].Unit == null)
+            if (map[From].Unit != null)
                 pathFinder = new DijkstraPathFinder(map, From);
         }
 
@@ -34,7 +34,9 @@ namespace ManewryMorskie
             if (map[From].Unit == null)
                 return Array.Empty<CellLocation>();
 
-            return pathFinder!.CellsWhereDistanceFromSourceIsLowerThan(map[From].Unit!.Step + 1);
+            uint distace = map[From].Unit!.Step + 1;
+
+            return pathFinder!.CellsWhereDistanceFromSourceIsLowerThan(distace);
         }
 
         public IEnumerable<CellLocation> AttackableOrDisarmable()
@@ -60,7 +62,7 @@ namespace ManewryMorskie
             if(playerMgr.CurrentPlayer.Fleet.UsedMines >= Fleet.UnitLimits[typeof(Mina)])
                 return Array.Empty<CellLocation>();
 
-            return From.SquereRegion(1);
+            return pathFinder!.CellsWhereDistanceFromSourceIsLowerThan(2);
         }
 
         public IEnumerable<CellLocation> PathTo(CellLocation target)
@@ -79,7 +81,7 @@ namespace ManewryMorskie
             if (map[From].Unit!.GetType() == typeof(Mina))
                 return false;
 
-            return AttackableOrDisarmable().Any() || Moveable().Any() || Minable().Any();
+            return Moveable().Any() || AttackableOrDisarmable().Any() || Minable().Any();
         }
     }
 }

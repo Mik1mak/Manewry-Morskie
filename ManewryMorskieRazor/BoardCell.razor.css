@@ -27,6 +27,14 @@
     background-color: rgba(140, 81, 189, 0.5);
 }
 
+.attackable-color {
+    background-color: rgba(255, 119, 41, 0.6);
+}
+
+.mineable-color {
+    background-color: rgba(255, 38, 241, 0.6);
+}
+
 .unit-label
 {
     user-select: none;
