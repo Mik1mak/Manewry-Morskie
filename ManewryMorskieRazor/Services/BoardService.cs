@@ -15,10 +15,14 @@ namespace ManewryMorskieRazor
 
     public class BoardCellService
     {
-        public async Task PlacePawn(int pawnColor, bool isBattery, string label)
+        public Pawn? Pawn { get; private set; }
+
+        public async Task PlacePawn(Pawn pawn)
         {
-            if (PawnPlaced != null)
-                await PawnPlaced.Invoke(pawnColor, isBattery, label);
+            Pawn = pawn;
+
+            if (PawnChanged != null)
+                await PawnChanged.Invoke(Pawn);
         }
 
         public async Task MarkCell(MarkOptions option)
@@ -27,14 +31,21 @@ namespace ManewryMorskieRazor
                 await CellMarked.Invoke(option);
         }
 
-        public async Task TakeOffPawn()
+        public async Task<Pawn> TakeOffPawn()
         {
-            if (PawnTakenOff != null)
-                await PawnTakenOff.Invoke();
+            if (!Pawn.HasValue)
+                throw new InvalidOperationException("There is no pawn on this cell.");
+
+            Pawn result = Pawn.Value;
+            Pawn = null;
+
+            if (PawnChanged != null)
+                await PawnChanged.Invoke(null);
+
+            return result;
         }
 
-        public event Func<int, bool, string, Task>? PawnPlaced;
+        public event Func<Pawn?, Task>? PawnChanged;
         public event Func<MarkOptions, Task>? CellMarked;
-        public event Func<Task>? PawnTakenOff;
     }
 }

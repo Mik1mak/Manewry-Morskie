@@ -5,11 +5,11 @@
 @inject BoardTransformService BoardTransform
 
 <td class="board-cell" @onclick="CellClicked">
-    <div class="@CellCss">
-        @if(PawnOnCell.HasValue)
+    <div class="@cellCss">
+        @if(pawnOnCell.HasValue)
         {
-            <div style="@pawnStyle" class="@(PawnOnCell.Value.PawnCss)" title="@(PawnOnCell.Value.Label)">
-                @(PawnOnCell.Value.Label)
+            <div style="@pawnStyle" class="@PawnCss" title="@(pawnOnCell.Value.Label)">
+                @(pawnOnCell.Value.Label)
             </div>
         }
     </div>
@@ -25,16 +25,32 @@
 
     private CellLocation Location => ((int)Column, (int)Row);
 
+    private Pawn? pawnOnCell;
+
+    private string cellCss = "board-cell-mark";    
+
     private string pawnStyle = string.Empty;
 
-    public Pawn? PawnOnCell { get; private set; }
+    public string PawnCss
+    {
+        get
+        {
+            if (!pawnOnCell.HasValue)
+                return string.Empty;
 
-    public string CellCss { get; private set; } = "board-cell-mark";    
+            string result = $"pawn pawn-" + (pawnOnCell.Value.Color == 0 ? "yellow" : "blue");
+
+            if (pawnOnCell.Value.Label is null)
+                result += (pawnOnCell.Value.IsBattery ? "-art" : "-ship");
+
+            return result;
+        }
+    }
 
     protected override void OnInitialized()
     {
         BoardService[Location].CellMarked += MarkCell;
-        BoardService[Location].PawnPlaced += PlacePawn;
+        BoardService[Location].PawnChanged += PlacePawn;
         BoardTransform.TransformationChanged += Rotate;
     }
 
@@ -52,25 +68,25 @@
             switch(option)
             {
                 case MarkOptions.None:
-                    CellCss = baseStr;
+                    cellCss = baseStr;
                     break;
                 case MarkOptions.Selectable:
-                    CellCss = baseStr + "selectable-color";
+                    cellCss = baseStr + "selectable-color";
                     break;
                 case MarkOptions.Selected:
-                    CellCss = baseStr + "selected-color";
+                    cellCss = baseStr + "selected-color";
                     break;
                 case MarkOptions.Moveable:
-                    CellCss = baseStr + "moveable-color";
+                    cellCss = baseStr + "moveable-color";
                     break;
                 case MarkOptions.Attackable:
-                    CellCss = baseStr + "attackable-color";
+                    cellCss = baseStr + "attackable-color";
                     break;
                 case MarkOptions.Minable:
-                    CellCss = baseStr + "mineable-color";
+                    cellCss = baseStr + "mineable-color";
                     break;
                 default:
-                    CellCss = "board-cell-mark bg-info";
+                    cellCss = "board-cell-mark bg-info";
                     break;
             }
 
@@ -78,17 +94,11 @@
         });
     }
 
-    private async Task PlacePawn(int playerColor, bool battery, string pawnDescription)
+    private async Task PlacePawn(Pawn? pawn)
     {
         await InvokeAsync(() =>
         {
-            PawnOnCell = new()
-            {
-                Color = playerColor,
-                IsBattery = battery,
-                Label = pawnDescription,
-            };
-
+            pawnOnCell = pawn;
             StateHasChanged();
         });
     }
@@ -109,29 +119,7 @@
     public void Dispose()
     {
         BoardService[Location].CellMarked -= MarkCell;
-        BoardService[Location].PawnPlaced -= PlacePawn;
+        BoardService[Location].PawnChanged -= PlacePawn;
         BoardTransform.TransformationChanged -= Rotate;
-    }
-
-    public struct Pawn
-    {
-        public string? Label { get; set; }
-
-        public int Color { get; set; }
-
-        public bool IsBattery { get; set; }
-
-        public string PawnCss
-        {
-            get
-            {
-                string result = $"pawn pawn-" + (Color == 0 ? "yellow" : "blue");
-
-                if (Label is null)
-                    result += (IsBattery ? "-art" : "-ship");
-
-                return result;
-            }
-        }
     }
 }

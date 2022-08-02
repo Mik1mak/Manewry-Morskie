@@ -62,6 +62,11 @@ namespace CellLib
                     lineofCells[i] = new();
         }
 
+        public bool LocationIsOnTheMap(CellLocation l)
+        {
+            return l.Row >= 0 && l.Column >=0 && l.Column < Width && l.Row < Height;
+        }
+
         public IEnumerator<T> GetEnumerator() => new CellsEnumerator<T>(fields);
         IEnumerator IEnumerable.GetEnumerator() => new CellsEnumerator<T>(fields);
     }

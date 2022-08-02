@@ -29,7 +29,8 @@ namespace ManewryMorskie
             distances[pivot] = 0;
             SimplePriorityQueue<CellLocation> queue = new();
 
-            foreach (CellLocation location in map.Keys)
+            foreach (CellLocation location in pivot.SquereRegion((int)Fleet.MaxUnitStep)
+                .Where(l => map.LocationIsOnTheMap(l)))
             {
                 if(location != pivot)
                 {

@@ -108,7 +108,8 @@ namespace ManewryMorskie
 
         public IEnumerable<CellLocation> LocationsWithPlayersUnits(Player player)
         {
-            return Keys.Where(location => player.Fleet.Units.Contains(this[location].Unit));
+            return Keys.Where(location => this[location].Unit != null 
+                && player.Fleet.Units.Contains(this[location].Unit));
         }
     }
 }

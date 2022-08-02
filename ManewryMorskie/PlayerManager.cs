@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ManewryMorskie
 {
@@ -27,18 +28,18 @@ namespace ManewryMorskie
         public Player GetOpositePlayer(Player current) => this.First(p => current != p);
         public Player GetOpositePlayer() => this.First(p => CurrentPlayer != p);
 
-        public void WriteToPlayers(Player current, string msgToCurrent, string msgToOthers)
+        public async Task WriteToPlayers(Player current, string msgToCurrent, string msgToOthers)
         {
-            current.UserInterface.DisplayMessage(msgToCurrent);
+            await current.UserInterface.DisplayMessage(msgToCurrent);
 
             foreach (Player other in GetOpositePlayers(current))
-                other.UserInterface.DisplayMessage(msgToOthers);
+                await other.UserInterface.DisplayMessage(msgToOthers);
         }
 
-        public void WriteToPlayers(string msgToCurrent, string msgToOthers) => WriteToPlayers(CurrentPlayer, msgToCurrent, msgToOthers);
+        public async Task WriteToPlayers(string msgToCurrent, string msgToOthers) => await WriteToPlayers(CurrentPlayer, msgToCurrent, msgToOthers);
 
 
-        public HashSet<IUserInterface> UniqueInferfaces => new(this.Select(p => p.UserInterface));
+        public IEnumerable<IUserInterface> UniqueInferfaces => new HashSet<IUserInterface>(this.Select(p => p.UserInterface));
 
         public IEnumerator<Player> GetEnumerator()
         {

@@ -1,6 +1,7 @@
 ﻿using CellLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,30 +13,37 @@ namespace ManewryMorskie
     {
         private readonly StandardMap map;
         private readonly PlayerManager playerManager;
+        private readonly InternationalWaterManager internationalWaterManager;
         private readonly SemaphoreSlim semaphore = new(0, 1);
         private readonly Dictionary<CellLocation, (MoveChecker? moveChecker, IList<ICellAction> actions)> selectable = new();
-        private readonly Move result = new()
-        {
-            SetMines = new HashSet<CellLocation>()
-        };
+        private Move result = new();
 
         private CellLocation? selectedUnitLocation;
         private CancellationToken? cancellationToken;
-        
+
+        public bool ActionSelectionActive { get; set; } = true;
+
         private IUserInterface PlayerUi => playerManager.CurrentPlayer.UserInterface;
 
-        public TurnManager(StandardMap map, PlayerManager playerManager)
+        public TurnManager(StandardMap map, PlayerManager playerManager, InternationalWaterManager internationalWaterManager)
         {
             this.map = map;
             this.playerManager = playerManager;
+            this.internationalWaterManager = internationalWaterManager;
         }
 
         public async Task<Move> MakeMove(CancellationToken token)
         {
-            selectable.Clear();
-            cancellationToken = token;
+            Stopwatch stopWatch = new();
+            stopWatch.Start();
 
-            foreach (CellLocation unitLocation in map.LocationsWithPlayersUnits(playerManager.CurrentPlayer))
+            selectable.Clear();
+            result.Clear();
+
+            cancellationToken = token;
+            
+            foreach (CellLocation unitLocation in map.LocationsWithPlayersUnits(playerManager.CurrentPlayer)
+                .Where(l => map.AvaibleWaysFrom(l) != Ways.None))
                 selectable.Add(unitLocation, (new MoveChecker(map, playerManager, unitLocation), new List<ICellAction>()));
 
             foreach (var item in selectable.Where(kpv => kpv.Value.moveChecker?.UnitIsSelectable() ?? false))
@@ -44,8 +52,11 @@ namespace ManewryMorskie
             await PlayerUi.DisplayMessage("Wybierz jednostkę", MessageType.SideMessage);
             await UpdateMarks();
 
-
             PlayerUi.ClickedLocation += SelectedLocation;
+
+            stopWatch.Stop();
+            Console.WriteLine($"Make Move Time (ms): {stopWatch.Elapsed.TotalMilliseconds}");
+
             await semaphore.WaitAsync(token);
            
             PlayerUi.ChoosenOptionId -= PlayerUi_ChoosenOptionId;
@@ -57,6 +68,9 @@ namespace ManewryMorskie
 
         private async void SelectedLocation(object sender, CellLocation e)
         {
+            if (!ActionSelectionActive)
+                return;
+
             if (selectable.TryGetValue(e, out var value))
             {
                 selectedUnitLocation = e;
@@ -87,12 +101,13 @@ namespace ManewryMorskie
 
         private async ValueTask RealiseAction(ICellAction action)
         {
-            bool finishTurn = await action.Execute(result, cancellationToken!.Value);
+            bool finishTurn = await action.Execute(result!, cancellationToken!.Value);
             await UpdateMarks();
 
             if (finishTurn)
             {
-                result.SourceUnitDescription = map[result.From].Unit!.ToString();
+                selectedUnitLocation = null;
+                result!.SourceUnitDescription = map[result.From].Unit!.ToString();
                 semaphore.Release();
             }
         }

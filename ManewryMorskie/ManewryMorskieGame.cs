@@ -40,22 +40,22 @@ namespace ManewryMorskie
             executor = new(map, playerManager);
         }
 
-        private void EndDetector_GameEnded(object sender, GameEnd e)
+        private async void EndDetector_GameEnded(object sender, GameEnd e)
         {
             switch(e.GameEndReason)
             {
                 case GameEndReason.DestroyedOkretDesantowy:
-                    playerManager.WriteToPlayers(e.Winner!,
+                    await playerManager.WriteToPlayers(e.Winner!,
                         msgToCurrent: "Zwycięstwo! Zniszczyłeś okręt desantowy przeciwnika!",
                         msgToOthers: "Porażka! Przeciwnik zniszczył Twój okręt desantowy!");
                     break;
                 case GameEndReason.DestroyedOkretyRakietowe:
-                    playerManager.WriteToPlayers(e.Winner!,
+                    await playerManager.WriteToPlayers(e.Winner!,
                         msgToCurrent: "Zwycięstwo! Zniszczyłeś okręty rakietowe przeciwnika utrzymując obronę portu!",
                         msgToOthers: "Porażka! Przeciwnik zniszczył Twóje okręty rakietowe utrzymując obronę portu!");
                     break;
                 case GameEndReason.OkretDesantowyReachedEnemyField:
-                    playerManager.WriteToPlayers(e.Winner!,
+                    await playerManager.WriteToPlayers(e.Winner!,
                         msgToCurrent: "Zwycięstwo! Twój okręt desantowy wpłynął do portu przeciwnika!",
                         msgToOthers: "Porażka! Okręt desantowy przeciwnika wpłynął do Twojego portu!");
                     break;
@@ -75,18 +75,15 @@ namespace ManewryMorskie
 
                 if (field.Unit == e)
                 {
-                    foreach (Player player in playerManager)
-                    {
-                        await player.UserInterface.TakeOffPawn(location);
+                    Player player = playerManager.First(p => p.Fleet.Units.Contains(e));
 
-                        if (player.Fleet.Units.Contains(e))
-                        {
-                            await player.UserInterface.DisplayMessage($"Jednostka {e} została internowana, ponieważ przebywała przez " +
-                                $"{internationalWaterManager.TurnsOnInternationalWaterLimit} tury na wodach międzynarodowych!");
-                            player.Fleet.Destroy(e);
-                        }
+                    foreach (IUserInterface ui in playerManager.UniqueInferfaces)
+                    {
+                        await ui.TakeOffPawn(location);
+                        await ui.DisplayMessage($"Jednostka {e} została internowana, ponieważ przebywała przez " +
+                            $"{internationalWaterManager.TurnsOnInternationalWaterLimit} tur na wodach międzynarodowych!");
                     }
-                        
+                    player.Fleet.Destroy(e);
 
                     field.Unit = null;
                     return;
@@ -110,13 +107,13 @@ namespace ManewryMorskie
             await Task.WhenAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
 
 
-            TurnManager turnMgr = new(map, playerManager);
+            TurnManager turnMgr = new(map, playerManager, internationalWaterManager);
 
             while (!endDetector.GameIsEnded)
             {
                 Move move = await turnMgr.MakeMove(token);
-                await executor.Execute(move);
 
+                await executor.Execute(move);
                 turnManager.NextTurn();
             }
 

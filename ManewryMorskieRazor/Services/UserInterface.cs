@@ -13,26 +13,34 @@ namespace ManewryMorskieRazor
         private readonly BoardService boardService;
         private readonly DialogService dialogService;
 
+        public bool ActiveInput { get; set; } = true;
+
+        public event EventHandler<CellLocation>? ClickedLocation;
+        public event EventHandler<int>? ChoosenOptionId;
+
+
         public UserInterface(BoardService board, DialogService dialogs)
         {
             (boardService, dialogService) = (board, dialogs);
-
             dialogService.OptionChoosed += DialogService_OptionChoosed;
         }
 
         private void DialogService_OptionChoosed(object? sender, int e)
         {
-            ChoosenOptionId?.Invoke(this, e);
+            if(ActiveInput)
+                ChoosenOptionId?.Invoke(this, e);
         }
 
-        public event EventHandler<CellLocation>? ClickedLocation;
-        public event EventHandler<int>? ChoosenOptionId;
 
-        public void Click(CellLocation location) => ClickedLocation?.Invoke(this, location);
+        public void Click(CellLocation location)
+        {
+            if(ActiveInput)
+                ClickedLocation?.Invoke(this, location);
+        } 
 
         public async Task DisplayContextOptionsMenu(CellLocation location, params string[] options)
         {
-            await dialogService.DisplayOptions("Wybierz se coś", options);
+            await dialogService.DisplayOptions("Wybierz działanie", options);
         }
 
         public async Task DisplayMessage(string message, MessageType msgType = MessageType.Standard)
@@ -45,9 +53,17 @@ namespace ManewryMorskieRazor
             await dialogService.DisplayOptions(title, options);
         }
 
-        public Task ExecuteMove(Move mv)
+        public async Task ExecuteMove(Move mv)
         {
-            throw new NotImplementedException();
+            Pawn pawn = await boardService[mv.From].TakeOffPawn();
+
+            if ((mv.Result & BattleResult.SourceDestroyed) == BattleResult.None)
+                await boardService[mv.To].PlacePawn(pawn);
+
+            if ((mv.Result & BattleResult.TargetDestroyed) != BattleResult.None)
+                await boardService[mv.Attack.HasValue ? mv.Attack.Value : mv.Disarm!.Value].TakeOffPawn();
+
+            //TODO
         }
 
         public async Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode)
@@ -58,7 +74,12 @@ namespace ManewryMorskieRazor
 
         public async Task PlacePawn(CellLocation location, int playerColor, bool battery = false, string pawnDescription = "")
         {
-            await boardService[location].PlacePawn(playerColor, battery, pawnDescription);
+            await boardService[location].PlacePawn(new()
+            {
+                Color = playerColor,
+                IsBattery = battery,
+                Label = pawnDescription,
+            });
         }
 
         public async Task TakeOffPawn(CellLocation location)

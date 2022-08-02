@@ -24,7 +24,17 @@ namespace ManewryMorskie
 
         public BattleResult Result { get; set; } = BattleResult.None;
 
-        public ICollection<CellLocation> SetMines { get; set; } = Array.Empty<CellLocation>();
+        public HashSet<CellLocation> SetMines { get; set; } = new();
         public IEnumerable<CellLocation> Path { get; set; } = Array.Empty<CellLocation>();
+
+        public void Clear()
+        {
+            SourceUnitDescription = string.Empty;
+            TargetUnitDescription = null;
+            Disarm = Attack = null;
+            Result = BattleResult.None;
+            Path = Array.Empty<CellLocation>();
+            SetMines.Clear();
+        }
     }
 }

@@ -34,14 +34,17 @@ namespace ManewryMorskie
                 map[move.From].Unit = null;
             }
 
-            foreach (Player player in players)
-                await player.UserInterface.ExecuteMove(move);
+            foreach (IUserInterface ui in players.UniqueInferfaces)
+                await ui.ExecuteMove(move);
         }
 
         private BattleResult GetResult(Move move)
         {
             if (move.Attack.HasValue)
             {
+                if (map[move.Attack.Value].Unit is Mina)
+                    return BattleResult.Draw;
+
                 return map[move.Attack.Value].Unit!.AttackedBy(map[move.From].Unit!);
             }
             else if(move.Disarm.HasValue)

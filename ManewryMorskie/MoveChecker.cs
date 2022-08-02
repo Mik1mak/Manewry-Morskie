@@ -70,6 +70,9 @@ namespace ManewryMorskie
             if(pathFinder == null)
                 return Array.Empty<CellLocation>();
 
+            if(target.Equals(target))
+                return Array.Empty<CellLocation>();
+
             return pathFinder.ShortestPathTo(target);
         }
 
@@ -78,8 +81,11 @@ namespace ManewryMorskie
             if (map[From].Unit == null)
                 return false;
 
-            if (map[From].Unit!.GetType() == typeof(Mina))
+            if (map[From].Unit is Mina)
                 return false;
+
+            if (map.AvaibleWaysFrom(From) == Ways.None)
+                return AttackableOrDisarmable().Any();
 
             return Moveable().Any() || AttackableOrDisarmable().Any() || Minable().Any();
         }

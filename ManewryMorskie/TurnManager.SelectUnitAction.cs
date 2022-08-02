@@ -32,11 +32,14 @@ namespace ManewryMorskie
                 foreach (CellLocation moveableLocation in moveChecker!.Moveable())
                     AddAction(moveableLocation, new MoveAction(moveableLocation, moveChecker));
 
-                foreach (CellLocation minableLocation in moveChecker!.Minable())
+                foreach (CellLocation minableLocation in moveChecker!.Minable().Except(parent.internationalWaterManager.InternationalWaters))
                     AddAction(minableLocation, new SetMineAction(minableLocation, parent));
 
                 foreach (CellLocation attackableOrDisarmableLcation in moveChecker!.AttackableOrDisarmable())
                 {
+                    if (parent.internationalWaterManager.InternationalWaters.Contains(attackableOrDisarmableLcation))
+                        continue;
+
                     Unit attacker = parent.map[parent.selectedUnitLocation!.Value].Unit!;
                     Unit target = parent.map[attackableOrDisarmableLcation].Unit!;
                     MoveChecker checker = parent.selectable[parent.selectedUnitLocation!.Value].moveChecker!;
@@ -44,13 +47,13 @@ namespace ManewryMorskie
                     AttackAction atkAction = new(
                         attacker,
                         target,
-                        parent.playerManager,
+                        parent,
                         checker,
                         attackableOrDisarmableLcation);
 
                     AddAction(attackableOrDisarmableLcation, atkAction);
 
-                    if (parent.map[locationToSelect].Unit?.GetType() == typeof(Tralowiec))
+                    if (parent.map[locationToSelect].Unit is Tralowiec)
                         AddAction(attackableOrDisarmableLcation, new DiasrmAction(atkAction));
                 }
 

@@ -16,7 +16,7 @@ namespace ManewryMorskie
         public event EventHandler<Unit>? InternedUnit;
 
         public InternationalWaterManager(RectangleCellMap<MapField> map,
-            int turnsOnInternationalWaterLimit = 3)
+            int turnsOnInternationalWaterLimit = 6)
         {
             this.map = map;
             this.TurnsOnInternationalWaterLimit = turnsOnInternationalWaterLimit;
