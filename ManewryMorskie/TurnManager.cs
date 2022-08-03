@@ -34,16 +34,17 @@ namespace ManewryMorskie
 
         public async Task<Move> MakeMove(CancellationToken token)
         {
+#if DEBUG
             Stopwatch stopWatch = new();
             stopWatch.Start();
-
+#endif
             selectable.Clear();
             result.Clear();
 
             cancellationToken = token;
             
-            foreach (CellLocation unitLocation in map.LocationsWithPlayersUnits(playerManager.CurrentPlayer)
-                .Where(l => map.AvaibleWaysFrom(l) != Ways.None))
+            foreach (CellLocation unitLocation in map.LocationsWithPlayersUnits(playerManager.CurrentPlayer))
+                //.Where(l => map.AvaibleWaysFrom(l) != Ways.None))
                 selectable.Add(unitLocation, (new MoveChecker(map, playerManager, unitLocation), new List<ICellAction>()));
 
             foreach (var item in selectable.Where(kpv => kpv.Value.moveChecker?.UnitIsSelectable() ?? false))
@@ -53,10 +54,10 @@ namespace ManewryMorskie
             await UpdateMarks();
 
             PlayerUi.ClickedLocation += SelectedLocation;
-
+#if DEBUG
             stopWatch.Stop();
             Console.WriteLine($"Make Move Time (ms): {stopWatch.Elapsed.TotalMilliseconds}");
-
+#endif
             await semaphore.WaitAsync(token);
            
             PlayerUi.ChoosenOptionId -= PlayerUi_ChoosenOptionId;

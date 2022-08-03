@@ -9,7 +9,7 @@ namespace ManewryMorskie
     {
         private StandardMap map;
         private PlayerManager playerMgr;
-        private IPathFinder? pathFinder;
+        private Lazy<IPathFinder>? pathFinder;
 
         public CellLocation From { get; private set; }
 
@@ -26,7 +26,7 @@ namespace ManewryMorskie
         public void UpdatePaths()
         {
             if (map[From].Unit != null)
-                pathFinder = new DijkstraPathFinder(map, From);
+                pathFinder = new(() => new DijkstraPathFinder(map, From));
         }
 
         public IEnumerable<CellLocation> Moveable()
@@ -34,9 +34,11 @@ namespace ManewryMorskie
             if (map[From].Unit == null)
                 return Array.Empty<CellLocation>();
 
-            uint distace = map[From].Unit!.Step + 1;
+            if (map.AvaibleWaysFrom(From) == Ways.None)
+                return Array.Empty<CellLocation>();
 
-            return pathFinder!.CellsWhereDistanceFromSourceIsLowerThan(distace);
+            uint distace = map[From].Unit!.Step + 1;
+            return pathFinder!.Value.CellsWhereDistanceFromSourceIsLowerThan(distace);
         }
 
         public IEnumerable<CellLocation> AttackableOrDisarmable()
@@ -50,19 +52,23 @@ namespace ManewryMorskie
 
             //lokacje pól zajętych przez przeciwnika w zasięgu ruchu i ataku jednostki
             return moveable
+                .Concat(From)
                 .SelectMany(l => l.SquereRegion((int)unit.AttackRange))
                 .Intersect(map.LocationsWithPlayersUnits(playerMgr.GetOpositePlayer()));
         }
 
         public IEnumerable<CellLocation> Minable()
         {
-            if (map[From].Unit == null || map[From].Unit!.GetType() != typeof(Tralowiec))
+            if (map[From].Unit == null || map[From].Unit is not Tralowiec)
                 return Array.Empty<CellLocation>();
 
             if(playerMgr.CurrentPlayer.Fleet.UsedMines >= Fleet.UnitLimits[typeof(Mina)])
                 return Array.Empty<CellLocation>();
 
-            return pathFinder!.CellsWhereDistanceFromSourceIsLowerThan(2);
+            if (map.AvaibleWaysFrom(From) == Ways.None)
+                return Array.Empty<CellLocation>();
+
+            return pathFinder!.Value.CellsWhereDistanceFromSourceIsLowerThan(2);
         }
 
         public IEnumerable<CellLocation> PathTo(CellLocation target)
@@ -73,7 +79,7 @@ namespace ManewryMorskie
             if(target.Equals(target))
                 return Array.Empty<CellLocation>();
 
-            return pathFinder.ShortestPathTo(target);
+            return pathFinder!.Value.ShortestPathTo(target);
         }
 
         public bool UnitIsSelectable()
@@ -87,7 +93,7 @@ namespace ManewryMorskie
             if (map.AvaibleWaysFrom(From) == Ways.None)
                 return AttackableOrDisarmable().Any();
 
-            return Moveable().Any() || AttackableOrDisarmable().Any() || Minable().Any();
+            return Moveable().Any() || Minable().Any() || AttackableOrDisarmable().Any();
         }
     }
 }

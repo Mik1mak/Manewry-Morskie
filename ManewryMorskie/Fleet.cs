@@ -29,8 +29,6 @@ namespace ManewryMorskie
             { typeof(Tralowiec), 4 },
         };
 
-        public static uint MaxUnitStep { get; } = 4;
-
         public int ActiveUnitsCount<T>() where T : Unit
         {
             return units.Count(u => u is T);
