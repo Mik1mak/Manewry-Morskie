@@ -40,6 +40,7 @@ namespace ManewryMorskie
             this.playersManager = playersManager;
 
             this.turnCommander.TurnChanged += CheckGameEnds;
+            this.turnCommander.TurnChanging += CheckGameEnds;
         }
 
         private void CheckGameEnds(object sender, int currentTurn)
@@ -48,7 +49,7 @@ namespace ManewryMorskie
             Player enemy = playersManager.GetOpositePlayer(current);
 
             //jeśli wejścia gracza są chronione a przeciwnik stracił wszystkie okrętyRakietowe
-            if (enemy.Fleet.UnitsCount<OkretRakietowy>() == 0)
+            if (enemy.Fleet.ActiveUnitsCount<OkretRakietowy>() == 0)
             {
                 if(playersManager.TopPlayer == current ? map.TopEntrencesAreProtected : map.BottomEntrecesAreProtected)
                 {
@@ -57,7 +58,7 @@ namespace ManewryMorskie
                 }
                 
             }
-            else if(enemy.Fleet.UnitsCount<OkretDesantowy>() == 0) //jeśli przeciwnik stracił wszystkie okręty desantowe
+            else if(enemy.Fleet.ActiveUnitsCount<OkretDesantowy>() == 0) //jeśli przeciwnik stracił wszystkie okręty desantowe
             {
                 EndGame(current, GameEndReason.DestroyedOkretDesantowy);
                 return;

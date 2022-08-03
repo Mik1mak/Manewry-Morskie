@@ -9,7 +9,7 @@ namespace ManewryMorskie
 {
     public partial class TurnManager
     {
-        public class AttackAction : MoveAction, ICellAction
+        public class AttackAction : MoveAction, ICellAction, IDisposable
         {
             private readonly SemaphoreSlim semaphore = new(0, 1);
             private readonly TurnManager parent;
@@ -69,6 +69,11 @@ namespace ManewryMorskie
 
                 base.Destination = e;
                 semaphore.Release();
+            }
+
+            public void Dispose()
+            {
+                parent.playerManager.CurrentPlayer.UserInterface.ClickedLocation -= Ui_ClickedLocation;
             }
         }
     }

@@ -75,5 +75,12 @@ namespace ManewryMorskie
         {
             return units.Count(u => u.GetType() == type) + destroyedUnits.Count(u => u.GetType() == type);
         }
+
+        public void Clear()
+        {
+            units.Clear();
+            destroyedUnits.Clear();
+            UsedMines = 0;
+        }
     }
 }

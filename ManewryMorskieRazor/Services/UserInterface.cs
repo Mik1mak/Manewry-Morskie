@@ -57,13 +57,13 @@ namespace ManewryMorskieRazor
         {
             Pawn pawn = await boardService[mv.From].TakeOffPawn();
 
-            if ((mv.Result & BattleResult.SourceDestroyed) == BattleResult.None)
+            if (!mv.Result.HasFlag(BattleResult.SourceDestroyed))
                 await boardService[mv.To].PlacePawn(pawn);
 
-            if ((mv.Result & BattleResult.TargetDestroyed) != BattleResult.None)
+            if (mv.Result.HasFlag(BattleResult.TargetDestroyed))
                 await boardService[mv.Attack.HasValue ? mv.Attack.Value : mv.Disarm!.Value].TakeOffPawn();
 
-            //TODO
+            //TODO animacje
         }
 
         public async Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode)

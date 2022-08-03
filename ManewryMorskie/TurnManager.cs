@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace ManewryMorskie
 {
 
-    public partial class TurnManager
+    public partial class TurnManager : IDisposable
     {
         private readonly StandardMap map;
         private readonly PlayerManager playerManager;
@@ -44,7 +44,6 @@ namespace ManewryMorskie
             cancellationToken = token;
             
             foreach (CellLocation unitLocation in map.LocationsWithPlayersUnits(playerManager.CurrentPlayer))
-                //.Where(l => map.AvaibleWaysFrom(l) != Ways.None))
                 selectable.Add(unitLocation, (new MoveChecker(map, playerManager, unitLocation), new List<ICellAction>()));
 
             foreach (var item in selectable.Where(kpv => kpv.Value.moveChecker?.UnitIsSelectable() ?? false))
@@ -136,6 +135,12 @@ namespace ManewryMorskie
 
             if (selectedUnitLocation.HasValue)
                 await PlayerUi.MarkCells(selectedUnitLocation.Value, MarkOptions.Selected);
+        }
+
+        public void Dispose()
+        {
+            PlayerUi.ChoosenOptionId -= PlayerUi_ChoosenOptionId;
+            PlayerUi.ClickedLocation -= SelectedLocation;
         }
     }
 }

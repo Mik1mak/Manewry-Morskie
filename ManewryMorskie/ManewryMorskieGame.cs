@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace ManewryMorskie
 {
 
-    public class ManewryMorskieGame : IGame
+    public class ManewryMorskieGame : IAsyncDisposable
     {
         private InternationalWaterManager internationalWaterManager;
         private StandardMap map;
@@ -22,10 +22,7 @@ namespace ManewryMorskie
 
         public ManewryMorskieGame(Player player1, Player player2)
         {
-            if(new Random().Next(0, 2) == 0)
-                playerManager = new(turnManager, player1, player2);
-            else
-                playerManager = new(turnManager, player2, player1);
+            playerManager = new PlayerManager(turnManager, player1, player2);
 
             map = StandardMap.DefaultMap(playerManager);
 
@@ -93,40 +90,45 @@ namespace ManewryMorskie
 
         public async Task Start(CancellationToken token)
         {
-            //ustawianie: predefiniowane, własne - przez listę - format: >jednostaka (dostępnych)
-            IPlacingManager currentPlacingMgr = new PawnsPlacingManager(map, playerManager, playerManager.CurrentPlayer);
-            Task currentPlayerPlacingTask = currentPlacingMgr.PlacePawns(token);
+            using (IPlacingManager currentPlacingMgr = new PawnsPlacingManager(map, playerManager, playerManager.CurrentPlayer))
+            {
+                Task currentPlayerPlacingTask = currentPlacingMgr.PlacePawns(token);
+                token.ThrowIfCancellationRequested();
 
-            if (!AsyncGame)
-                await Task.WhenAll(currentPlayerPlacingTask);
+                if (!AsyncGame)
+                    await Task.WhenAll(currentPlayerPlacingTask);
 
-            IPlacingManager opositePlacingMgr
-                = new PawnsPlacingManager(map, playerManager, playerManager.GetOpositePlayer(playerManager.CurrentPlayer));
-            Task opositePlayerPlacingTask = opositePlacingMgr.PlacePawns(token);
+                using (IPlacingManager opositePlacingMgr =
+                    new PawnsPlacingManager(map, playerManager, playerManager.GetOpositePlayer()))
+                {
+                    Task opositePlayerPlacingTask = opositePlacingMgr.PlacePawns(token);
+                    token.ThrowIfCancellationRequested();
+                    await Task.WhenAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
+                }
+            }
 
-            await Task.WhenAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
-
-
-            TurnManager turnMgr = new(map, playerManager, internationalWaterManager);
+            using TurnManager turnMgr = new(map, playerManager, internationalWaterManager);
 
             while (!endDetector.GameIsEnded)
             {
                 Move move = await turnMgr.MakeMove(token);
-
                 await executor.Execute(move);
                 turnManager.NextTurn();
+                token.ThrowIfCancellationRequested();
             }
-
         }
 
-        public Task PauseOrResume()
+        public async ValueTask DisposeAsync()
         {
-            throw new NotImplementedException();
-        }
+            foreach (IUserInterface ui in playerManager.UniqueInferfaces)
+            {
+                foreach (CellLocation l in map.Keys)
+                    if (map[l].Unit is not null)
+                        await ui.TakeOffPawn(l);
 
-        public Task Reset()
-        {
-            throw new NotImplementedException();
+                await ui.MarkCells(map.Keys, MarkOptions.None);
+                await ui.DisplayMessage(string.Empty, MessageType.Empty);
+            }
         }
     }
 }

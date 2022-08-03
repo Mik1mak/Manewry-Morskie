@@ -39,11 +39,11 @@ namespace CellLib
         public CellLocation(Ways ways) : this()
         {
             foreach (var (way, modifer) in rowModifier)
-                if (ways.Contain(way))
+                if (ways.HasFlag(way))
                     Row += modifer;
 
             foreach (var (way, modifer) in columnModifier)
-                if (ways.Contain(way))
+                if (ways.HasFlag(way))
                     Column += modifer;
         }
 

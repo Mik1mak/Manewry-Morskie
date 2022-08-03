@@ -9,31 +9,56 @@ namespace ManewryMorskieRazor
 {
     public class GameService
     {
-        private IUserInterface ui;
+        private readonly Player playerOne;
+        private readonly Player playerTwo;
+
+        private Task? game;
+        private CancellationTokenSource tokenSource = new();
+        private bool gameIsOngoing = false;
 
         public GameService(UserInterface ui)
         {
-            this.ui = ui;
-        }
-
-        public async Task RunGame()
-        {
-            Player playerOne = new(ui)
+            playerOne = new(ui)
             {
                 Color = 0,
             };
 
-            Player playerTwo = new(ui)
+            playerTwo = new(ui)
             {
                 Color = 1,
             };
+        }
 
-            ManewryMorskieGame manewry = new(playerOne, playerTwo)
+        public async Task RunGame()
+        {
+            if(gameIsOngoing)
             {
-                AsyncGame = false
-            };
+                tokenSource.Cancel();
+                await Task.Delay(3);
+                tokenSource = new();
+            }
 
-            await manewry.Start(CancellationToken.None);
+            playerOne.Fleet.Clear();
+            playerTwo.Fleet.Clear();
+
+            gameIsOngoing = true;
+            await using ManewryMorskieGame manewry = new(playerOne, playerTwo) { AsyncGame = false };
+            CancellationToken token = tokenSource.Token;
+
+            try
+            {
+                Console.WriteLine("Game started");
+                await manewry.Start(token);
+            }
+            catch(OperationCanceledException)
+            {
+                Console.WriteLine("Game terminated");
+            }
+            finally
+            {
+                gameIsOngoing = false;
+                Console.WriteLine("Game finished");
+            }
         }
     }
 }

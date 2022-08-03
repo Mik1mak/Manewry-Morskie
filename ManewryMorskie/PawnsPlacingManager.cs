@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace ManewryMorskie
 {
 
-    public class PawnsPlacingManager : IPlacingManager
+    public class PawnsPlacingManager : IPlacingManager, IDisposable
     {
         private enum State
         {
@@ -37,6 +37,14 @@ namespace ManewryMorskie
             this.players = players;
             currentPlayer = player;
             unitsToPlace[typeof(Mina)] = 0;
+
+            unitsToPlace = new()
+            {
+                { typeof(Bateria), 4 },
+                { typeof(Pancernik), 3 },
+                { typeof(OkretDesantowy), 1 },
+                { typeof(OkretRakietowy), 3 },
+            };
         }
 
         public async Task PlacePawns(CancellationToken token)
@@ -55,7 +63,6 @@ namespace ManewryMorskie
             currentPlayer.UserInterface.ChoosenOptionId += ChoosePlacingOption;
 
             await semaphore.WaitAsync(token);
-            token.ThrowIfCancellationRequested();
         }
 
         private async ValueTask PlaceUnit(CellLocation location, Type typeOfUnit, Player player)
@@ -148,6 +155,13 @@ namespace ManewryMorskie
             currentPlayer.UserInterface.ChoosenOptionId -= ChoosePawnType;
             currentPlayer.UserInterface.ChoosenOptionId += ChoosePlacingOption;
             ChoosePlacingOption(this, 0);
+        }
+
+        public void Dispose()
+        {
+            currentPlayer.UserInterface.ChoosenOptionId -= ChoosePawnType;
+            currentPlayer.UserInterface.ChoosenOptionId -= ChoosePlacingOption;
+            currentPlayer.UserInterface.ClickedLocation -= SelectLocation;
         }
     }
 }

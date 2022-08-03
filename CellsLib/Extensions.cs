@@ -31,9 +31,7 @@ namespace CellLib
         public static IEnumerable<Ways> MainDirections { get; } = new DirectionsGroup(2);
         public static IEnumerable<Ways> VerticalDirections { get; } = new DirectionsGroup(4);
         public static IEnumerable<Ways> HorizontalDirections { get; } = new DirectionsGroup(4, Ways.Right);
-        public static IEnumerable<Ways> EverySingleWay(this Ways ways) => AllDirections.Where(dir => ways.Contain(dir));
-
-        public static bool Contain(this Ways ways, Ways way) => (ways & way) == way;
+        public static IEnumerable<Ways> EverySingleWay(this Ways ways) => AllDirections.Where(dir => ways.HasFlag(dir));
 
         public static Ways RotateWays(this Ways ways, uint stepsToRight)
         {
@@ -57,7 +55,7 @@ namespace CellLib
             {
                 CellLocation last = start;
 
-                if (ways.Contain(way))
+                if (ways.HasFlag(way))
                 {
                     for (int j = 0; j < length; j++)
                     {

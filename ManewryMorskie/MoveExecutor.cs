@@ -21,17 +21,18 @@ namespace ManewryMorskie
         {
             move.Result = GetResult(move);
 
-            if ((move.Result & BattleResult.TargetDestroyed) != BattleResult.None)
+            if (move.Result.HasFlag(BattleResult.TargetDestroyed))
                 DestroyUnit((move.Attack ?? move.Disarm)!.Value, players.GetOpositePlayer());
 
-            if ((move.Result & BattleResult.SourceDestroyed) != BattleResult.None)
+            if (move.Result.HasFlag(BattleResult.SourceDestroyed))
             {
                 DestroyUnit(move.From, players.CurrentPlayer);
             }
             else
             {
-                map[move.To].Unit = map[move.From].Unit;
+                Unit unit = map[move.From].Unit!;
                 map[move.From].Unit = null;
+                map[move.To].Unit = unit;
             }
 
             foreach (IUserInterface ui in players.UniqueInferfaces)
