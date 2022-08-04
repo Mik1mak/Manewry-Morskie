@@ -40,10 +40,7 @@ namespace ManewryMorskie
             executor = new(map, playerManager);
         }
 
-        private void TurnManager_TurnChanged(object sender, int e)
-        {
-            TurnChanged?.Invoke(this, e);
-        }
+        private void TurnManager_TurnChanged(object sender, int e) => TurnChanged?.Invoke(this, playerManager.CurrentPlayer.Color);
 
         private async void EndDetector_GameEnded(object sender, GameEnd e)
         {
@@ -86,7 +83,7 @@ namespace ManewryMorskie
                     {
                         await ui.TakeOffPawn(location);
                         await ui.DisplayMessage($"Jednostka {e} została internowana, ponieważ przebywała przez " +
-                            $"{internationalWaterManager.TurnsOnInternationalWaterLimit} tur na wodach międzynarodowych!");
+                            "4 tury na wodach międzynarodowych!");
                     }
                     player.Fleet.Destroy(e);
 
@@ -104,7 +101,10 @@ namespace ManewryMorskie
                 token.ThrowIfCancellationRequested();
 
                 if (!AsyncGame)
+                {
                     await Task.WhenAll(currentPlayerPlacingTask);
+                    TurnChanged?.Invoke(this, playerManager.GetOpositePlayer().Color);
+                }
 
                 using (IPlacingManager opositePlacingMgr =
                     new PawnsPlacingManager(map, playerManager, playerManager.GetOpositePlayer()))
@@ -112,6 +112,7 @@ namespace ManewryMorskie
                     Task opositePlayerPlacingTask = opositePlacingMgr.PlacePawns(token);
                     token.ThrowIfCancellationRequested();
                     await Task.WhenAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
+                    TurnManager_TurnChanged(this, 0);
                 }
             }
 

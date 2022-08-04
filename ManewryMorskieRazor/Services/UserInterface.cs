@@ -56,14 +56,24 @@ namespace ManewryMorskieRazor
         public async Task ExecuteMove(Move mv)
         {
             Pawn pawn = await boardService[mv.From].TakeOffPawn();
+            await boardService[mv.To].PlacePawn(pawn);
 
-            if (!mv.Result.HasFlag(BattleResult.SourceDestroyed))
-                await boardService[mv.To].PlacePawn(pawn);
+            await Task.Delay(500);
+
+            if(mv.Result != BattleResult.None)
+            {
+                BoardCellService bcs = boardService[(mv.Attack ?? mv.Disarm!).Value];
+                await bcs.TogglePawnLabel(bcs.Pawn!.Value.Color);
+                await Task.Delay(2000);
+            }
+
+            if (mv.Result.HasFlag(BattleResult.SourceDestroyed))
+                await boardService[mv.To].TakeOffPawn();
 
             if (mv.Result.HasFlag(BattleResult.TargetDestroyed))
-                await boardService[mv.Attack.HasValue ? mv.Attack.Value : mv.Disarm!.Value].TakeOffPawn();
+                await boardService[(mv.Attack ?? mv.Disarm!).Value].TakeOffPawn();
 
-            //TODO animacje
+            await Task.Delay(400);
         }
 
         public async Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode)

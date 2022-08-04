@@ -2,6 +2,7 @@
 
 @inject DialogService DialogService
 @inject BootstrapInterop Bootstrap
+@inject GameService Game
 
 <MyBSModal Id="@MESSAGE_MODAL_ID" IsLarge="false" Header="Informacja">
     <Content>
@@ -27,7 +28,7 @@
     </Content>
 </MyBSModal>
 
-@if(!string.IsNullOrEmpty(SideMessage))
+@if(!string.IsNullOrEmpty(SideMessage) && SideMessageActive)
 {
     <div class="bg-info bg-gradient p-1 text-center" style="user-select: none;">@SideMessage</div>
 }
@@ -42,6 +43,9 @@
 
     public string OptionsTitle { get; private set; } = "Wybierz";
     private string[]? OptionsSet;
+
+    [Parameter]
+    public bool SideMessageActive { get; set; } = true;
 
     protected override void OnInitialized()
     {

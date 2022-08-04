@@ -20,6 +20,7 @@
 
 .selectable-color {
     background-color: rgba(108, 189, 81, 0.75);
+    cursor: pointer;
 }
 
 .selected-color {
@@ -28,14 +29,17 @@
 
 .moveable-color {
     background-color: rgba(140, 81, 189, 0.5);
+    cursor: pointer;
 }
 
 .attackable-color {
     background-color: rgba(255, 119, 41, 0.6);
+    cursor: pointer;
 }
 
 .mineable-color {
     background-color: rgba(255, 38, 241, 0.45);
+    cursor: pointer;
 }
 
 .pawn {

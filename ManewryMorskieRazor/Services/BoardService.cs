@@ -15,7 +15,22 @@ namespace ManewryMorskieRazor
 
     public class BoardCellService
     {
+        public event Func<Pawn?, Task>? PawnChanged;
+        public event Func<MarkOptions, Task>? CellMarked;
+
         public Pawn? Pawn { get; private set; }
+
+        public async ValueTask TogglePawnLabel(int toColor)
+        {
+            if (PawnChanged != null && Pawn.HasValue)
+            {
+                Pawn toggledPawn = Pawn.Value;
+                toggledPawn.Label = toggledPawn.Color != toColor ? null : toggledPawn.Label;
+
+                await PawnChanged.Invoke(toggledPawn);
+            }
+                
+        }
 
         public async Task PlacePawn(Pawn pawn)
         {
@@ -44,8 +59,5 @@ namespace ManewryMorskieRazor
 
             return result;
         }
-
-        public event Func<Pawn?, Task>? PawnChanged;
-        public event Func<MarkOptions, Task>? CellMarked;
     }
 }

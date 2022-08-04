@@ -3,12 +3,21 @@
 
 @inject DialogService Dialogs
 @inject BoardTransformService BoardTransform
+@inject GameService Game
 
 <div class="d-flex h-100 flex-column">
     <ManewryMorskieToolBar />
-    <ManewryMorskieDialogs />
+    <ManewryMorskieDialogs SideMessageActive="@(string.IsNullOrEmpty(boardClass))"/>
     <div id="game-bg" class="w-100 flex-grow-1 text-light overflow-auto">
-        <div id="board" style="@boardStyle">
+        @if(!string.IsNullOrEmpty(boardClass))
+        {
+            <div class="plate position-relative" @onclick="HidePausePlate">
+                <div class="position-absolute top-50 start-50 translate-middle">
+                    <h2>Kliknij, aby kontynuować</h2>
+                </div>
+            </div>    
+        }
+        <div id="board" class="@boardClass" style="@boardStyle">
             <table>
                 @for (uint i = 1; i <= HEIGHT; i++)
                 {
@@ -33,10 +42,12 @@
     public const int HEIGHT = 18;
 
     private string boardStyle = string.Empty;
+    private string boardClass = string.Empty;
 
     protected override void OnInitialized()
     {
         BoardTransform.TransformationChanged += ApplyTransformations;
+        Game.TurnPause += DisplayPausePlate;
     }
 
     private async Task ApplyTransformations(int zoom, bool horizontal)
@@ -54,8 +65,24 @@
         });
     }
 
+    private async Task DisplayPausePlate(string msg)
+    {
+        await InvokeAsync(() =>
+        {
+            boardClass = "d-none";
+            StateHasChanged();
+        });
+    }
+
+    private void HidePausePlate()
+    {
+        boardClass = string.Empty;
+        StateHasChanged();
+    }
+
     public void Dispose()
     {
         BoardTransform.TransformationChanged -= ApplyTransformations;
+        Game.TurnPause -= DisplayPausePlate;
     }
 }

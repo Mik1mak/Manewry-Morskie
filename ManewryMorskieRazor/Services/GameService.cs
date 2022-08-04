@@ -9,41 +9,46 @@ namespace ManewryMorskieRazor
 {
     public class GameService
     {
+        public event Func<string, Task>? TurnPause;
+
+        private readonly BoardService boardService;
         private readonly Player playerOne;
         private readonly Player playerTwo;
 
-        private Task? game;
         private CancellationTokenSource tokenSource = new();
-        private bool gameIsOngoing = false;
+        public bool GameIsOngoing { get; private set; } = false;
 
-        public GameService(UserInterface ui)
+        public GameService(UserInterface ui, BoardService boardService)
         {
             playerOne = new(ui)
             {
-                Color = 0,
+                Color = 1,
             };
 
             playerTwo = new(ui)
             {
-                Color = 1,
+                Color = 0,
             };
+
+            this.boardService = boardService;
         }
 
         public async Task RunGame()
         {
-            if(gameIsOngoing)
+            if(GameIsOngoing)
             {
                 tokenSource.Cancel();
-                await Task.Delay(3);
+                await Task.Delay(5);
                 tokenSource = new();
             }
 
             playerOne.Fleet.Clear();
             playerTwo.Fleet.Clear();
 
-            gameIsOngoing = true;
+            GameIsOngoing = true;
             await using ManewryMorskieGame manewry = new(playerOne, playerTwo) { AsyncGame = false };
             CancellationToken token = tokenSource.Token;
+            manewry.TurnChanged += Manewry_TurnChanged;
 
             try
             {
@@ -56,9 +61,20 @@ namespace ManewryMorskieRazor
             }
             finally
             {
-                gameIsOngoing = false;
+                manewry.TurnChanged -= Manewry_TurnChanged;
+                GameIsOngoing = false;
                 Console.WriteLine("Game finished");
             }
+        }
+
+        private async void Manewry_TurnChanged(object? sender, int e)
+        {
+            if(TurnPause != null)
+                await TurnPause.Invoke(string.Empty);
+            
+            foreach (BoardCellService bcs in boardService)
+                if(bcs.Pawn.HasValue)
+                    await bcs.TogglePawnLabel(e);
         }
     }
 }
