@@ -14,6 +14,25 @@ namespace ManewryMorskie
 
     public class Move
     {
+
+        public Move() { }
+
+        public Move(Move mv)
+        {
+            From = mv.From;
+            To = mv.To;
+            SourceUnitDescription = mv.SourceUnitDescription;
+            TargetUnitDescription = mv.TargetUnitDescription;
+            Disarm = mv.Disarm;
+            Attack = mv.Attack;
+            Result = mv.Result;
+
+            foreach (CellLocation mineLocation in mv.SetMines)
+                SetMines.Add(mineLocation);
+
+            Path = mv.Path;
+        }
+
         public CellLocation From { get; set; }
         public CellLocation To { get; set; }
         public string SourceUnitDescription { get; set; } = string.Empty;

@@ -37,14 +37,6 @@ namespace ManewryMorskie
             this.players = players;
             currentPlayer = player;
             unitsToPlace[typeof(Mina)] = 0;
-
-            unitsToPlace = new()
-            {
-                { typeof(Bateria), 4 },
-                { typeof(Pancernik), 3 },
-                { typeof(OkretDesantowy), 1 },
-                { typeof(OkretRakietowy), 3 },
-            };
         }
 
         public async Task PlacePawns(CancellationToken token)

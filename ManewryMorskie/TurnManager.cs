@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Selectable = System.Collections.Generic.Dictionary<CellLib.CellLocation, (ManewryMorskie.MoveChecker? moveChecker, System.Collections.Generic.IList<ManewryMorskie.ICellAction> actions)>;
+
 namespace ManewryMorskie
 {
 
@@ -15,8 +17,9 @@ namespace ManewryMorskie
         private readonly PlayerManager playerManager;
         private readonly InternationalWaterManager internationalWaterManager;
         private readonly SemaphoreSlim semaphore = new(0, 1);
-        private readonly Dictionary<CellLocation, (MoveChecker? moveChecker, IList<ICellAction> actions)> selectable = new();
-        private Move result = new();
+        private readonly Selectable selectable = new();
+        private readonly CellMarker marker;
+        private readonly Move result = new();
 
         private CellLocation? selectedUnitLocation;
         private CancellationToken? cancellationToken;
@@ -30,6 +33,7 @@ namespace ManewryMorskie
             this.map = map;
             this.playerManager = playerManager;
             this.internationalWaterManager = internationalWaterManager;
+            this.marker = new CellMarker(this);
         }
 
         public async Task<Move> MakeMove(CancellationToken token)
@@ -50,19 +54,20 @@ namespace ManewryMorskie
                 item.Value.actions.Add(new SelectUnitAction(item.Key, this));
 
             await PlayerUi.DisplayMessage("Wybierz jednostkę", MessageType.SideMessage);
-            await UpdateMarks();
+            await marker.UpdateMarks();
 
             PlayerUi.ClickedLocation += SelectedLocation;
 #if DEBUG
             stopWatch.Stop();
-            Console.WriteLine($"Make Move Time (ms): {stopWatch.Elapsed.TotalMilliseconds}");
+            Console.WriteLine($"MakeMove Time (ms): {stopWatch.Elapsed.TotalMilliseconds}");
 #endif
             await semaphore.WaitAsync(token);
            
-            PlayerUi.ChoosenOptionId -= PlayerUi_ChoosenOptionId;
+            PlayerUi.ChoosenOptionId -= ChooseOption;
             PlayerUi.ClickedLocation -= SelectedLocation;
             token.ThrowIfCancellationRequested();
 
+            marker.LastMove = new(result);
             return result;
         }
 
@@ -84,25 +89,25 @@ namespace ManewryMorskie
                     //wyświetl listę i pozwól wybrać
                     await PlayerUi.DisplayContextOptionsMenu(e, value.actions.Select(o => o.Name).ToArray());
 
-                    PlayerUi.ChoosenOptionId -= PlayerUi_ChoosenOptionId;
-                    PlayerUi.ChoosenOptionId += PlayerUi_ChoosenOptionId;
+                    PlayerUi.ChoosenOptionId -= ChooseOption;
+                    PlayerUi.ChoosenOptionId += ChooseOption;
                 }
             }
         }
 
-        private async void PlayerUi_ChoosenOptionId(object sender, int e)
+        private async void ChooseOption(object sender, int e)
         {
             if (selectable[selectedUnitLocation!.Value].actions.Count <= e)
                 return;
 
             await RealiseAction(selectable[selectedUnitLocation!.Value].actions[e]);
-            PlayerUi.ChoosenOptionId -= PlayerUi_ChoosenOptionId;
+            PlayerUi.ChoosenOptionId -= ChooseOption;
         }
 
         private async ValueTask RealiseAction(ICellAction action)
         {
             bool finishTurn = await action.Execute(result!, cancellationToken!.Value);
-            await UpdateMarks();
+            await marker.UpdateMarks();
 
             if (finishTurn)
             {
@@ -112,34 +117,9 @@ namespace ManewryMorskie
             }
         }
 
-        private async ValueTask UpdateMarks()
-        {
-            await PlayerUi.MarkCells(map.Keys, MarkOptions.None);
-
-            Dictionary<MarkOptions, HashSet<CellLocation>> buffer = new()
-            {
-                { MarkOptions.Selectable, new() },
-                { MarkOptions.Moveable, new() },
-                { MarkOptions.Attackable, new() },
-                { MarkOptions.Minable, new() },
-                { MarkOptions.Disarmable, new() },
-            };
-
-            foreach (var (location, actions) in selectable.Select(kpv => (kpv.Key, kpv.Value.actions)))
-                foreach (ICellAction option in actions)
-                    buffer[option.MarkMode].Add(location);
-                    
-
-            foreach (var item in buffer)
-                await PlayerUi.MarkCells(item.Value, item.Key);
-
-            if (selectedUnitLocation.HasValue)
-                await PlayerUi.MarkCells(selectedUnitLocation.Value, MarkOptions.Selected);
-        }
-
         public void Dispose()
         {
-            PlayerUi.ChoosenOptionId -= PlayerUi_ChoosenOptionId;
+            PlayerUi.ChoosenOptionId -= ChooseOption;
             PlayerUi.ClickedLocation -= SelectedLocation;
         }
     }

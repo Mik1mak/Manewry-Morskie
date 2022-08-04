@@ -10,6 +10,8 @@ namespace ManewryMorskie
 
     public class ManewryMorskieGame : IAsyncDisposable
     {
+        public event EventHandler<int>? TurnChanged;
+
         private InternationalWaterManager internationalWaterManager;
         private StandardMap map;
         private GameEndDetector endDetector;
@@ -29,12 +31,18 @@ namespace ManewryMorskie
             internationalWaterManager = new InternationalWaterManager(map);
 
             turnManager.TurnChanging += TurnCounter_TurnChanging;
+            turnManager.TurnChanged += TurnManager_TurnChanged;
             internationalWaterManager.InternedUnit += InternationalWaterManager_InternedUnit;
 
             endDetector = new GameEndDetector(map, turnManager, playerManager);
             endDetector.GameEnded += EndDetector_GameEnded;
 
             executor = new(map, playerManager);
+        }
+
+        private void TurnManager_TurnChanged(object sender, int e)
+        {
+            TurnChanged?.Invoke(this, e);
         }
 
         private async void EndDetector_GameEnded(object sender, GameEnd e)
