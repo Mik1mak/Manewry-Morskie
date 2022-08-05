@@ -1,4 +1,4 @@
-﻿using ManewryMorskie;
+﻿using ManewryMorskie.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,58 +12,45 @@ namespace ManewryMorskieRazor
         public event Func<string, Task>? TurnPause;
 
         private readonly BoardService boardService;
-        private readonly Player playerOne;
-        private readonly Player playerTwo;
+        private readonly UserInterface ui;
+        private CancellationTokenSource? tokenSource;
 
-        private CancellationTokenSource tokenSource = new();
-        public bool GameIsOngoing { get; private set; } = false;
+        private IManewryMorskieClient? client;
 
         public GameService(UserInterface ui, BoardService boardService)
         {
-            playerOne = new(ui)
-            {
-                Color = 1,
-            };
-
-            playerTwo = new(ui)
-            {
-                Color = 0,
-            };
-
+            this.ui = ui;
             this.boardService = boardService;
+        }
+
+        public async ValueTask SetUpLocal()
+        {
+            await Clean();
+
+            ManewryMorskieLocalClient localClient = new(ui);
+            localClient.TurnChanged += Manewry_TurnChanged;
+            client = localClient;
+        }
+
+        private async ValueTask Clean()
+        {
+            if(client is ManewryMorskieLocalClient localClient)
+            {
+                localClient.TurnChanged -= Manewry_TurnChanged;
+                await client.DisposeAsync();
+            }
         }
 
         public async Task RunGame()
         {
-            if(GameIsOngoing)
+            if (client != null)
             {
-                tokenSource.Cancel();
+                tokenSource?.Cancel();
                 await Task.Delay(5);
                 tokenSource = new();
-            }
 
-            playerOne.Fleet.Clear();
-            playerTwo.Fleet.Clear();
-
-            GameIsOngoing = true;
-            await using ManewryMorskieGame manewry = new(playerOne, playerTwo) { AsyncGame = false };
-            CancellationToken token = tokenSource.Token;
-            manewry.TurnChanged += Manewry_TurnChanged;
-
-            try
-            {
-                Console.WriteLine("Game started");
-                await manewry.Start(token);
-            }
-            catch(OperationCanceledException)
-            {
-                Console.WriteLine("Game terminated");
-            }
-            finally
-            {
-                manewry.TurnChanged -= Manewry_TurnChanged;
-                GameIsOngoing = false;
-                Console.WriteLine("Game finished");
+                await client.RunGame(tokenSource.Token);
+                await client.DisposeAsync();
             }
         }
 

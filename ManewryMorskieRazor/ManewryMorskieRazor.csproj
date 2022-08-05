@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CellsLib\CellLib.csproj" />
+    <ProjectReference Include="..\ManewryMorskie.Network\ManewryMorskie.Network.csproj" />
     <ProjectReference Include="..\ManewryMorskie\ManewryMorskie.csproj" />
   </ItemGroup>
 

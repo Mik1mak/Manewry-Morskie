@@ -40,7 +40,7 @@
                             </BSToggle>
                         </Toggler>
                         <Content>
-                            <BSDropdownItem @onclick="async () => await Game.RunGame()">Hot Seat</BSDropdownItem>
+                            <BSDropdownItem @onclick="async () => await LocalGame()">Hot Seat</BSDropdownItem>
                             <BSDropdownItem IsDisabled="true">Online</BSDropdownItem>
                         </Content>
                     </BSDropdown>
@@ -103,12 +103,18 @@
     private bool CanZoomOut => Zoom == MIN_ZOOM;
     private bool CannotZoomIn => Zoom == MAX_ZOOM;
 
-    public async ValueTask ChangeZoom(int step)
+    private async ValueTask ChangeZoom(int step)
     {
         if(Zoom + step <= MAX_ZOOM && Zoom + step >= MIN_ZOOM)
         {
             Zoom += step;
             await BoardTransform.Zoom(Zoom);
         }
+    }
+
+    private async Task LocalGame()
+    {
+        await Game.SetUpLocal();
+        await Game.RunGame();
     }
 }
