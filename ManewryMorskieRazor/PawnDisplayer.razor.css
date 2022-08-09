@@ -1,0 +1,39 @@
+﻿.pawn {
+    padding-top: 16px;
+    padding-left: 9px;
+    padding-right: 9px;
+    width: 100%;
+    height: 100%;
+    font-size: 6px;
+    background-size: cover;
+}
+
+.pawn-blue {
+    color: white;
+    background-image: url('PawnBlue.svg');
+}
+
+.pawn-blue-art {
+    color: white;
+    background-image: url('PawnBlueArt.svg');
+}
+
+.pawn-blue-ship {
+    color: white;
+    background-image: url('PawnBlueShip.svg');
+}
+
+.pawn-yellow {
+    color: black;
+    background-image: url('PawnYellow.svg');
+}
+
+.pawn-yellow-art {
+    color: black;
+    background-image: url('PawnYellowArt.svg');
+}
+
+.pawn-yellow-ship {
+    color: black;
+    background-image: url('PawnYellowShip.svg');
+}

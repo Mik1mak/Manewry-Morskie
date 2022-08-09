@@ -14,7 +14,7 @@ namespace ManewryMorskie.Server
     public class Client : Player
     {
         public string Id { get; private set; }
-        public CancellationToken CancellationToken { get; set; }
+        public CancellationToken CancellationToken { get; private set; }
 
         public Client(string id, CancellationToken token) : base(new NetworkUserInterface(id))
         {

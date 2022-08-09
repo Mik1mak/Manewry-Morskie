@@ -27,8 +27,8 @@ namespace ManewryMorskieRazor
 
         private void DialogService_OptionChoosed(object? sender, int e)
         {
-            if(ActiveInput)
-                ChoosenOptionId?.Invoke(this, e);
+            ChoosenOptionId?.Invoke(this, e);
+            ActiveInput = true;
         }
 
 
@@ -40,7 +40,8 @@ namespace ManewryMorskieRazor
 
         public async Task DisplayContextOptionsMenu(CellLocation location, params string[] options)
         {
-            await dialogService.DisplayOptions("Wybierz działanie", options);
+            ActiveInput = false;
+            await boardService[location].DisplayContextMenu(options);
         }
 
         public async Task DisplayMessage(string message, MessageType msgType = MessageType.Standard)

@@ -4,6 +4,7 @@ namespace ManewryMorskie.Server
 {
     public class ManewryMorskieHub : Hub
     {
+        Dictionary<string, Client> clients = new();
 
         public override Task OnConnectedAsync()
         {

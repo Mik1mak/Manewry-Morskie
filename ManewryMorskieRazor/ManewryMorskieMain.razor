@@ -54,10 +54,10 @@
     {
         await InvokeAsync(() =>
         {
-            boardStyle = $"transform-origin: top center; transform: scale({(zoom/100f).ToString(CultureInfo.InvariantCulture)}) ";
+            boardStyle = $"transform-origin: top center; transform: scale({(zoom/100f).ToString(CultureInfo.InvariantCulture)})";
 
             if (horizontal)
-                boardStyle += "rotate(90deg) translate(50%, -50%)";
+                boardStyle += " rotate(90deg) translate(50%, -50%)";
 
             boardStyle += ";";
 

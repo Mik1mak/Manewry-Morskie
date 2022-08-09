@@ -1,0 +1,49 @@
+﻿@implements IDisposable
+
+@inject BoardService BoardService
+
+@if(pawn.HasValue)
+{
+    <div class="@PawnCss" title="@(pawn.Value.Label)">
+        @(pawn.Value.Label)
+    </div>
+}
+
+@code {
+    [Parameter]
+    public CellLocation location { get; set; }
+
+    private Pawn? pawn;
+
+    private string PawnCss
+    {
+        get
+        {
+            string result = $"pawn pawn-" + (pawn!.Value.Color == 0 ? "yellow" : "blue");
+
+            if (pawn.Value.Label is null)
+                result += (pawn.Value.IsBattery ? "-art" : "-ship");
+
+            return result;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        BoardService[location].PawnChanged += PlacePawn;
+    }
+
+    private async Task PlacePawn(Pawn? pawn)
+    {
+        await InvokeAsync(() =>
+        {
+            this.pawn = pawn;
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        BoardService[location].PawnChanged -= PlacePawn;
+    }
+}

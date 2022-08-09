@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace ManewryMorskieRazor
@@ -27,6 +28,18 @@ namespace ManewryMorskieRazor
             {
                 await module.InvokeVoidAsync("toggleModal", modalId);
             }
+        }
+
+        public async ValueTask ShowDropdown(ElementReference elemenet) => await InvokeAsync("showDropdown", elemenet);
+
+        public async ValueTask HideDropdown(ElementReference elemenet) => await InvokeAsync("hideDropdown", elemenet);
+
+        public async ValueTask UpdateDropdown(ElementReference elemenet) => await InvokeAsync("updateDropdown", elemenet);
+
+        private async ValueTask InvokeAsync<T>(string methodId, T arg)
+        {
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync(methodId, arg);
         }
 
         public async ValueTask DisposeAsync()

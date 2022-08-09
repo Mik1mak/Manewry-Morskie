@@ -75,11 +75,12 @@
             </BSNavItem>
             <BSNavItem IsDropdown="true">
                 <BSButtonGroup MarginLeftAndRight="Margins.Small">
-                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="async () => await ChangeZoom(-15)" IsDisabled="@CanZoomOut">
+                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="async () => await ChangeZoom(-15)" IsDisabled="@CannotZoomOut">
                         <span class="oi oi-zoom-out"></span>
                         <span class="d-none d-lg-inline"> Oddal</span>
                     </BSButton>
-                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="async () => await ChangeZoom(DEFAULT_ZOOM-Zoom)">
+                    <BSButton Color="BSColor.Light" Class="d-none d-sm-block"
+                        IsOutlined="true" @onclick="async () => await ChangeZoom(DEFAULT_ZOOM-Zoom)">
                         @Zoom%
                     </BSButton>
                     <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="async () => await ChangeZoom(15)" IsDisabled="@CannotZoomIn">
@@ -95,12 +96,12 @@
 @code 
 {
     private const int MAX_ZOOM = 190;
-    private const int MIN_ZOOM = 55;
+    private const int MIN_ZOOM = 40;
     private const int DEFAULT_ZOOM = 100;
 
     public int Zoom { get; private set; } = DEFAULT_ZOOM;
 
-    private bool CanZoomOut => Zoom == MIN_ZOOM;
+    private bool CannotZoomOut => Zoom == MIN_ZOOM;
     private bool CannotZoomIn => Zoom == MAX_ZOOM;
 
     private async ValueTask ChangeZoom(int step)

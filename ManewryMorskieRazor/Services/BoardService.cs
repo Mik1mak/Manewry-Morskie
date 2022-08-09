@@ -17,6 +17,7 @@ namespace ManewryMorskieRazor
     {
         public event Func<Pawn?, Task>? PawnChanged;
         public event Func<MarkOptions, Task>? CellMarked;
+        public event Func<string[], Task>? ContextMenuDisplayed;
 
         public Pawn? Pawn { get; private set; }
 
@@ -32,7 +33,7 @@ namespace ManewryMorskieRazor
                 
         }
 
-        public async Task PlacePawn(Pawn pawn)
+        public async ValueTask PlacePawn(Pawn pawn)
         {
             Pawn = pawn;
 
@@ -40,7 +41,7 @@ namespace ManewryMorskieRazor
                 await PawnChanged.Invoke(Pawn);
         }
 
-        public async Task MarkCell(MarkOptions option)
+        public async ValueTask MarkCell(MarkOptions option)
         {
             if (CellMarked != null)
                 await CellMarked.Invoke(option);
@@ -58,6 +59,12 @@ namespace ManewryMorskieRazor
                 await PawnChanged.Invoke(null);
 
             return result;
+        }
+
+        public async ValueTask DisplayContextMenu(string[] options)
+        {
+            if (ContextMenuDisplayed != null)
+                await ContextMenuDisplayed.Invoke(options);
         }
     }
 }

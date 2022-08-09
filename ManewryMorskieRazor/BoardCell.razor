@@ -3,55 +3,72 @@
 @inject BoardService BoardService
 @inject UserInterface Ui
 @inject BoardTransformService BoardTransform
+@inject BootstrapInterop Bootstrap
+@inject DialogService DialogService
 
 <td class="board-cell" @onclick="CellClicked">
-    <div class="@cellCss">
-        @if(pawnOnCell.HasValue)
-        {
-            <div style="@pawnStyle" class="@PawnCss" title="@(pawnOnCell.Value.Label)">
-                @(pawnOnCell.Value.Label)
-            </div>
-        }
+    <div class="@firstCellCss" style="@cellStyle">
+        <div class="@secondCellCss" @ref="dropdownRef" @attributes="dropdownAtrs"
+            data-bs-auto-close="false" data-bs-display="static">    
+            <PawnDisplayer location="@Location"/>
+        </div>
+        <ul class="dropdown-menu dropdown-menu-dark">
+            @foreach (var (i, opt) in options.Select((opt, i) => (i, opt)))
+            {
+                <li @onclick="() => ChooseOption(i)">
+                    <a class="dropdown-item" href="javascript:void(0);">
+                        @opt
+                    </a>
+                </li>
+            }
+        </ul>     
     </div>
 </td>
 
 @code 
 {
-    [Parameter]
-    public uint Row { get; set; }
+    private ElementReference dropdownRef;
 
     [Parameter]
-    public uint Column { get; set; }
+    public uint Row { get; init; }
+
+    [Parameter]
+    public uint Column { get; init; }
 
     private CellLocation Location => ((int)Column, (int)Row);
 
-    private Pawn? pawnOnCell;
+    private string firstCellCss = "board-cell-mark dropend";    
 
-    private string cellCss = "board-cell-mark";    
+    private string secondCellCss = "board-cell-mark";
 
-    private string pawnStyle = string.Empty;
+    private string cellStyle = string.Empty;
 
-    public string PawnCss
+    private string[] options = Array.Empty<string>();
+
+    private Dictionary<string, object> dropdownAtrs => options.Any() ? _dropdownAtrs : emptyAtr;
+
+    private static Dictionary<string, object> _dropdownAtrs = new()
     {
-        get
-        {
-            if (!pawnOnCell.HasValue)
-                return string.Empty;
-
-            string result = $"pawn pawn-" + (pawnOnCell.Value.Color == 0 ? "yellow" : "blue");
-
-            if (pawnOnCell.Value.Label is null)
-                result += (pawnOnCell.Value.IsBattery ? "-art" : "-ship");
-
-            return result;
-        }
-    }
+        { "data-bs-toggle", "dropdown" },
+    };
+    private static Dictionary<string, object> emptyAtr = new();
 
     protected override void OnInitialized()
     {
         BoardService[Location].CellMarked += MarkCell;
-        BoardService[Location].PawnChanged += PlacePawn;
+        BoardService[Location].ContextMenuDisplayed += DiplayContextMenu;
         BoardTransform.TransformationChanged += Rotate;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            return;
+
+        if (options.Length != 0)
+            await Bootstrap.ShowDropdown(dropdownRef);
+        else
+            await Bootstrap.HideDropdown(dropdownRef);
     }
 
     private void CellClicked()
@@ -63,42 +80,44 @@
     {
         await InvokeAsync(() =>
         {
-            string baseStr = "board-cell-mark ";
+            string baseStr = "board-cell-mark btn-group dropend ";
+            string secondBaseStr = "board-cell-mark ";
 
             switch(option)
             {
                 case MarkOptions.None:
-                    cellCss = baseStr;
+                    secondCellCss = secondBaseStr;
+                    firstCellCss = baseStr;
                     break;
                 case MarkOptions.Selectable:
-                    cellCss = baseStr + "selectable-color";
+                    secondCellCss = secondBaseStr + "selectable-color";
                     break;
                 case MarkOptions.Selected:
-                    cellCss = baseStr + "selected-color";
+                    firstCellCss = baseStr + "selected-color";
                     break;
                 case MarkOptions.Moveable:
-                    cellCss = baseStr + "moveable-color";
+                    secondCellCss = secondBaseStr + "moveable-color";
+                    break;
+                case MarkOptions.Moved:
+                    firstCellCss = baseStr + "moved-color";
                     break;
                 case MarkOptions.Attackable:
-                    cellCss = baseStr + "attackable-color";
+                    secondCellCss = secondBaseStr + "attackable-color";
+                    break;
+                case MarkOptions.Attacked:
+                    firstCellCss = baseStr + "attacked-color";
                     break;
                 case MarkOptions.Minable:
-                    cellCss = baseStr + "mineable-color";
+                    secondCellCss = secondBaseStr + "mineable-color";
+                    break;
+                case MarkOptions.Mined:
+                    firstCellCss = baseStr + "mined-color";
                     break;
                 default:
-                    cellCss = "board-cell-mark bg-info";
+                    firstCellCss = baseStr + "bg-info";
                     break;
             }
 
-            StateHasChanged();
-        });
-    }
-
-    private async Task PlacePawn(Pawn? pawn)
-    {
-        await InvokeAsync(() =>
-        {
-            pawnOnCell = pawn;
             StateHasChanged();
         });
     }
@@ -108,18 +127,34 @@
         await InvokeAsync(() =>
         {
             if (horizontal)
-                pawnStyle = "transform-origin: center; transform: rotate(-90deg)";
+                cellStyle = "transform-origin: center; transform: rotate(-90deg)";
             else
-                pawnStyle = string.Empty;
+                cellStyle = string.Empty;
 
             StateHasChanged();
         });
     }
 
+    private async Task DiplayContextMenu(string[] options)
+    {
+        await InvokeAsync(() =>
+        {
+            this.options = options;
+            StateHasChanged();
+        });
+    }
+
+    private void ChooseOption(int optionId)
+    {
+        options = Array.Empty<string>();
+        StateHasChanged();
+        DialogService.ChooseOption(optionId);
+    }
+
     public void Dispose()
     {
         BoardService[Location].CellMarked -= MarkCell;
-        BoardService[Location].PawnChanged -= PlacePawn;
+        BoardService[Location].ContextMenuDisplayed -= DiplayContextMenu;
         BoardTransform.TransformationChanged -= Rotate;
     }
 }
