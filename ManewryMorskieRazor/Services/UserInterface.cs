@@ -59,8 +59,6 @@ namespace ManewryMorskieRazor
             Pawn pawn = await boardService[mv.From].TakeOffPawn();
             await boardService[mv.To].PlacePawn(pawn);
 
-            await Task.Delay(500);
-
             if(mv.Result != BattleResult.None)
             {
                 BoardCellService bcs = boardService[(mv.Attack ?? mv.Disarm!).Value];
@@ -74,7 +72,7 @@ namespace ManewryMorskieRazor
             if (mv.Result.HasFlag(BattleResult.TargetDestroyed))
                 await boardService[(mv.Attack ?? mv.Disarm!).Value].TakeOffPawn();
 
-            await Task.Delay(400);
+            await Task.Delay(500);
         }
 
         public async Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode)
@@ -96,6 +94,19 @@ namespace ManewryMorskieRazor
         public async Task TakeOffPawn(CellLocation location)
         {
             await boardService[location].TakeOffPawn();
+        }
+
+        public async Task Clear()
+        {
+            foreach (CellLocation l in boardService.Keys)
+            {
+                if (boardService[l].Pawn.HasValue)
+                    await TakeOffPawn(l);
+                await boardService[l].DisplayContextMenu(Array.Empty<string>());
+            }
+
+            await MarkCells(boardService.Keys, MarkOptions.None);
+            await DisplayMessage(string.Empty, MessageType.Empty);
         }
     }
 }

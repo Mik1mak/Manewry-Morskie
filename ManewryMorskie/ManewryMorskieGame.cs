@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace ManewryMorskie
 {
 
-    public class ManewryMorskieGame : IAsyncDisposable
+    public class ManewryMorskieGame
     {
         public event EventHandler<int>? TurnChanged;
 
@@ -124,19 +124,6 @@ namespace ManewryMorskie
                 await executor.Execute(move);
                 turnManager.NextTurn();
                 token.ThrowIfCancellationRequested();
-            }
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            foreach (IUserInterface ui in playerManager.UniqueInferfaces)
-            {
-                foreach (CellLocation l in map.Keys)
-                    if (map[l].Unit is not null)
-                        await ui.TakeOffPawn(l);
-
-                await ui.MarkCells(map.Keys, MarkOptions.None);
-                await ui.DisplayMessage(string.Empty, MessageType.Empty);
             }
         }
     }

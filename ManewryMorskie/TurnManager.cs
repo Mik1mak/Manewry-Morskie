@@ -89,6 +89,7 @@ namespace ManewryMorskie
                     //wyświetl listę i pozwól wybrać
                     await PlayerUi.DisplayContextOptionsMenu(e, value.actions.Select(o => o.Name).ToArray());
 
+                    PlayerUi.ClickedLocation -= SelectedLocation;
                     PlayerUi.ChoosenOptionId -= ChooseOption;
                     PlayerUi.ChoosenOptionId += ChooseOption;
                 }
@@ -100,8 +101,8 @@ namespace ManewryMorskie
             if (selectable[selectedUnitLocation!.Value].actions.Count <= e)
                 return;
 
-            await RealiseAction(selectable[selectedUnitLocation!.Value].actions[e]);
             PlayerUi.ChoosenOptionId -= ChooseOption;
+            await RealiseAction(selectable[selectedUnitLocation!.Value].actions[e]);
         }
 
         private async ValueTask RealiseAction(ICellAction action)

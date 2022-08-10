@@ -6,6 +6,7 @@ namespace ManewryMorskieRazor
     public class ManewryMorskieLocalClient : IManewryMorskieClient
     {
         private ManewryMorskieGame game;
+        private UserInterface ui;
 
         public event Func<string?, Task>? GameClosed;
 
@@ -17,6 +18,8 @@ namespace ManewryMorskieRazor
 
         public ManewryMorskieLocalClient(UserInterface ui)
         {
+            this.ui = ui;
+
             Player playerOne = new(ui)
             {
                 Color = 1,
@@ -44,7 +47,7 @@ namespace ManewryMorskieRazor
 
         public async ValueTask DisposeAsync()
         {
-            await game.DisposeAsync();
+            await ui.Clear();
         }
     }
 }

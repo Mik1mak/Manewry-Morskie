@@ -37,7 +37,7 @@
 
     private CellLocation Location => ((int)Column, (int)Row);
 
-    private string firstCellCss = "board-cell-mark dropend";    
+    private string firstCellCss = "board-cell-mark btn-group dropend";    
 
     private string secondCellCss = "board-cell-mark";
 
@@ -50,6 +50,7 @@
     private static Dictionary<string, object> _dropdownAtrs = new()
     {
         { "data-bs-toggle", "dropdown" },
+        { "disable", string.Empty },
     };
     private static Dictionary<string, object> emptyAtr = new();
 
@@ -146,9 +147,9 @@
 
     private void ChooseOption(int optionId)
     {
+        DialogService.ChooseOption(optionId);
         options = Array.Empty<string>();
         StateHasChanged();
-        DialogService.ChooseOption(optionId);
     }
 
     public void Dispose()
