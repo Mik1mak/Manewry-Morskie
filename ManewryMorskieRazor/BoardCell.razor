@@ -50,7 +50,6 @@
     private static Dictionary<string, object> _dropdownAtrs = new()
     {
         { "data-bs-toggle", "dropdown" },
-        { "disable", string.Empty },
     };
     private static Dictionary<string, object> emptyAtr = new();
 
@@ -61,15 +60,19 @@
         BoardTransform.TransformationChanged += Rotate;
     }
 
+    private int lastOptionsLength = 0;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (options.Length == lastOptionsLength)
             return;
 
         if (options.Length != 0)
             await Bootstrap.ShowDropdown(dropdownRef);
         else
             await Bootstrap.HideDropdown(dropdownRef);
+
+        lastOptionsLength = options.Length;
     }
 
     private void CellClicked()

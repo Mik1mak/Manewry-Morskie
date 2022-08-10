@@ -36,6 +36,8 @@ namespace ManewryMorskieRazor
 
         public async ValueTask UpdateDropdown(ElementReference elemenet) => await InvokeAsync("updateDropdown", elemenet);
 
+        public async ValueTask ToggleDropdown(ElementReference elemenet) => await InvokeAsync("updateDropdown", elemenet);
+
         private async ValueTask InvokeAsync<T>(string methodId, T arg)
         {
             var module = await moduleTask.Value;

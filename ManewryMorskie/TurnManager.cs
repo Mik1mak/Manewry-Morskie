@@ -62,9 +62,6 @@ namespace ManewryMorskie
             Console.WriteLine($"MakeMove Time (ms): {stopWatch.Elapsed.TotalMilliseconds}");
 #endif
             await semaphore.WaitAsync(token);
-           
-            PlayerUi.ChoosenOptionId -= ChooseOption;
-            PlayerUi.ClickedLocation -= SelectedLocation;
             token.ThrowIfCancellationRequested();
 
             marker.LastMove = new(result);
@@ -89,7 +86,6 @@ namespace ManewryMorskie
                     //wyświetl listę i pozwól wybrać
                     await PlayerUi.DisplayContextOptionsMenu(e, value.actions.Select(o => o.Name).ToArray());
 
-                    PlayerUi.ClickedLocation -= SelectedLocation;
                     PlayerUi.ChoosenOptionId -= ChooseOption;
                     PlayerUi.ChoosenOptionId += ChooseOption;
                 }
@@ -112,6 +108,8 @@ namespace ManewryMorskie
 
             if (finishTurn)
             {
+                PlayerUi.ClickedLocation -= SelectedLocation;
+                PlayerUi.ChoosenOptionId -= ChooseOption;
                 selectedUnitLocation = null;
                 result!.SourceUnitDescription = map[result.From].Unit!.ToString();
                 semaphore.Release();

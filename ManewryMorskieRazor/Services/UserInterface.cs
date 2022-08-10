@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ManewryMorskieRazor
 {
-    public class UserInterface : IUserInterface
+    public class UserInterface : IUserInterface, IAsyncDisposable
     {
         private readonly BoardService boardService;
         private readonly DialogService dialogService;
@@ -96,7 +96,7 @@ namespace ManewryMorskieRazor
             await boardService[location].TakeOffPawn();
         }
 
-        public async Task Clear()
+        public async ValueTask DisposeAsync()
         {
             foreach (CellLocation l in boardService.Keys)
             {
