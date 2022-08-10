@@ -17,7 +17,7 @@
             {
                 foreach(var (option, index) in OptionsSet.Select((option, index) => (option, index)))
                 {
-                    <a href="#" class="list-group-item list-group-item-action list-group-item-primary p-2 mt-1"
+                    <a href="javascript:void(0)" class="list-group-item list-group-item-action list-group-item-primary p-2 mt-1"
                         @onclick="async () => await ChooseOption(index)">
                         @option
                     </a>

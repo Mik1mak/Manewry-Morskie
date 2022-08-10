@@ -7,12 +7,12 @@
 @inject DialogService DialogService
 
 <td class="board-cell" @onclick="CellClicked">
-    <div class="@firstCellCss" style="@cellStyle">
+    <div class="@FirstCellCss" style="@cellStyle">
         <div class="@secondCellCss" @ref="dropdownRef" @attributes="dropdownAtrs"
             data-bs-auto-close="false" data-bs-display="static">    
             <PawnDisplayer location="@Location"/>
         </div>
-        <ul class="dropdown-menu dropdown-menu-dark">
+        <ul class="@DropdownCss">
             @foreach (var (i, opt) in options.Select((opt, i) => (i, opt)))
             {
                 <li @onclick="() => ChooseOption(i)">
@@ -37,16 +37,55 @@
 
     private CellLocation Location => ((int)Column, (int)Row);
 
-    private string firstCellCss = "board-cell-mark btn-group dropend";    
+    private string firstCellCss = "board-cell-mark btn-group";
+    private string FirstCellCss
+    {
+        get
+        {
+            if(horizontal)
+            {
+               return firstCellCss + " dropend";
+            }
+            else
+            {
+                if (Row < 8)
+                    return firstCellCss + " dropup";
+                else
+                    return firstCellCss + " dropdown";
+            }
+        }
+    }
+    private string DropdownCss
+    {
+        get
+        {
+            string baseStr = "dropdown-menu dropdown-menu-dark ";
+            if(horizontal)
+            {
+                if (Row > 8)
+                    return baseStr + " dropdown-menu-end";
+                else
+                    return baseStr + " dropdown-menu-start";
+            }
+            else
+            {
+                if (Column > 5)
+                    return baseStr + " dropdown-menu-end";
+                else
+                    return baseStr + " dropdown-menu-start";
+            }
+        }
+    }
 
     private string secondCellCss = "board-cell-mark";
 
-    private string cellStyle = string.Empty;
+    private bool horizontal = false;
+    private string cellStyle => horizontal ? "transform-origin: center; transform: rotate(-90deg)" : string.Empty;
 
     private string[] options = Array.Empty<string>();
+    private int lastOptionsLength = 0;
 
     private Dictionary<string, object> dropdownAtrs => options.Any() ? _dropdownAtrs : emptyAtr;
-
     private static Dictionary<string, object> _dropdownAtrs = new()
     {
         { "data-bs-toggle", "dropdown" },
@@ -60,7 +99,7 @@
         BoardTransform.TransformationChanged += Rotate;
     }
 
-    private int lastOptionsLength = 0;
+    
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -84,7 +123,7 @@
     {
         await InvokeAsync(() =>
         {
-            string baseStr = "board-cell-mark btn-group dropend ";
+            string baseStr = "board-cell-mark btn-group ";
             string secondBaseStr = "board-cell-mark ";
 
             switch(option)
@@ -130,11 +169,7 @@
     {
         await InvokeAsync(() =>
         {
-            if (horizontal)
-                cellStyle = "transform-origin: center; transform: rotate(-90deg)";
-            else
-                cellStyle = string.Empty;
-
+            this.horizontal = horizontal;
             StateHasChanged();
         });
     }
