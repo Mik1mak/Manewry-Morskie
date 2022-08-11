@@ -1,5 +1,4 @@
 ﻿@inject GameService Game
-@inject BoardTransformService BoardTransform
 
 <MyBSModal Id="instruction-modal" Header="Zasady gry">
     <Content>
@@ -25,6 +24,8 @@
         </a>
     </Footer>
 </MyBSModal>
+<OnlineGameModal />
+
 
 <BSNavbar Color="BSColor.Dark" IsDark="true">
     <form class="container-fluid flex-row justify-content-between">
@@ -40,8 +41,8 @@
                             </BSToggle>
                         </Toggler>
                         <Content>
-                            <BSDropdownItem @onclick="async () => await LocalGame()">Hot Seat</BSDropdownItem>
-                            <BSDropdownItem IsDisabled="true">Online</BSDropdownItem>
+                            <BSDropdownItem @onclick="async () => await StartLocalGame()">Hot Seat</BSDropdownItem>
+                            <BSDropdownItem Attributes='ToggleAtributes("#online-game-modal")'>Online</BSDropdownItem>
                         </Content>
                     </BSDropdown>
                 </BSButtonGroup>
@@ -56,64 +57,25 @@
                             </BSToggle>
                         </Toggler>
                         <Content>
-                            <BSDropdownItem 
-                                Attributes='new Dictionary<string, object>(){{"data-bs-toggle", "modal"}, {"data-bs-target", "#instruction-modal"}}'>
-                                Zasady gry</BSDropdownItem>
-                            <BSDropdownItem
-                                Attributes='new Dictionary<string, object>(){{"data-bs-toggle", "modal"}, {"data-bs-target", "#table-modal"}}'>
-                                Tabela jednostek</BSDropdownItem>
+                            <BSDropdownItem Attributes='ToggleAtributes("#instruction-modal")'>Zasady gry</BSDropdownItem>
+                            <BSDropdownItem Attributes='ToggleAtributes("#table-modal")'>Tabela jednostek</BSDropdownItem>
                         </Content>
                     </BSDropdown>
                 </BSButtonGroup>
             </BSNavItem>
-            <BSNavItem IsDropdown="true">
-                    <BSButton IsOutlined="true" Color="BSColor.Light" MarginLeftAndRight="Margins.Small"
-                        @onclick="async () => await BoardTransform.Rotate(!BoardTransform.Horizontal)">
-                        <span class="oi oi-loop-circular"></span>
-                        <span class="d-none d-lg-inline">  Obróć</span>
-                    </BSButton>
-            </BSNavItem>
-            <BSNavItem IsDropdown="true">
-                <BSButtonGroup MarginLeftAndRight="Margins.Small">
-                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="async () => await ChangeZoom(-15)" IsDisabled="@CannotZoomOut">
-                        <span class="oi oi-zoom-out"></span>
-                        <span class="d-none d-lg-inline"> Oddal</span>
-                    </BSButton>
-                    <BSButton Color="BSColor.Light" Class="d-none d-sm-block"
-                        IsOutlined="true" @onclick="async () => await ChangeZoom(DEFAULT_ZOOM-Zoom)">
-                        @Zoom%
-                    </BSButton>
-                    <BSButton Color="BSColor.Light" IsOutlined="true" @onclick="async () => await ChangeZoom(15)" IsDisabled="@CannotZoomIn">
-                        <span class="oi oi-zoom-in"></span>
-                        <span class="d-none d-lg-inline"> Przybliż</span>
-                    </BSButton>
-                </BSButtonGroup>
-            </BSNavItem>
+            <BoardTransformTools />
         </BSNav>
     </form>
 </BSNavbar>
 
 @code 
 {
-    private const int MAX_ZOOM = 190;
-    private const int MIN_ZOOM = 40;
-    private const int DEFAULT_ZOOM = 100;
-
-    public int Zoom { get; private set; } = DEFAULT_ZOOM;
-
-    private bool CannotZoomOut => Zoom == MIN_ZOOM;
-    private bool CannotZoomIn => Zoom == MAX_ZOOM;
-
-    private async ValueTask ChangeZoom(int step)
+    private Dictionary<string, object> ToggleAtributes(string dataBsTargetValue)
     {
-        if(Zoom + step <= MAX_ZOOM && Zoom + step >= MIN_ZOOM)
-        {
-            Zoom += step;
-            await BoardTransform.Zoom(Zoom);
-        }
+        return new() { { "data-bs-toggle", "modal" }, { "data-bs-target", dataBsTargetValue } };
     }
 
-    private async Task LocalGame()
+    private async ValueTask StartLocalGame()
     {
         await Game.SetUpLocal();
         await Game.RunGame();

@@ -12,6 +12,7 @@ namespace ManewryMorskieRazor
         public event EventHandler<int>? OptionChoosed;
         public event Func<string, string[], Task>? NewOptionsSet;
         public event Func<string, MessageType, Task>? NewMessage;
+        public event Func<SplashScreen?, Task>? SplashScreenDisplayed;
 
         public async Task DisplayMessage(string message, MessageType msgType = MessageType.Standard)
         {
@@ -28,6 +29,12 @@ namespace ManewryMorskieRazor
         public void ChooseOption(int id)
         {
             OptionChoosed?.Invoke(this, id);
+        }
+
+        public async Task DisplaySplashScreen(SplashScreen? splashScreen)
+        {
+            if(SplashScreenDisplayed != null)
+                await SplashScreenDisplayed.Invoke(splashScreen);
         }
     }
 

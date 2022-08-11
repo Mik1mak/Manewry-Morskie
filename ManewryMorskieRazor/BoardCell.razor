@@ -8,8 +8,7 @@
 
 <td class="board-cell" @onclick="CellClicked">
     <div class="@FirstCellCss" style="@cellStyle">
-        <div class="@secondCellCss" @ref="dropdownRef" @attributes="dropdownAtrs"
-            data-bs-auto-close="false" data-bs-display="static">    
+        <div class="@secondCellCss" @ref="dropdownRef" @attributes="dropdownAtrs">    
             <PawnDisplayer location="@Location"/>
         </div>
         <ul class="@DropdownCss">
@@ -89,6 +88,8 @@
     private static Dictionary<string, object> _dropdownAtrs = new()
     {
         { "data-bs-toggle", "dropdown" },
+        { "data-bs-auto-close", "false" },
+        { "data-bs-display", "static" },
     };
     private static Dictionary<string, object> emptyAtr = new();
 
@@ -98,8 +99,6 @@
         BoardService[Location].ContextMenuDisplayed += DiplayContextMenu;
         BoardTransform.TransformationChanged += Rotate;
     }
-
-    
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

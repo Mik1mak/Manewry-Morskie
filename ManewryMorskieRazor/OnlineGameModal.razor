@@ -1,0 +1,48 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using Attributes = Dictionary<string, object>
+
+<div class="modal" tabindex="-1" id="online-game-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Gra Online</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <BSForm Model="onlineModal">
+                <div class="modal-body">
+                    @*<BSValidationSummary />*@
+                    <div class="mb-3">
+                        <BSLabel>Nazwa Pokoju</BSLabel>
+                        <BSInput DisplayName="Nazwa Pokoju" @bind-Value="onlineModal.RoomName"
+                                 IsDisabled="onlineModal.RandomRoom"
+                                 AdditionalAttributes='new Attributes {{"maxlength", "16"}}'/>
+                    </div>
+                    <div class="mb-3">
+                        <InputCheckbox 
+                            DisplayName="Losowy Pokój"
+                            AdditionalAttributes='new Attributes {{"class", "form-check-input"}}'
+                            @bind-Value="onlineModal.RandomRoom"/>
+                        <BSLabel>Losowy Pokój</BSLabel>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <BSButton Color="BSColor.Secondary">Stwórz</BSButton>
+                    <BSButton Color="BSColor.Primary">Dołącz</BSButton>
+                </div>
+            </BSForm>
+        </div>
+    </div>
+</div>
+
+@code 
+{
+    private OnlineGameFormModel onlineModal = new() { RandomRoom = false };
+
+    private class OnlineGameFormModel
+    {
+        [StringLength(16, ErrorMessage = "Nazwa Pokoju jest zbyt długa. (max 16 znaków)")]
+        public string? RoomName { get; set; }
+
+        public bool RandomRoom { get; set; }
+    }
+}

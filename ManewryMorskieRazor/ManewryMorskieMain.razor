@@ -3,36 +3,38 @@
 
 @inject DialogService Dialogs
 @inject BoardTransformService BoardTransform
-@inject GameService Game
+@inject DialogService DialogService
 
-<div class="d-flex h-100 flex-column">
-    <ManewryMorskieToolBar />
-    <ManewryMorskieDialogs SideMessageActive="@(string.IsNullOrEmpty(boardClass))"/>
-    <div id="game-bg" class="w-100 flex-grow-1 text-light overflow-auto">
-        @if(!string.IsNullOrEmpty(boardClass))
-        {
-            <div class="plate position-relative" @onclick="HidePausePlate">
-                <div class="position-absolute top-50 start-50 translate-middle">
-                    <h2>Kliknij, aby kontynuować</h2>
-                </div>
-            </div>    
-        }
-        <div id="board" class="@boardClass" style="@boardStyle">
-            <table>
-                @for (uint i = 1; i <= HEIGHT; i++)
-                {
-                    uint row = HEIGHT - i;
+@if(splashScreen.HasValue)
+{
+    <div class="splash-screen position-relative" style="@SplashStyle" @onclick="HideSplashScreen">
+        <div class="position-absolute top-50 start-50 translate-middle">
+            <h2>@splashScreen.Value.Message</h2>
+        </div>
+    </div>    
+}
+<div class="@MainClass">
+    <div class="d-flex h-100 flex-column">
+        <ManewryMorskieToolBar />
+        <ManewryMorskieDialogs />
+        <div id="game-bg" class="w-100 flex-grow-1 text-light overflow-auto">
+            <div id="board" style="@boardStyle">
+                <table>
+                    @for (uint i = 1; i <= HEIGHT; i++)
+                    {
+                        uint row = HEIGHT - i;
 
-                    <tr class="board-row">
-                        @for (uint j = 0; j < WIDTH; j++)
-                        {
-                            uint column = j;
+                        <tr class="board-row">
+                            @for (uint j = 0; j < WIDTH; j++)
+                            {
+                                uint column = j;
 
-                            <BoardCell Row="row" Column="column" />
-                        }
-                    </tr>
-                }
-            </table>
+                                <BoardCell Row="row" Column="column" />
+                            }
+                        </tr>
+                    }
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -42,12 +44,15 @@
     public const int HEIGHT = 18;
 
     private string boardStyle = string.Empty;
-    private string boardClass = string.Empty;
+
+    private SplashScreen? splashScreen;
+    private string MainClass => splashScreen.HasValue ? "d-none" : "overflow-hidden";
+    private string SplashStyle => splashScreen.HasValue && splashScreen.Value.IsDismisableByUser ? "cursor: pointer;" : string.Empty;
 
     protected override void OnInitialized()
     {
         BoardTransform.TransformationChanged += ApplyTransformations;
-        Game.TurnPause += DisplayPausePlate;
+        DialogService.SplashScreenDisplayed += DisplayPausePlate;
     }
 
     private async Task ApplyTransformations(int zoom, bool horizontal)
@@ -65,24 +70,25 @@
         });
     }
 
-    private async Task DisplayPausePlate(string msg)
+    private async Task DisplayPausePlate(SplashScreen? splashScreen)
     {
         await InvokeAsync(() =>
         {
-            boardClass = "d-none";
+            this.splashScreen = splashScreen;
             StateHasChanged();
         });
     }
 
-    private void HidePausePlate()
+    private void HideSplashScreen()
     {
-        boardClass = string.Empty;
+        if (splashScreen!.Value.IsDismisableByUser)
+            splashScreen = null;
         StateHasChanged();
     }
 
     public void Dispose()
     {
         BoardTransform.TransformationChanged -= ApplyTransformations;
-        Game.TurnPause -= DisplayPausePlate;
+        DialogService.SplashScreenDisplayed += DisplayPausePlate;
     }
 }

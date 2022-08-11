@@ -18,7 +18,6 @@ namespace ManewryMorskieRazor
         public event EventHandler<CellLocation>? ClickedLocation;
         public event EventHandler<int>? ChoosenOptionId;
 
-
         public UserInterface(BoardService board, DialogService dialogs)
         {
             (boardService, dialogService) = (board, dialogs);
@@ -30,7 +29,6 @@ namespace ManewryMorskieRazor
             ChoosenOptionId?.Invoke(this, e);
             ActiveInput = true;
         }
-
 
         public void Click(CellLocation location)
         {

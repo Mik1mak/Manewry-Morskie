@@ -9,18 +9,18 @@ namespace ManewryMorskieRazor
 {
     public class GameService
     {
-        public event Func<string, Task>? TurnPause;
-
         private readonly BoardService boardService;
         private readonly UserInterface ui;
+        private readonly DialogService dialogService;
         private CancellationTokenSource? tokenSource;
 
         private IManewryMorskieClient? client;
 
-        public GameService(UserInterface ui, BoardService boardService)
+        public GameService(UserInterface ui, BoardService boardService, DialogService dialogService)
         {
             this.ui = ui;
             this.boardService = boardService;
+            this.dialogService = dialogService;
         }
 
         public async ValueTask SetUpLocal()
@@ -56,8 +56,7 @@ namespace ManewryMorskieRazor
 
         private async void Manewry_TurnChanged(object? sender, int e)
         {
-            if(TurnPause != null)
-                await TurnPause.Invoke(string.Empty);
+            await dialogService.DisplaySplashScreen(new("Kliknij, aby kontynuować", true));
             
             foreach (BoardCellService bcs in boardService)
                 if(bcs.Pawn.HasValue)
