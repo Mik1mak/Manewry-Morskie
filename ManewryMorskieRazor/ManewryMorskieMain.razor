@@ -1,5 +1,4 @@
-﻿@using System.Globalization
-@implements IDisposable
+﻿@implements IDisposable
 
 @inject DialogService Dialogs
 @inject BoardTransformService BoardTransform
@@ -52,14 +51,14 @@
     protected override void OnInitialized()
     {
         BoardTransform.TransformationChanged += ApplyTransformations;
-        DialogService.SplashScreenDisplayed += DisplayPausePlate;
+        DialogService.SplashScreenDisplayed += SetSplashScreen;
     }
 
     private async Task ApplyTransformations(int zoom, bool horizontal)
     {
         await InvokeAsync(() =>
         {
-            boardStyle = $"transform-origin: top center; transform: scale({(zoom/100f).ToString(CultureInfo.InvariantCulture)})";
+            boardStyle = $"transform-origin: top center; transform: scale({(zoom/100f).ToString().Replace(',', '.')})";
 
             if (horizontal)
                 boardStyle += " rotate(90deg) translate(50%, -50%)";
@@ -70,7 +69,7 @@
         });
     }
 
-    private async Task DisplayPausePlate(SplashScreen? splashScreen)
+    private async Task SetSplashScreen(SplashScreen? splashScreen)
     {
         await InvokeAsync(() =>
         {
@@ -89,6 +88,6 @@
     public void Dispose()
     {
         BoardTransform.TransformationChanged -= ApplyTransformations;
-        DialogService.SplashScreenDisplayed += DisplayPausePlate;
+        DialogService.SplashScreenDisplayed += SetSplashScreen;
     }
 }

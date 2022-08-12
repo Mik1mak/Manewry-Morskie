@@ -1,6 +1,10 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using Attributes = Dictionary<string, object>
 
+@inject DialogService DialogService
+@inject GameService Game
+@inject BootstrapInterop Bootstrap
+
 <div class="modal" tabindex="-1" id="online-game-modal">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -26,8 +30,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <BSButton Color="BSColor.Secondary">Stwórz</BSButton>
-                    <BSButton Color="BSColor.Primary">Dołącz</BSButton>
+                    <BSButton Color="BSColor.Secondary" @onclick="async () => await StartOnline(true)">Stwórz</BSButton>
+                    <BSButton Color="BSColor.Primary" @onclick="async () => await StartOnline(false)">Dołącz</BSButton>
                 </div>
             </BSForm>
         </div>
@@ -36,13 +40,25 @@
 
 @code 
 {
-    private OnlineGameFormModel onlineModal = new() { RandomRoom = false };
+    private async ValueTask StartOnline(bool createRoom)
+    {
+        await Bootstrap.ToogleModal("online-game-modal", false);
+
+        if (createRoom)
+            await DialogService.DisplaySplashScreen(new("Oczekiwanie na przeciwnika...", false));
+        else
+            await DialogService.DisplaySplashScreen(new("Łączenie...", false));
+
+        await Game.SetUpOnline(createRoom, onlineModal.RoomName, onlineModal.RandomRoom);
+        await Game.RunGame();
+    }
+
+    private OnlineGameFormModel onlineModal = new();
 
     private class OnlineGameFormModel
     {
-        [StringLength(16, ErrorMessage = "Nazwa Pokoju jest zbyt długa. (max 16 znaków)")]
         public string? RoomName { get; set; }
 
-        public bool RandomRoom { get; set; }
+        public bool RandomRoom { get; set; } = false;
     }
 }

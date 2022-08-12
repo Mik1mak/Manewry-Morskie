@@ -12,6 +12,7 @@ namespace ManewryMorskie.Network
         private readonly IUserInterface clientInterface;
 
         public event Func<string?, Task>? GameClosed;
+        public event Func<Task>? GameStarted;
 
         public event Func<Exception?, Task>? Reconnecting
         {
@@ -58,6 +59,11 @@ namespace ManewryMorskie.Network
 
             connection.On<CellLocation, int, bool, string>(nameof(IUserInterface.PlacePawn), async (l, c, b, d) =>
                 await clientInterface.PlacePawn(l, c, b, d));
+
+            connection.On(nameof(GameStarted), async () => {
+                if (GameStarted != null)
+                    await GameStarted.Invoke();
+                });
         }
 
         private async Task Connection_Closed(Exception? arg)
@@ -83,22 +89,29 @@ namespace ManewryMorskie.Network
 
         public async Task RunGame(CancellationToken ct = default)
         {
-            await StopAsync();
-            await connection.StartAsync(ct);
-
-            await connection.InvokeAsync("PickRoom", room.create, room.roomName, room.isRandomRoom, ct);
-
             try
             {
-                while (connection.State != HubConnectionState.Disconnected)
-                {
+                await StopAsync();
+                await connection.StartAsync(ct);
+
+                await connection.InvokeAsync("PickRoom", room.create, room.roomName, room.isRandomRoom, ct);
+
+                while (connection.State != HubConnectionState.Disconnected && ct.IsCancellationRequested)
                     await Task.Delay(800, ct);
-                    ct.ThrowIfCancellationRequested();
-                }
+
+                await StopAsync();
+            }
+            catch(HttpRequestException ex)
+            {
+                await clientInterface.DisplayMessage($"Wystąpił błąd {(ex.StatusCode.HasValue ? ex.StatusCode.Value : "nieznany")}.");
+            }
+            catch(Exception)
+            {
+                await clientInterface.DisplayMessage("Wystąpił nieoczekiwany błąd.");
             }
             finally
             {
-                await StopAsync();
+                GameClosed?.Invoke(null);
             }
         }
 
@@ -110,6 +123,7 @@ namespace ManewryMorskie.Network
 
         public async ValueTask DisposeAsync()
         {
+            await StopAsync();
             connection.Closed -= Connection_Closed;
             clientInterface.ClickedLocation -= InvokeClickedLocation;
             clientInterface.ChoosenOptionId -= InvokeChoosenOptionId;

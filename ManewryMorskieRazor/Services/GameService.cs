@@ -2,8 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace ManewryMorskieRazor
 {
@@ -12,15 +15,17 @@ namespace ManewryMorskieRazor
         private readonly BoardService boardService;
         private readonly UserInterface ui;
         private readonly DialogService dialogService;
-        private CancellationTokenSource? tokenSource;
+        private readonly string serverUrl;
 
+        private CancellationTokenSource? tokenSource;
         private IManewryMorskieClient? client;
 
-        public GameService(UserInterface ui, BoardService boardService, DialogService dialogService)
+        public GameService(UserInterface ui, BoardService boardService, DialogService dialogService, IConfiguration Configuration)
         {
             this.ui = ui;
             this.boardService = boardService;
             this.dialogService = dialogService;
+            serverUrl = Configuration["ManewryMorskieServerUrl"];
         }
 
         public async ValueTask SetUpLocal()
@@ -32,11 +37,33 @@ namespace ManewryMorskieRazor
             client = localClient;
         }
 
+        public async ValueTask SetUpOnline(bool create, string? roomName, bool randomRoom)
+        {
+            await Clean();
+
+            ManewryMorskieNetworkClient networkClient = new(ui, serverUrl);
+            networkClient.Reconnecting += NetworkClient_Reconnecting;
+            networkClient.Reconnected += HideSplashScreen;
+            networkClient.GameStarted += HideSplashScreen;
+            networkClient.GameClosed += HideSplashScreen;
+            networkClient.SetRoom(create, roomName, randomRoom);
+
+            client = networkClient;
+        }
+
         private async ValueTask Clean()
         {
-            if(client is ManewryMorskieLocalClient localClient)
+            if (client is ManewryMorskieLocalClient localClient)
             {
                 localClient.TurnChanged -= Manewry_TurnChanged;
+                await client.DisposeAsync();
+            }
+            else if(client is ManewryMorskieNetworkClient networkClient)
+            {
+                networkClient.Reconnecting -= NetworkClient_Reconnecting;
+                networkClient.Reconnected -= HideSplashScreen;
+                networkClient.GameStarted -= HideSplashScreen;
+                networkClient.GameClosed -= HideSplashScreen;
                 await client.DisposeAsync();
             }
         }
@@ -61,6 +88,19 @@ namespace ManewryMorskieRazor
             foreach (BoardCellService bcs in boardService)
                 if(bcs.Pawn.HasValue)
                     await bcs.TogglePawnLabel(e);
+        }
+
+        private async Task NetworkClient_Reconnecting(Exception? arg)
+        {
+            await dialogService.DisplaySplashScreen(new("Utracono połączenie. Próbujemy najwiązać je ponownie.", false));
+        }
+        private async Task HideSplashScreen(string? arg)
+        {
+            await dialogService.DisplaySplashScreen(null);
+        }
+        private async Task HideSplashScreen()
+        {
+            await dialogService.DisplaySplashScreen(null);
         }
     }
 }

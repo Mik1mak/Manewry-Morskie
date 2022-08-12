@@ -12,6 +12,7 @@ namespace ManewryMorskieRazor
     {
         private readonly BoardService boardService;
         private readonly DialogService dialogService;
+        private readonly Queue<Move> moveBuffer = new();
 
         public bool ActiveInput { get; set; } = true;
 
@@ -54,23 +55,37 @@ namespace ManewryMorskieRazor
 
         public async Task ExecuteMove(Move mv)
         {
-            Pawn pawn = await boardService[mv.From].TakeOffPawn();
-            await boardService[mv.To].PlacePawn(pawn);
-
-            if(mv.Result != BattleResult.None)
+            if(moveBuffer.Count != 0)
             {
-                BoardCellService bcs = boardService[(mv.Attack ?? mv.Disarm!).Value];
-                await bcs.TogglePawnLabel(bcs.Pawn!.Value.Color);
-                await Task.Delay(2000);
+                moveBuffer.Enqueue(mv);
+                return;
             }
 
-            if (mv.Result.HasFlag(BattleResult.SourceDestroyed))
-                await boardService[mv.To].TakeOffPawn();
+            while(true)
+            {
+                Pawn pawn = await boardService[mv.From].TakeOffPawn();
+                await boardService[mv.To].PlacePawn(pawn);
 
-            if (mv.Result.HasFlag(BattleResult.TargetDestroyed))
-                await boardService[(mv.Attack ?? mv.Disarm!).Value].TakeOffPawn();
+                if (mv.Result != BattleResult.None)
+                {
+                    BoardCellService bcs = boardService[(mv.Attack ?? mv.Disarm!).Value];
+                    await bcs.TogglePawnLabel(bcs.Pawn!.Value.Color);
+                    await Task.Delay(2000);
+                }
 
-            await Task.Delay(500);
+                if (mv.Result.HasFlag(BattleResult.SourceDestroyed))
+                    await boardService[mv.To].TakeOffPawn();
+
+                if (mv.Result.HasFlag(BattleResult.TargetDestroyed))
+                    await boardService[(mv.Attack ?? mv.Disarm!).Value].TakeOffPawn();
+
+                await Task.Delay(500);
+
+                if (moveBuffer.Any())
+                    mv = moveBuffer.Dequeue();
+                else
+                    break;
+            }
         }
 
         public async Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode)

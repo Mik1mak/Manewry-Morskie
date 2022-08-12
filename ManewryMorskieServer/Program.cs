@@ -13,7 +13,7 @@ builder.Services.AddSignalR();
 
 var app = builder.Build();
 
-//app.MapGet("/", () => "Hello World!");
+app.MapGet("/", () => "Hello World!");
 app.UseHttpsRedirection();
 app.MapHub<ManewryMorskieHub>("/ManewryMorskie");
 
