@@ -43,13 +43,13 @@
     private async ValueTask StartOnline(bool createRoom)
     {
         await Bootstrap.ToogleModal("online-game-modal", false);
+        await Game.SetUpOnline(createRoom, onlineModal.RoomName, onlineModal.RandomRoom);
 
         if (createRoom)
             await DialogService.DisplaySplashScreen(new("Oczekiwanie na przeciwnika...", false));
         else
             await DialogService.DisplaySplashScreen(new("Łączenie...", false));
 
-        await Game.SetUpOnline(createRoom, onlineModal.RoomName, onlineModal.RandomRoom);
         await Game.RunGame();
     }
 

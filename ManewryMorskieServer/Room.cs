@@ -1,74 +1,100 @@
-﻿using CellLib;
+﻿using Microsoft.AspNetCore.SignalR;
 
 namespace ManewryMorskie.Server
 {
     public class Room
     {
-        public string? Name { get; set; }
+        public bool IsWaitingForPlayers => clients.Count < 2;
 
-        public bool IsRandomRoom { get; set; }
+        private readonly List<Client> clients = new();
+        public IReadOnlyList<Client> Clients => clients;
 
+        public Room AddClient(Client client)
+        {
+            if (!IsWaitingForPlayers)
+                throw new InvalidOperationException("Too many clients in Room!");
 
+            clients.Add(client);
+            return this;
+        }
+
+        public Task RunGame()
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public class Client : Player
+    public class Rooms
     {
-        public string Id { get; private set; }
-        public CancellationToken CancellationToken { get; private set; }
+        private Dictionary<string, Room> randomRooms = new();
+        private Dictionary<string, Room> namedRooms = new();
+        private readonly int roomsLimits;
 
-        public Client(string id, CancellationToken token) : base(new NetworkUserInterface(id))
+        public int RoomsCount => randomRooms.Count + namedRooms.Count;
+
+        public Rooms(IConfiguration config)
         {
-            Id = id;
-            CancellationToken = token;
-        }
-    }
-
-    public class NetworkUserInterface : IUserInterface
-    {
-        private readonly string playerId;
-
-        public event EventHandler<CellLocation>? ClickedLocation;
-        public event EventHandler<int>? ChoosenOptionId;
-
-
-        public NetworkUserInterface(string playerId)
-        {
-            this.playerId = playerId;
+            roomsLimits = int.Parse(config["Rooms:Limit"]);
         }
 
-        public Task DisplayContextOptionsMenu(CellLocation location, params string[] options)
+        public async Task CreateRandomRoom(IGroupManager groups, Client creator)
         {
-            throw new NotImplementedException();
+            await CreateRoom(groups, creator, new Guid().ToString(), randomRooms);
         }
 
-        public Task DisplayMessage(string message, MessageType msgType = MessageType.Standard)
+        public async Task CreateRoom(string name, IGroupManager groups, Client creator)
         {
-            throw new NotImplementedException();
+            if(namedRooms.ContainsKey(name))
+                await creator.Kick("Pokój o podanej nazwie już istnieje. Proszę podać inną nazwę.");
+            else
+                await CreateRoom(groups, creator, name, namedRooms);
         }
 
-        public Task DisplayOptionsMenu(string title, params string[] options)
+        private async Task CreateRoom(IGroupManager groups, Client creator, string name, IDictionary<string, Room> rooms)
         {
-            throw new NotImplementedException();
+            if (RoomsCount < roomsLimits)
+            {
+                await groups.AddToGroupAsync(creator.Id, name);
+                rooms.Add(name, new Room{}.AddClient(creator));
+            }
+            else
+            {
+                await creator.Kick("Osiągnięto maksymalną ilość pokoi. Proszę spróbować później.");
+            }
         }
 
-        public Task ExecuteMove(Move mv)
+        public async Task JoinToRoom(string name, IGroupManager groups, Client newClient)
         {
-            throw new NotImplementedException();
+            if(namedRooms.ContainsKey(name))
+            {
+                if (namedRooms[name].IsWaitingForPlayers)
+                    await Join(namedRooms[name], newClient, groups, name);
+                else
+                    await newClient.Kick("Pokój jest zajęty.");
+            }
+            else
+            {
+                await newClient.Kick("Szukany pokój nie istnieje.");
+            }
         }
 
-        public Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode)
+        public async Task JoinToRandomRoom(IGroupManager groups, Client newClient)
         {
-            throw new NotImplementedException();
-        }
+            var randomRoom = randomRooms.Where(x => x.Value.IsWaitingForPlayers).FirstOrDefault();
 
-        public Task PlacePawn(CellLocation location, int playerColor, bool battery = false, string pawnDescription = "")
-        {
-            throw new NotImplementedException();
+            if(randomRoom.Value == default)
+                await newClient.Kick("Brak wolnego losowego pokoju.");
+            else
+                await Join(randomRoom.Value, newClient, groups, randomRoom.Key);
         }
-
-        public Task TakeOffPawn(CellLocation location)
+        
+        private async Task Join(Room room, Client newClient, IGroupManager groups, string groupName)
         {
-            throw new NotImplementedException();
+            await groups.AddToGroupAsync(newClient.Id, groupName);
+            room.AddClient(newClient);
+
+            if(!room.IsWaitingForPlayers)
+                await room.RunGame();
         }
     }
 }

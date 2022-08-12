@@ -64,6 +64,8 @@ namespace ManewryMorskie.Network
                 if (GameStarted != null)
                     await GameStarted.Invoke();
                 });
+
+            connection.On("Kick", async () => await StopAsync());
         }
 
         private async Task Connection_Closed(Exception? arg)
@@ -94,7 +96,10 @@ namespace ManewryMorskie.Network
                 await StopAsync();
                 await connection.StartAsync(ct);
 
-                await connection.InvokeAsync("PickRoom", room.create, room.roomName, room.isRandomRoom, ct);
+                await connection.InvokeAsync(
+                    methodName: room.create ? "CreateRoom" : "JoinToRoom", 
+                    arg1: room.isRandomRoom ? null : room.roomName,
+                    cancellationToken: ct);
 
                 while (connection.State != HubConnectionState.Disconnected && ct.IsCancellationRequested)
                     await Task.Delay(800, ct);
@@ -103,9 +108,13 @@ namespace ManewryMorskie.Network
             }
             catch(HttpRequestException ex)
             {
+#if DEBUG
+                await clientInterface.DisplayMessage($"Wystąpił błąd {ex}");
+#else
                 await clientInterface.DisplayMessage($"Wystąpił błąd {(ex.StatusCode.HasValue ? ex.StatusCode.Value : "nieznany")}.");
+#endif
             }
-            catch(Exception)
+            catch (Exception ex)
             {
                 await clientInterface.DisplayMessage("Wystąpił nieoczekiwany błąd.");
             }

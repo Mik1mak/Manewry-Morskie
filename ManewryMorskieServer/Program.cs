@@ -10,11 +10,21 @@ builder.Services.AddResponseCompression(opts =>
 });
 
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<Dictionary<string, Client>>();
+builder.Services.AddSingleton<Rooms>();
+builder.Services.AddScoped<Client>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAny", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+});
 
 var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");
 app.UseHttpsRedirection();
 app.MapHub<ManewryMorskieHub>("/ManewryMorskie");
+
+app.UseCors("AllowAny");
 
 app.Run();
