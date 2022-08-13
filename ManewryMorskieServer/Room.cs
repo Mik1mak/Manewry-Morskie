@@ -51,7 +51,7 @@
 
             ManewryMorskieGame game = new(player1, player2, logger)
             {
-                AsyncGame = false,
+                AsyncGame = true,
             };
 
             await player1.GameStarted();

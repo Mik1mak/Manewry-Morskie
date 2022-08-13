@@ -18,7 +18,6 @@ namespace ManewryMorskie.Server
                 return context.Clients.Client(ConnectionId);
             }
         }
-        
 
         public event EventHandler<CellLocation>? ClickedLocation;
         public event EventHandler<int>? ChoosenOptionId;        

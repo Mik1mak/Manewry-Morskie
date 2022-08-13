@@ -64,20 +64,31 @@ namespace ManewryMorskieRazor
             while(true)
             {
                 Pawn pawn = await boardService[mv.From].TakeOffPawn();
-                await boardService[mv.To].PlacePawn(pawn);
+                BoardCellService toCell = boardService[mv.To];
+
+                await toCell.PlacePawn(pawn);
 
                 if (mv.Result != BattleResult.None)
                 {
-                    BoardCellService bcs = boardService[(mv.Attack ?? mv.Disarm!).Value];
-                    await bcs.TogglePawnLabel(bcs.Pawn!.Value.Color);
+                    await toCell.PlacePawn(pawn.Copy(mv.SourceUnitDescription!));
+
+                    BoardCellService targetCell = boardService[(mv.Attack ?? mv.Disarm!).Value];
+                    await targetCell.PlacePawn(targetCell.Pawn!.Value.Copy(mv.TargetUnitDescription!));
+                    await targetCell.TogglePawnLabel(targetCell.Pawn!.Value.Color);
                     await Task.Delay(2000);
+
+                    int toPawnColor = toCell.Pawn!.Value.Color;
+
+                    if (mv.Result.HasFlag(BattleResult.SourceDestroyed))
+                        await toCell.TakeOffPawn();
+                    else if (!mv.IsMyMove)
+                        await toCell.TogglePawnLabel(toPawnColor);
+
+                    if (mv.Result.HasFlag(BattleResult.TargetDestroyed))
+                        await targetCell.TakeOffPawn();
+                    else if(mv.IsMyMove)
+                        await targetCell.TogglePawnLabel(toPawnColor);
                 }
-
-                if (mv.Result.HasFlag(BattleResult.SourceDestroyed))
-                    await boardService[mv.To].TakeOffPawn();
-
-                if (mv.Result.HasFlag(BattleResult.TargetDestroyed))
-                    await boardService[(mv.Attack ?? mv.Disarm!).Value].TakeOffPawn();
 
                 await Task.Delay(500);
 
@@ -101,6 +112,7 @@ namespace ManewryMorskieRazor
                 Color = playerColor,
                 IsBattery = battery,
                 Label = pawnDescription,
+                LabelIsHidden = string.IsNullOrEmpty(pawnDescription),
             });
         }
 

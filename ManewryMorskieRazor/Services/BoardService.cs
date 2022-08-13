@@ -26,8 +26,8 @@ namespace ManewryMorskieRazor
             if (PawnChanged != null && Pawn.HasValue)
             {
                 Pawn toggledPawn = Pawn.Value;
-                toggledPawn.Label = toggledPawn.Color != toColor ? null : toggledPawn.Label;
-
+                toggledPawn.LabelIsHidden = toggledPawn.Color != toColor;
+                Pawn = toggledPawn;
                 await PawnChanged.Invoke(toggledPawn);
             }
                 

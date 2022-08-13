@@ -36,7 +36,10 @@ namespace ManewryMorskie
             }
 
             foreach (IUserInterface ui in players.UniqueInferfaces)
+            {
+                move.IsMyMove = ui == players.CurrentPlayer.UserInterface;
                 await ui.ExecuteMove(move);
+            }
         }
 
         private BattleResult GetResult(Move move)

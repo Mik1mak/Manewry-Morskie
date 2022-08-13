@@ -50,10 +50,7 @@ namespace ManewryMorskie.Network
                 await clientInterface.DisplayMessage(msg, type));
 
             connection.On<CellLocation, string[]>(nameof(IUserInterface.DisplayContextOptionsMenu), async (location, options) =>
-            {
-                Console.WriteLine("Context Menu Displayed");
-                await clientInterface.DisplayContextOptionsMenu(location, options);
-            });
+                await clientInterface.DisplayContextOptionsMenu(location, options));
 
             connection.On<IEnumerable<CellLocation>, MarkOptions>(nameof(IUserInterface.MarkCells), async (locations, markOption) =>
                 await clientInterface.MarkCells(locations, markOption));

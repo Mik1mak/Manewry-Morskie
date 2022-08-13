@@ -4,8 +4,9 @@
 
 @if(pawn.HasValue)
 {
-    <div class="@PawnCss" title="@(pawn.Value.Label)">
-        @(pawn.Value.Label)
+    <div class="@PawnCss" title="@(pawn.Value.LabelIsHidden ? string.Empty : pawn.Value.Label)">
+        @if(!pawn.Value.LabelIsHidden)
+            @(pawn.Value.Label)
     </div>
 }
 
@@ -21,7 +22,7 @@
         {
             string result = $"pawn pawn-" + (pawn!.Value.Color == 0 ? "yellow" : "blue");
 
-            if (string.IsNullOrEmpty(pawn.Value.Label))
+            if (pawn.Value.LabelIsHidden)
                 result += (pawn.Value.IsBattery ? "-art" : "-ship");
 
             return result;
