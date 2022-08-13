@@ -1,4 +1,5 @@
 ﻿using CellLib;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Text;
@@ -18,12 +19,15 @@ namespace ManewryMorskie
         private PlayerManager playerManager;
         private MoveExecutor executor;
 
+        private readonly ILogger? logger;
+
         private readonly TurnCounter turnManager = new();
 
         public bool AsyncGame { get; set; } = false;
 
-        public ManewryMorskieGame(Player player1, Player player2)
+        public ManewryMorskieGame(Player player1, Player player2, ILogger? logger = null)
         {
+            this.logger = logger;
             playerManager = new PlayerManager(turnManager, player1, player2);
 
             map = StandardMap.DefaultMap(playerManager);
@@ -95,7 +99,8 @@ namespace ManewryMorskie
 
         public async Task Start(CancellationToken token)
         {
-            using (IPlacingManager currentPlacingMgr = new PawnsPlacingManager(map, playerManager, playerManager.CurrentPlayer))
+            logger?.LogInformation("Game Started.");
+            using (IPlacingManager currentPlacingMgr = new PawnsPlacingManager(map, playerManager, playerManager.CurrentPlayer, logger))
             {
                 Task currentPlayerPlacingTask = currentPlacingMgr.PlacePawns(token);
                 token.ThrowIfCancellationRequested();
@@ -103,15 +108,17 @@ namespace ManewryMorskie
                 if (!AsyncGame)
                 {
                     await Task.WhenAll(currentPlayerPlacingTask);
+                    logger?.LogInformation("First Player setup pawns in async game.");
                     TurnChanged?.Invoke(this, playerManager.GetOpositePlayer().Color);
                 }
 
                 using (IPlacingManager opositePlacingMgr =
-                    new PawnsPlacingManager(map, playerManager, playerManager.GetOpositePlayer()))
+                    new PawnsPlacingManager(map, playerManager, playerManager.GetOpositePlayer(), logger))
                 {
                     Task opositePlayerPlacingTask = opositePlacingMgr.PlacePawns(token);
                     token.ThrowIfCancellationRequested();
                     await Task.WhenAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
+                    logger?.LogInformation("All Players setup pawns.");
                     TurnManager_TurnChanged(this, 0);
                 }
             }

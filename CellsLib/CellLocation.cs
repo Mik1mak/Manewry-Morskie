@@ -1,19 +1,34 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text.Json.Serialization;
 
 namespace CellLib
 {
+    [JsonConverter(typeof(CellLocation))]
     public struct CellLocation : IEquatable<CellLocation>, IEnumerable<CellLocation>
     {
         public int Row { get; set; }
         public int Column { get; set; }
+
         public CellLocation() => Row = Column = 0;
 
         public CellLocation(int column, int row)
         {
             Row = row;
             Column = column;
+        }
+
+        public CellLocation(Ways ways) : this()
+        {
+            foreach (var (way, modifer) in rowModifier)
+                if (ways.HasFlag(way))
+                    Row += modifer;
+
+            foreach (var (way, modifer) in columnModifier)
+                if (ways.HasFlag(way))
+                    Column += modifer;
         }
 
         private static readonly (Ways way, int modifier)[] rowModifier = new[]
@@ -35,17 +50,6 @@ namespace CellLib
             (Ways.Left, -1),
             (Ways.TopLeft, -1),
         };
-
-        public CellLocation(Ways ways) : this()
-        {
-            foreach (var (way, modifer) in rowModifier)
-                if (ways.HasFlag(way))
-                    Row += modifer;
-
-            foreach (var (way, modifer) in columnModifier)
-                if (ways.HasFlag(way))
-                    Column += modifer;
-        }
 
         public static CellLocation operator +(CellLocation a, CellLocation b) => new(a.Column + b.Column, a.Row + b.Row);
         public static CellLocation operator +(CellLocation a, Ways way) => a + new CellLocation(way);

@@ -33,7 +33,7 @@ namespace ManewryMorskie.Server
 
         public async Task DisplayContextOptionsMenu(CellLocation location, params string[] options)
         {
-            await Client.SendAsync(nameof(IUserInterface.DisplayContextOptionsMenu), options);
+            await Client.SendAsync(nameof(IUserInterface.DisplayContextOptionsMenu), location, options);
         }
 
         public async Task DisplayMessage(string message, MessageType msgType = MessageType.Standard)

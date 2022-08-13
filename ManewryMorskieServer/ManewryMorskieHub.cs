@@ -8,14 +8,16 @@ namespace ManewryMorskie.Server
         private readonly Rooms rooms;
         private readonly Dictionary<string, Client> clients;
         private readonly Client newClient;
+        private readonly ILogger<ManewryMorskieHub> logger;
 
         private Client Client => clients[Context.ConnectionId];
 
-        public ManewryMorskieHub(Rooms rooms, Dictionary<string, Client> clients, Client newClient)
+        public ManewryMorskieHub(Rooms rooms, Dictionary<string, Client> clients, Client newClient, ILogger<ManewryMorskieHub> logger)
         {
             this.clients = clients;
             this.rooms = rooms;
             this.newClient = newClient;
+            this.logger = logger;
         }
 
         public async Task CreateRoom(string? name)
@@ -37,12 +39,14 @@ namespace ManewryMorskie.Server
         public Task ChoosenOptionId(int optionId)
         {
             Client.NetworkUserInterface.InvokeChoosenOptionId(optionId);
+            logger.LogInformation("Client {0} choosed {1} loccation", Client.Id, optionId);
             return Task.CompletedTask;
         }
 
         public Task ClickedLocation(CellLocation location)
         {
             Client.NetworkUserInterface.InvokeClickedLocation(location);
+            logger.LogInformation("Client {0} clicked {1} loccation", Client.Id, location);
             return Task.CompletedTask;
         }
 
@@ -51,6 +55,13 @@ namespace ManewryMorskie.Server
             clients[Context.ConnectionId] = newClient;
             Client.SetCallerContext(Context);
             return Task.CompletedTask;
+        }
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            await clients[Context.ConnectionId].Disconnect();
+            rooms.ClearDisconnectedRooms();
+            clients.Remove(Context.ConnectionId);
         }
     }
 }

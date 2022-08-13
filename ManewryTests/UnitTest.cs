@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace ManewryTests
 {
@@ -250,13 +251,24 @@ namespace ManewryTests
             Assert.Pass();
         }
 
-        //[Test]
-        //public void StandardMapTest()
-        //{
-        //    PlayerManager mgr = new(new(), new(null), new(null));
-        //    var map = StandardMap.DefaultMap(mgr);
+        [Test]
+        public void CellLocationSerialization()
+        {
+            CellLocation location = (0, 5);
+            var options = new JsonSerializerOptions()
+            {
+                Converters =
+                {
+                    new CellLocationConverter(),
+                }
+            };
+            var serializedLocation = JsonSerializer.Serialize(location, options);
+            Console.WriteLine(serializedLocation);
+            CellLocation deserializedLocation = JsonSerializer.Deserialize<CellLocation>(serializedLocation, options);
 
-        //    Assert.Pass();
-        //}
+            if(location != deserializedLocation)
+                Assert.Fail();
+            Assert.Pass();
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CellLib;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,22 +26,26 @@ namespace ManewryMorskie
         private readonly PlayerManager players;
         private readonly Player currentPlayer;
         private readonly SemaphoreSlim semaphore = new(0, 1);
+        private readonly ILogger? logger;
+
 
         private IEnumerable<CellLocation>? selectable;
         private CellLocation? selected;
         private Dictionary<Type, int> unitsToPlace = new(Fleet.UnitLimits);
         private State state = State.BeforePlacing;
 
-        public PawnsPlacingManager(StandardMap map, PlayerManager players, Player player)
+        public PawnsPlacingManager(StandardMap map, PlayerManager players, Player player, ILogger? logger = null)
         {
             this.map = map;
             this.players = players;
+            this.logger = logger;
             currentPlayer = player;
             unitsToPlace[typeof(Mina)] = 0;
         }
 
         public async Task PlacePawns(CancellationToken token)
         {
+            logger?.LogInformation("Placing pawns started.");
             await currentPlayer.UserInterface.DisplayMessage("Rozmieść swoje pionki na planszy", MessageType.SideMessage);
             await currentPlayer.UserInterface.DisplayOptionsMenu("Czy chcesz rozmieścić pionki ręcznie?", "Tak", "Nie");
 
@@ -50,6 +55,8 @@ namespace ManewryMorskie
             foreach (CellLocation location in entries)
                 foreach (Ways way in CellLib.Extensions.HorizontalDirections)
                     await PlaceUnit(location + way, typeof(Bateria), currentPlayer);
+
+            logger?.LogInformation("Batteries set.");
 
             state = State.WaitingForChooseMode;
             currentPlayer.UserInterface.ChoosenOptionId += ChoosePlacingOption;
@@ -76,10 +83,12 @@ namespace ManewryMorskie
         private async void ChoosePlacingOption(object sender, int e)
         {
             currentPlayer.UserInterface.ChoosenOptionId -= ChoosePlacingOption;
+            logger?.LogInformation("Pawn placing mode choosen.");
 
             if (e == 0)
             {
                 //ręczne
+                logger?.LogInformation("Manual pawn placing.");
 
                 await currentPlayer.UserInterface.DisplayMessage("Rozmieść swoje pionki na planszy", MessageType.SideMessage);
 
@@ -105,8 +114,7 @@ namespace ManewryMorskie
             }
             else
             {
-
-                //TODO auto rozmieszczanie
+                logger?.LogInformation("Auto Placing.");
 
                 while(unitsToPlace.Any(x => x.Value != 0))
                 {

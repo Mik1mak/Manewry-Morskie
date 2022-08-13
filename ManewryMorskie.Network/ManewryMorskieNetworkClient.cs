@@ -1,5 +1,6 @@
 ﻿using CellLib;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ManewryMorskie.Network
 {
@@ -31,6 +32,9 @@ namespace ManewryMorskie.Network
             this.clientInterface = ui;
 
             connection = new HubConnectionBuilder()
+                .AddJsonProtocol(options => {
+                    options.PayloadSerializerOptions.Converters.Add(new CellLocationConverter());
+                })
                 .WithUrl(url)
                 .WithAutomaticReconnect()
                 .Build();
@@ -46,7 +50,10 @@ namespace ManewryMorskie.Network
                 await clientInterface.DisplayMessage(msg, type));
 
             connection.On<CellLocation, string[]>(nameof(IUserInterface.DisplayContextOptionsMenu), async (location, options) =>
-                await clientInterface.DisplayContextOptionsMenu(location, options));
+            {
+                Console.WriteLine("Context Menu Displayed");
+                await clientInterface.DisplayContextOptionsMenu(location, options);
+            });
 
             connection.On<IEnumerable<CellLocation>, MarkOptions>(nameof(IUserInterface.MarkCells), async (locations, markOption) =>
                 await clientInterface.MarkCells(locations, markOption));
@@ -101,7 +108,7 @@ namespace ManewryMorskie.Network
                     arg1: room.isRandomRoom ? null : room.roomName,
                     cancellationToken: ct);
 
-                while (connection.State != HubConnectionState.Disconnected && ct.IsCancellationRequested)
+                while (connection.State != HubConnectionState.Disconnected && !ct.IsCancellationRequested)
                     await Task.Delay(800, ct);
 
                 await StopAsync();

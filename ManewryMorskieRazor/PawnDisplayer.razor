@@ -21,7 +21,7 @@
         {
             string result = $"pawn pawn-" + (pawn!.Value.Color == 0 ? "yellow" : "blue");
 
-            if (pawn.Value.Label is null)
+            if (string.IsNullOrEmpty(pawn.Value.Label))
                 result += (pawn.Value.IsBattery ? "-art" : "-ship");
 
             return result;

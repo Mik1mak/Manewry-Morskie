@@ -8,8 +8,14 @@ builder.Services.AddResponseCompression(opts =>
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes
         .Concat(new[] { "application/octet-stream" });
 });
+builder.Services.AddSignalR()
+    .AddJsonProtocol(options => {
+        options.PayloadSerializerOptions.Converters.Add(new CellLib.CellLocationConverter());
+    });
 
-builder.Services.AddSignalR();
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 builder.Services.AddSingleton<Dictionary<string, Client>>();
 builder.Services.AddSingleton<Rooms>();
 builder.Services.AddScoped<Client>();

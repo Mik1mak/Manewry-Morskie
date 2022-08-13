@@ -1,13 +1,22 @@
-﻿using Microsoft.AspNetCore.SignalR;
-
-namespace ManewryMorskie.Server
+﻿namespace ManewryMorskie.Server
 {
     public class Room
     {
         public bool IsWaitingForPlayers => clients.Count < 2;
+        public bool ClientDisconnected { get; private set; }
 
+        private ILogger? logger;
         private readonly List<Client> clients = new();
         public IReadOnlyList<Client> Clients => clients;
+
+        private CancellationTokenSource? tokenSource;
+        private Task? gameTask;
+
+
+        public Room(ILogger? logger = null)
+        {
+            this.logger = logger;
+        }
 
         public Room AddClient(Client client)
         {
@@ -15,86 +24,40 @@ namespace ManewryMorskie.Server
                 throw new InvalidOperationException("Too many clients in Room!");
 
             clients.Add(client);
+            client.Disconnecting += Client_Disconnecting;
             return this;
         }
 
-        public Task RunGame()
+        private async Task Client_Disconnecting()
         {
-            throw new NotImplementedException();
-        }
-    }
+            logger?.LogInformation("Room Disconnected"); ;
+            tokenSource?.Cancel();
+            ClientDisconnected = true;
 
-    public class Rooms
-    {
-        private Dictionary<string, Room> randomRooms = new();
-        private Dictionary<string, Room> namedRooms = new();
-        private readonly int roomsLimits;
-
-        public int RoomsCount => randomRooms.Count + namedRooms.Count;
-
-        public Rooms(IConfiguration config)
-        {
-            roomsLimits = int.Parse(config["Rooms:Limit"]);
+            foreach (Client client in clients)
+                if (!client.IsDisconnected)
+                    await client.Kick("Przeciwnik rozłączył się.");
         }
 
-        public async Task CreateRandomRoom(IGroupManager groups, Client creator)
+        public async Task RunGame()
         {
-            await CreateRoom(groups, creator, new Guid().ToString(), randomRooms);
-        }
+            Client player1 = clients[0];
+            Client player2 = clients[1];
+            player1.Color = 1;
+            player1.Name = nameof(player1);
+            player2.Name = nameof(player2);
 
-        public async Task CreateRoom(string name, IGroupManager groups, Client creator)
-        {
-            if(namedRooms.ContainsKey(name))
-                await creator.Kick("Pokój o podanej nazwie już istnieje. Proszę podać inną nazwę.");
-            else
-                await CreateRoom(groups, creator, name, namedRooms);
-        }
+            tokenSource = CancellationTokenSource.CreateLinkedTokenSource(player1.CancellationToken, player2.CancellationToken);
 
-        private async Task CreateRoom(IGroupManager groups, Client creator, string name, IDictionary<string, Room> rooms)
-        {
-            if (RoomsCount < roomsLimits)
+            ManewryMorskieGame game = new(player1, player2, logger)
             {
-                await groups.AddToGroupAsync(creator.Id, name);
-                rooms.Add(name, new Room{}.AddClient(creator));
-            }
-            else
-            {
-                await creator.Kick("Osiągnięto maksymalną ilość pokoi. Proszę spróbować później.");
-            }
-        }
+                AsyncGame = false,
+            };
 
-        public async Task JoinToRoom(string name, IGroupManager groups, Client newClient)
-        {
-            if(namedRooms.ContainsKey(name))
-            {
-                if (namedRooms[name].IsWaitingForPlayers)
-                    await Join(namedRooms[name], newClient, groups, name);
-                else
-                    await newClient.Kick("Pokój jest zajęty.");
-            }
-            else
-            {
-                await newClient.Kick("Szukany pokój nie istnieje.");
-            }
-        }
+            await player1.GameStarted();
+            await player2.GameStarted();
 
-        public async Task JoinToRandomRoom(IGroupManager groups, Client newClient)
-        {
-            var randomRoom = randomRooms.Where(x => x.Value.IsWaitingForPlayers).FirstOrDefault();
-
-            if(randomRoom.Value == default)
-                await newClient.Kick("Brak wolnego losowego pokoju.");
-            else
-                await Join(randomRoom.Value, newClient, groups, randomRoom.Key);
-        }
-        
-        private async Task Join(Room room, Client newClient, IGroupManager groups, string groupName)
-        {
-            await groups.AddToGroupAsync(newClient.Id, groupName);
-            room.AddClient(newClient);
-
-            if(!room.IsWaitingForPlayers)
-                await room.RunGame();
+            gameTask = game.Start(tokenSource.Token);
         }
     }
 }
