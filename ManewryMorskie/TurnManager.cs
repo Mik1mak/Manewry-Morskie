@@ -1,7 +1,6 @@
 ﻿using CellLib;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,17 +37,15 @@ namespace ManewryMorskie
 
         public async Task<Move> MakeMove(CancellationToken token)
         {
-#if DEBUG
-            Stopwatch stopWatch = new();
-            stopWatch.Start();
-#endif
             selectable.Clear();
             result.Clear();
 
             cancellationToken = token;
             
             foreach (CellLocation unitLocation in map.LocationsWithPlayersUnits(playerManager.CurrentPlayer))
-                selectable.Add(unitLocation, (new MoveChecker(map, playerManager, unitLocation), new List<ICellAction>()));
+                selectable.Add(unitLocation, 
+                    (new MoveChecker(map, playerManager, unitLocation, internationalWaterManager),
+                    new List<ICellAction>()));
 
             foreach (var item in selectable.Where(kpv => kpv.Value.moveChecker?.UnitIsSelectable() ?? false))
                 item.Value.actions.Add(new SelectUnitAction(item.Key, this));
@@ -57,14 +54,14 @@ namespace ManewryMorskie
             await marker.UpdateMarks();
 
             PlayerUi.ClickedLocation += SelectedLocation;
-#if DEBUG
-            stopWatch.Stop();
-            Console.WriteLine($"MakeMove Time (ms): {stopWatch.Elapsed.TotalMilliseconds}");
-#endif
+
             await semaphore.WaitAsync(token);
             token.ThrowIfCancellationRequested();
 
             marker.LastMove = new(result);
+            await marker.ClearAndMarkLastMove();
+
+            await PlayerUi.DisplayMessage("Poczekaj aż przeciwnik wykona ruch", MessageType.SideMessage);
             return result;
         }
 

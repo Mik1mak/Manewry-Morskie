@@ -56,7 +56,6 @@ namespace ManewryMorskie
                 await semaphore.WaitAsync(token);
                 ui.ClickedLocation -= Ui_ClickedLocation;
                 parent.ActionSelectionActive = true;
-
                 await base.Execute(move, token);
 
                 return await Task.FromResult(true);

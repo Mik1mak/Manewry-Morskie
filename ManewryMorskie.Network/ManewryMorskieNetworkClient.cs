@@ -120,7 +120,7 @@ namespace ManewryMorskie.Network
             }
             catch (Exception ex)
             {
-                await clientInterface.DisplayMessage("Wystąpił nieoczekiwany błąd.");
+                await clientInterface.DisplayMessage($"Wystąpił nieoczekiwany błąd. {ex}");
             }
             finally
             {
@@ -131,7 +131,11 @@ namespace ManewryMorskie.Network
         private async ValueTask StopAsync()
         {
             if (connection.State != HubConnectionState.Disconnected)
+            {
                 await connection.StopAsync(CancellationToken.None);
+                await Connection_Closed(null);
+            }
+                
         }
 
         public async ValueTask DisposeAsync()

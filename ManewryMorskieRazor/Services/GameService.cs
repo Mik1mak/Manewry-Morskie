@@ -56,7 +56,6 @@ namespace ManewryMorskieRazor
             if (client is ManewryMorskieLocalClient localClient)
             {
                 localClient.TurnChanged -= Manewry_TurnChanged;
-                await client.DisposeAsync();
             }
             else if(client is ManewryMorskieNetworkClient networkClient)
             {
@@ -64,6 +63,11 @@ namespace ManewryMorskieRazor
                 networkClient.Reconnected -= HideSplashScreen;
                 networkClient.GameStarted -= HideSplashScreen;
                 networkClient.GameClosed -= HideSplashScreen;
+            }
+
+            if (client != null)
+            {
+                client.GameClosed -= Client_GameClosed;
                 await client.DisposeAsync();
             }
         }
@@ -72,6 +76,8 @@ namespace ManewryMorskieRazor
         {
             if (client != null)
             {
+                client.GameClosed += Client_GameClosed;
+
                 tokenSource?.Cancel();
                 await Task.Delay(5);
                 tokenSource = new();
@@ -79,6 +85,11 @@ namespace ManewryMorskieRazor
                 await client.RunGame(tokenSource.Token);
                 await client.DisposeAsync();
             }
+        }
+
+        private async Task Client_GameClosed(string? arg)
+        {
+            await client!.DisposeAsync();
         }
 
         private async void Manewry_TurnChanged(object? sender, int e)

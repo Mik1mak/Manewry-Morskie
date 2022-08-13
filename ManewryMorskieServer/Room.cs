@@ -57,7 +57,18 @@
             await player1.GameStarted();
             await player2.GameStarted();
 
-            gameTask = game.Start(tokenSource.Token);
+            var token = tokenSource.Token;
+
+            gameTask = Task.Run(async () => {
+                try
+                {
+                    await game.Start(token);
+                }
+                catch(Exception)
+                {
+                    await Client_Disconnecting();
+                }
+            }, token);
         }
     }
 }

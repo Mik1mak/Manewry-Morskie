@@ -21,19 +21,7 @@ namespace ManewryMorskie
 
             public async ValueTask UpdateMarks()
             {
-                foreach (IUserInterface ui in parent.playerManager.UniqueInferfaces)
-                {
-                    await ui.MarkCells(parent.map.Keys, MarkOptions.None);
-
-                    if (LastMove is not null)
-                    {
-                        await ui.MarkCells(LastMove.SetMines, MarkOptions.Mined);
-                        await ui.MarkCells(new[] { LastMove.From, LastMove.To }, MarkOptions.Moved);
-
-                        if (LastMove.Attack.HasValue || LastMove.Disarm.HasValue)
-                            await ui.MarkCells((LastMove.Attack ?? LastMove.Disarm!).Value, MarkOptions.Attacked);
-                    }
-                }
+                await ClearAndMarkLastMove();
 
                 Dictionary<MarkOptions, HashSet<CellLocation>> buffer = new()
                 {
@@ -55,6 +43,23 @@ namespace ManewryMorskie
                 if (parent.selectedUnitLocation.HasValue)
                     await parent.PlayerUi.MarkCells(parent.selectedUnitLocation.Value, MarkOptions.Selected);
 
+            }
+
+            public async ValueTask ClearAndMarkLastMove()
+            {
+                foreach (IUserInterface ui in parent.playerManager.UniqueInferfaces)
+                {
+                    await ui.MarkCells(parent.map.Keys, MarkOptions.None);
+
+                    if (LastMove is not null)
+                    {
+                        await ui.MarkCells(LastMove.SetMines, MarkOptions.Mined);
+                        await ui.MarkCells(new[] { LastMove.From, LastMove.To }, MarkOptions.Moved);
+
+                        if (LastMove.Attack.HasValue || LastMove.Disarm.HasValue)
+                            await ui.MarkCells((LastMove.Attack ?? LastMove.Disarm!).Value, MarkOptions.Attacked);
+                    }
+                }
             }
         }
     }

@@ -7,18 +7,21 @@ namespace ManewryMorskie
 {
     public class MoveChecker
     {
-        private StandardMap map;
-        private PlayerManager playerMgr;
+        private readonly StandardMap map;
+        private readonly PlayerManager playerMgr;
+        private readonly InternationalWaterManager internationalWaterManager;
         private Lazy<IPathFinder>? pathFinder;
 
         public CellLocation From { get; private set; }
 
 
-        public MoveChecker(StandardMap map, PlayerManager playerMgr, CellLocation source)
+        public MoveChecker(StandardMap map, PlayerManager playerMgr, 
+            CellLocation source, InternationalWaterManager internationalWaterManager)
         {
             this.map = map;
             this.playerMgr = playerMgr;
             this.From = source;
+            this.internationalWaterManager = internationalWaterManager;
 
             UpdatePaths();
         }
@@ -53,6 +56,7 @@ namespace ManewryMorskie
             //lokacje pól zajętych przez przeciwnika w zasięgu ruchu i ataku jednostki
             return moveable
                 .Concat(From)
+                .Except(internationalWaterManager.InternationalWaters)
                 .SelectMany(l => l.SquereRegion((int)unit.AttackRange))
                 .Intersect(map.LocationsWithPlayersUnits(playerMgr.GetOpositePlayer()));
         }

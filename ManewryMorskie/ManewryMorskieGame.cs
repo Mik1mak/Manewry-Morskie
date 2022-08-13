@@ -127,6 +127,8 @@ namespace ManewryMorskie
 
             while (!endDetector.GameIsEnded)
             {
+                await playerManager.GetOpositePlayer()
+                    .UserInterface.DisplayMessage("Poczekaj aż przeciwnik wykona ruch", MessageType.SideMessage);
                 Move move = await turnMgr.MakeMove(token);
                 await executor.Execute(move);
                 turnManager.NextTurn();
