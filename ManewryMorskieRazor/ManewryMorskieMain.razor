@@ -1,4 +1,6 @@
-﻿@implements IDisposable
+﻿@using System.Globalization
+
+@implements IDisposable
 
 @inject DialogService Dialogs
 @inject BoardTransformService BoardTransform
@@ -13,7 +15,6 @@
     </div>    
 }
 <div class="@MainClass">
-    <div class="d-flex h-100 flex-column">
         <ManewryMorskieToolBar />
         <ManewryMorskieDialogs />
         <div id="game-bg" class="w-100 flex-grow-1 text-light overflow-auto">
@@ -35,7 +36,6 @@
                 </table>
             </div>
         </div>
-    </div>
 </div>
 @code
 {
@@ -45,7 +45,7 @@
     private string boardStyle = string.Empty;
 
     private SplashScreen? splashScreen;
-    private string MainClass => splashScreen.HasValue ? "d-none" : "overflow-hidden";
+    private string MainClass => splashScreen.HasValue ? "d-none" : "d-flex h-100 flex-column overflow-hidden";
     private string SplashStyle => splashScreen.HasValue && splashScreen.Value.IsDismisableByUser ? "cursor: pointer;" : string.Empty;
 
     protected override void OnInitialized()
@@ -58,12 +58,14 @@
     {
         await InvokeAsync(() =>
         {
-            boardStyle = $"transform-origin: top center; transform: scale({(zoom/100f).ToString().Replace(',', '.')})";
+            IFormatProvider fp = CultureInfo.InvariantCulture;
+
+            boardStyle = $"transform-origin: top left; transform: scale({(zoom/100f).ToString(fp)})";
 
             if (horizontal)
-                boardStyle += " rotate(90deg) translate(50%, -50%)";
-
-            boardStyle += ";";
+                boardStyle += " rotate(90deg) translateY(-100%); margin-left:0;margin-right:0;";
+            else
+                boardStyle += ";";
 
             StateHasChanged();
         });
