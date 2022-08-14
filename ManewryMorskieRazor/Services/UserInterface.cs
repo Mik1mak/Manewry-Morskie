@@ -68,6 +68,13 @@ namespace ManewryMorskieRazor
                 Pawn pawn = await boardService[mv.From].TakeOffPawn();
                 BoardCellService toCell = boardService[mv.To];
 
+                foreach (CellLocation l in mv.Path)
+                {
+                    await boardService[l].PlacePawn(pawn);
+                    await Task.Delay(250);
+                    await boardService[l].TakeOffPawn();
+                }
+
                 await toCell.PlacePawn(pawn);
 
                 if (mv.Result != BattleResult.None)
@@ -76,8 +83,7 @@ namespace ManewryMorskieRazor
 
                     BoardCellService targetCell = boardService[(mv.Attack ?? mv.Disarm!).Value];
                     await targetCell.PlacePawn(targetCell.Pawn!.Value.Copy(mv.TargetUnitDescription!));
-                    await targetCell.TogglePawnLabel(targetCell.Pawn!.Value.Color);
-                    await Task.Delay(2000);
+                    await Task.Delay(2300);
 
                     int toPawnColor = toCell.Pawn!.Value.Color;
 
@@ -92,7 +98,7 @@ namespace ManewryMorskieRazor
                         await targetCell.TogglePawnLabel(toPawnColor);
                 }
 
-                await Task.Delay(500);
+                await Task.Delay(200);
 
                 if (moveBuffer.Any())
                     mv = moveBuffer.Dequeue();

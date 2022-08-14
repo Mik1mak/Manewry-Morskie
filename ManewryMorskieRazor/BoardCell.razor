@@ -9,7 +9,7 @@
 <td class="board-cell" @onclick="CellClicked">
     <div class="@FirstCellCss" style="@cellStyle">
         <div class="@secondCellCss" @ref="dropdownRef" @attributes="dropdownAtrs">    
-            <PawnDisplayer location="@Location"/>
+            <PawnDisplayer Location="@Location"/>
         </div>
         <ul class="@DropdownCss">
             @foreach (var (i, opt) in options.Select((opt, i) => (i, opt)))

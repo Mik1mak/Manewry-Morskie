@@ -78,6 +78,7 @@ namespace ManewryMorskie
                 target = previousCells[target]!.Value;
             }
 
+            output.Reverse();
             return output;
         }
     }

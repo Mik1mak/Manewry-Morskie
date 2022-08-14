@@ -44,7 +44,10 @@ namespace ManewryMorskie
             executor = new MoveExecutor(map, playerManager);
         }
 
-        private void TurnManager_TurnChanged(object sender, int e) => TurnChanged?.Invoke(this, playerManager.CurrentPlayer.Color);
+        private void TurnManager_TurnChanged(object sender, int e)
+        {
+            TurnChanged?.Invoke(this, playerManager.CurrentPlayer.Color);
+        }
 
         private async void EndDetector_GameEnded(object sender, GameEnd e)
         {

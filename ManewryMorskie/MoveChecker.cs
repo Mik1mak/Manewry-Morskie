@@ -80,7 +80,7 @@ namespace ManewryMorskie
             if(pathFinder == null)
                 return Array.Empty<CellLocation>();
 
-            if(target.Equals(target))
+            if(target.Equals(From))
                 return Array.Empty<CellLocation>();
 
             return pathFinder!.Value.ShortestPathTo(target);

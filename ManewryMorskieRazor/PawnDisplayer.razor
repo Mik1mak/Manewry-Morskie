@@ -12,7 +12,7 @@
 
 @code {
     [Parameter]
-    public CellLocation location { get; set; }
+    public CellLocation Location { get; set; }
 
     private Pawn? pawn;
 
@@ -31,7 +31,7 @@
 
     protected override void OnInitialized()
     {
-        BoardService[location].PawnChanged += PlacePawn;
+        BoardService[Location].PawnChanged += PlacePawn;
     }
 
     private async Task PlacePawn(Pawn? pawn)
@@ -45,6 +45,6 @@
 
     public void Dispose()
     {
-        BoardService[location].PawnChanged -= PlacePawn;
+        BoardService[Location].PawnChanged -= PlacePawn;
     }
 }
