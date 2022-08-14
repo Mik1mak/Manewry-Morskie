@@ -14,7 +14,7 @@ namespace ManewryMorskieRazor
         private readonly DialogService dialogService;
         private readonly Queue<Move> moveBuffer = new();
 
-        public bool ActiveInput { get; set; } = true;
+        public bool ActiveClickInput { get; set; } = true;
 
         public event EventHandler<CellLocation>? ClickedLocation;
         public event EventHandler<int>? ChoosenOptionId;
@@ -28,18 +28,18 @@ namespace ManewryMorskieRazor
         private void DialogService_OptionChoosed(object? sender, int e)
         {
             ChoosenOptionId?.Invoke(this, e);
-            ActiveInput = true;
+            ActiveClickInput = true;
         }
 
         public void Click(CellLocation location)
         {
-            if(ActiveInput)
+            if(ActiveClickInput)
                 ClickedLocation?.Invoke(this, location);
         } 
 
         public async Task DisplayContextOptionsMenu(CellLocation location, params string[] options)
         {
-            ActiveInput = false;
+            ActiveClickInput = false;
             await boardService[location].DisplayContextMenu(options);
         }
 
@@ -55,6 +55,8 @@ namespace ManewryMorskieRazor
 
         public async Task ExecuteMove(Move mv)
         {
+            ActiveClickInput = false;
+
             if(moveBuffer.Count != 0)
             {
                 moveBuffer.Enqueue(mv);
@@ -97,6 +99,8 @@ namespace ManewryMorskieRazor
                 else
                     break;
             }
+
+            ActiveClickInput = true;
         }
 
         public async Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode)

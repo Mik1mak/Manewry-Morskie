@@ -52,6 +52,9 @@ namespace ManewryMorskie.Server
 
         public async Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode)
         {
+            if (cells is CellLocation)
+                cells = cells.ToArray();
+
             await Client.SendAsync(nameof(IUserInterface.MarkCells), cells, mode);
         }
 

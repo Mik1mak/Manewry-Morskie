@@ -41,7 +41,7 @@ namespace ManewryMorskie
             endDetector = new GameEndDetector(map, turnManager, playerManager);
             endDetector.GameEnded += EndDetector_GameEnded;
 
-            executor = new(map, playerManager);
+            executor = new MoveExecutor(map, playerManager);
         }
 
         private void TurnManager_TurnChanged(object sender, int e) => TurnChanged?.Invoke(this, playerManager.CurrentPlayer.Color);

@@ -21,7 +21,7 @@ namespace ManewryMorskie
 
             public async ValueTask UpdateMarks()
             {
-                await ClearAndMarkLastMove();
+                await ClearAndMarkLastMove(new[]{parent.PlayerUi});
 
                 Dictionary<MarkOptions, HashSet<CellLocation>> buffer = new()
                 {
@@ -39,21 +39,21 @@ namespace ManewryMorskie
                 foreach (var item in buffer)
                     await parent.PlayerUi.MarkCells(item.Value, item.Key);
 
-
                 if (parent.selectedUnitLocation.HasValue)
                     await parent.PlayerUi.MarkCells(parent.selectedUnitLocation.Value, MarkOptions.Selected);
-
             }
 
-            public async ValueTask ClearAndMarkLastMove()
+            public async ValueTask ClearAndMarkLastMove(IEnumerable<IUserInterface> uis)
             {
-                foreach (IUserInterface ui in parent.playerManager.UniqueInferfaces)
+                foreach (IUserInterface ui in uis)
                 {
                     await ui.MarkCells(parent.map.Keys, MarkOptions.None);
 
                     if (LastMove is not null)
                     {
-                        await ui.MarkCells(LastMove.SetMines, MarkOptions.Mined);
+                        if(LastMove.SetMines.Any())
+                            await ui.MarkCells(LastMove.SetMines, MarkOptions.Mined);
+
                         await ui.MarkCells(new[] { LastMove.From, LastMove.To }, MarkOptions.Moved);
 
                         if (LastMove.Attack.HasValue || LastMove.Disarm.HasValue)

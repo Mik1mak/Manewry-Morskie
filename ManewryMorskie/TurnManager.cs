@@ -39,7 +39,6 @@ namespace ManewryMorskie
         {
             selectable.Clear();
             result.Clear();
-
             cancellationToken = token;
             
             foreach (CellLocation unitLocation in map.LocationsWithPlayersUnits(playerManager.CurrentPlayer))
@@ -59,7 +58,7 @@ namespace ManewryMorskie
             token.ThrowIfCancellationRequested();
 
             marker.LastMove = new(result);
-            await marker.ClearAndMarkLastMove();
+            await marker.ClearAndMarkLastMove(playerManager.UniqueInferfaces);
 
             await PlayerUi.DisplayMessage("Poczekaj aż przeciwnik wykona ruch", MessageType.SideMessage);
             return result;
