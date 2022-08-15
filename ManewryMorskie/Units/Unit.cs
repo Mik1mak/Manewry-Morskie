@@ -21,7 +21,6 @@ namespace ManewryMorskie
             if (StrongerUnits.Contains(attackingType))
                 return BattleResult.TargetDestroyed;
 
-            //if(u.StrongerUnits.Contains(GetType()))
             return BattleResult.SourceDestroyed;
         }
             

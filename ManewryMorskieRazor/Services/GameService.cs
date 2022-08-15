@@ -71,7 +71,7 @@ namespace ManewryMorskieRazor
                 await client.DisposeAsync();
             }
 
-            await ui.DisposeAsync();
+            await ui.Clean();
         }
 
         public async Task RunGame()
@@ -92,7 +92,7 @@ namespace ManewryMorskieRazor
         {
             client!.GameClosed -= Client_GameClosed;
             await client.DisposeAsync();
-            await ui!.DisposeAsync();
+            await ui!.Clean();
         }
 
         private async void Manewry_TurnChanged(object? sender, int e)

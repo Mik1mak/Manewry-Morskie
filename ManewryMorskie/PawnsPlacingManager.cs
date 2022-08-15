@@ -31,7 +31,8 @@ namespace ManewryMorskie
 
         private IEnumerable<CellLocation>? selectable;
         private CellLocation? selected;
-        private Dictionary<Type, int> unitsToPlace = new(Fleet.UnitLimits);
+        private readonly Dictionary<Type, int> unitsToPlace = new(Fleet.UnitLimits);
+        private readonly Dictionary<Type, string> unitsLabels = new();
         private State state = State.BeforePlacing;
 
         public PawnsPlacingManager(StandardMap map, PlayerManager players, Player player, ILogger? logger = null)
@@ -41,6 +42,14 @@ namespace ManewryMorskie
             this.logger = logger;
             currentPlayer = player;
             unitsToPlace[typeof(Mina)] = 0;
+
+            foreach (Type unitType in unitsToPlace.Keys)
+                unitsLabels.Add(unitType, unitType.Name);
+            unitsLabels[typeof(Krazownik)] = "Krążownik";
+            unitsLabels[typeof(OkretDesantowy)] = "Okręt Desantowy";
+            unitsLabels[typeof(OkretPodwodny)] = "Okręt Podwodny";
+            unitsLabels[typeof(OkretRakietowy)] = "Okręt Rakietowy";
+            unitsLabels[typeof(Tralowiec)] = "Trałowiec";
         }
 
         public async Task PlacePawns(CancellationToken token)
@@ -136,7 +145,7 @@ namespace ManewryMorskie
             await currentPlayer.UserInterface.MarkCells(selected!.Value, MarkOptions.Selected);
             await currentPlayer.UserInterface.DisplayMessage("Wybierz jednostkę jaką chcesz umieścić", MessageType.SideMessage);
             await currentPlayer.UserInterface.DisplayContextOptionsMenu(e, unitsToPlace.Where(v => v.Value != 0)
-                .Select(vp => $"{vp.Key.Name} ({vp.Value})").ToArray());
+                .Select(vp => $"{unitsLabels[vp.Key]} ({vp.Value})").ToArray());
 
             if(state != State.WaitingForChoosePawnsType)
             {
