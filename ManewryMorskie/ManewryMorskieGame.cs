@@ -85,6 +85,8 @@ namespace ManewryMorskie
                 if (field.Unit == e)
                 {
                     Player player = playerManager.First(p => p.Fleet.Units.Contains(e));
+                    player.Fleet.Destroy(e);
+                    field.Unit = null;
 
                     foreach (IUserInterface ui in playerManager.UniqueInferfaces)
                     {
@@ -92,9 +94,6 @@ namespace ManewryMorskie
                         await ui.DisplayMessage($"Jednostka {e} została internowana, ponieważ przebywała przez " +
                             "4 tury na wodach międzynarodowych!");
                     }
-                    player.Fleet.Destroy(e);
-
-                    field.Unit = null;
                     return;
                 }
             }   

@@ -13,11 +13,12 @@ namespace CellLib
 
         public int Count => Width * Height;
 
-        public IEnumerable<CellLocation> Keys => (0, 0).Region((Width-1, Height-1));
+        public IEnumerable<CellLocation> Keys { get; }
 
         public RectangleCellMap(T[][] fields)
         {
             this.fields = fields;
+            Keys = (0, 0).Region((Width - 1, Height - 1));
         }
 
         public RectangleCellMap(int width, int height)
@@ -31,6 +32,8 @@ namespace CellLib
                 for(int row = 0; row < height; row++)
                     fields[col][row] = new T();
             }
+
+            Keys = (0, 0).Region((Width - 1, Height - 1));
         }
 
         public CellLocation? LocationOf(T value)
