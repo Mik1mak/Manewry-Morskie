@@ -21,18 +21,6 @@ namespace ManewryMorskieRazor
 
         public Pawn? Pawn { get; private set; }
 
-        public async ValueTask TogglePawnLabel(int toColor)
-        {
-            if (PawnChanged != null && Pawn.HasValue)
-            {
-                Pawn toggledPawn = Pawn.Value;
-                toggledPawn.LabelIsHidden = toggledPawn.Color != toColor;
-                Pawn = toggledPawn;
-                await PawnChanged.Invoke(toggledPawn);
-            }
-                
-        }
-
         public async ValueTask PlacePawn(Pawn pawn)
         {
             Pawn = pawn;

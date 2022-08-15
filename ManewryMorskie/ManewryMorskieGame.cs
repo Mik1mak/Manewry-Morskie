@@ -8,22 +8,26 @@ using System.Threading.Tasks;
 
 namespace ManewryMorskie
 {
-
     public class ManewryMorskieGame
     {
-        public event EventHandler<int>? TurnChanged;
-
         private InternationalWaterManager internationalWaterManager;
         private StandardMap map;
-        private GameEndDetector endDetector;
+        private GameEndDetector? endDetector;
         private PlayerManager playerManager;
         private MoveExecutor executor;
+        private PawnHider pawnHider;
 
         private readonly ILogger? logger;
 
         private readonly TurnCounter turnManager = new();
 
-        public bool AsyncGame { get; set; } = false;
+        public bool AsyncGame { get; set; }
+
+        public event EventHandler<int>? TurnChanged
+        {
+            add => turnManager.TurnChanged += value;
+            remove => turnManager.TurnChanged -= value;
+        }
 
         public ManewryMorskieGame(Player player1, Player player2, ILogger? logger = null)
         {
@@ -35,18 +39,15 @@ namespace ManewryMorskie
             internationalWaterManager = new InternationalWaterManager(map);
 
             turnManager.TurnChanging += TurnCounter_TurnChanging;
-            turnManager.TurnChanged += TurnManager_TurnChanged;
             internationalWaterManager.InternedUnit += InternationalWaterManager_InternedUnit;
 
-            endDetector = new GameEndDetector(map, turnManager, playerManager);
-            endDetector.GameEnded += EndDetector_GameEnded;
-
             executor = new MoveExecutor(map, playerManager);
+            pawnHider = new PawnHider(map, executor, playerManager, turnManager);
         }
 
-        private void TurnManager_TurnChanged(object sender, int e)
+        private void TurnCounter_TurnChanging(object sender, int e)
         {
-            TurnChanged?.Invoke(this, playerManager.CurrentPlayer.Color);
+            internationalWaterManager.Iterate();
         }
 
         private async void EndDetector_GameEnded(object sender, GameEnd e)
@@ -69,11 +70,6 @@ namespace ManewryMorskie
                         msgToOthers: "Porażka! Okręt desantowy przeciwnika wpłynął do Twojego portu!");
                     break;
             }
-        }
-
-        private void TurnCounter_TurnChanging(object sender, int e)
-        {
-            internationalWaterManager.Iterate();
         }
 
         private async void InternationalWaterManager_InternedUnit(object sender, Unit e)
@@ -101,29 +97,36 @@ namespace ManewryMorskie
 
         public async Task Start(CancellationToken token)
         {
+            pawnHider.RegisterEvents(AsyncGame, turnManager);
+
             logger?.LogInformation("Game Started.");
             using (IPlacingManager currentPlacingMgr = new PawnsPlacingManager(map, playerManager, playerManager.CurrentPlayer, logger))
             {
                 Task currentPlayerPlacingTask = currentPlacingMgr.PlacePawns(token);
                 token.ThrowIfCancellationRequested();
 
+                Player opositePlayer = playerManager.GetOpositePlayer();
+
                 if (!AsyncGame)
                 {
                     await Task.WhenAll(currentPlayerPlacingTask);
                     logger?.LogInformation("First Player setup pawns in async game.");
-                    TurnChanged?.Invoke(this, playerManager.GetOpositePlayer().Color);
+                    turnManager.NextTurn();
                 }
 
                 using (IPlacingManager opositePlacingMgr =
-                    new PawnsPlacingManager(map, playerManager, playerManager.GetOpositePlayer(), logger))
+                    new PawnsPlacingManager(map, playerManager, opositePlayer, logger))
                 {
                     Task opositePlayerPlacingTask = opositePlacingMgr.PlacePawns(token);
                     token.ThrowIfCancellationRequested();
                     await Task.WhenAll(currentPlayerPlacingTask, opositePlayerPlacingTask);
                     logger?.LogInformation("All Players setup pawns.");
-                    TurnManager_TurnChanged(this, 0);
+                    turnManager.NextTurn();
                 }
             }
+
+            endDetector = new GameEndDetector(map, turnManager, playerManager);
+            endDetector.GameEnded += EndDetector_GameEnded;
 
             using TurnManager turnMgr = new(map, playerManager, internationalWaterManager);
 

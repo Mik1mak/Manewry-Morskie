@@ -37,7 +37,6 @@ namespace ManewryMorskie
         public CellLocation To { get; set; }
         public string SourceUnitDescription { get; set; } = string.Empty;
         public string? TargetUnitDescription { get; set; }
-        public bool IsMyMove { get; set; } = false;
 
         public CellLocation? Disarm { get; set; }
         public CellLocation? Attack { get; set; }

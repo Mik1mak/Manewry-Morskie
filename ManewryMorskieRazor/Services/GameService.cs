@@ -98,10 +98,6 @@ namespace ManewryMorskieRazor
         private async void Manewry_TurnChanged(object? sender, int e)
         {
             await dialogService.DisplaySplashScreen(new("Kliknij, aby kontynuować", true));
-            
-            foreach (BoardCellService bcs in boardService)
-                if(bcs.Pawn.HasValue)
-                    await bcs.TogglePawnLabel(e);
         }
 
         private async Task NetworkClient_Reconnecting(Exception? arg)

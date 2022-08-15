@@ -85,17 +85,11 @@ namespace ManewryMorskieRazor
                     await targetCell.PlacePawn(targetCell.Pawn!.Value.Copy(mv.TargetUnitDescription!));
                     await Task.Delay(2300);
 
-                    int toPawnColor = toCell.Pawn!.Value.Color;
-
                     if (mv.Result.HasFlag(BattleResult.SourceDestroyed))
                         await toCell.TakeOffPawn();
-                    else if (!mv.IsMyMove)
-                        await toCell.TogglePawnLabel(targetCell.Pawn.Value.Color);
 
                     if (mv.Result.HasFlag(BattleResult.TargetDestroyed))
                         await targetCell.TakeOffPawn();
-                    else if(mv.IsMyMove)
-                        await targetCell.TogglePawnLabel(toPawnColor);
                 }
                 else
                 {

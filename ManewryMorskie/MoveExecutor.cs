@@ -11,6 +11,8 @@ namespace ManewryMorskie
         private readonly StandardMap map;
         private readonly PlayerManager players;
 
+        public Move? LastExecuted { get; private set; }
+
         public MoveExecutor(StandardMap map, PlayerManager players)
         {
             this.map = map;
@@ -36,10 +38,9 @@ namespace ManewryMorskie
             }
 
             foreach (IUserInterface ui in players.UniqueInferfaces)
-            {
-                move.IsMyMove = ui == players.CurrentPlayer.UserInterface;
                 await ui.ExecuteMove(move);
-            }
+
+            LastExecuted = move;
         }
 
         private BattleResult GetResult(Move move)
