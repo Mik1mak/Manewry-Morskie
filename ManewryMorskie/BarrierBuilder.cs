@@ -26,18 +26,10 @@ namespace ManewryMorskie
             return this;
         }
 
-        private CellLocation SimmetricLocation(CellLocation location)
-        {
-            var result = new CellLocation(
-                column: map.Width - 1 - location.Column,
-                row: map.Height - 1 - location.Row);
-            return result;
-        }
-
-        public BarrierBuilder AddSimmetricBarriers()
+        public BarrierBuilder AddSymmetricBarriers()
         {
             var simmetric = barriers
-                .Select(t => (SimmetricLocation(t.Item1), SimmetricLocation(t.Item2)))
+                .Select(t => (map.CenterSymmetricKey(t.Item1), map.CenterSymmetricKey(t.Item2)))
                 .ToList();
 
             barriers.AddRange(simmetric);

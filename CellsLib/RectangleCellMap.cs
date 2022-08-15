@@ -51,11 +51,11 @@ namespace CellLib
             protected set => fields[key.Column][Height - 1 - key.Row] = value;
         }
 
-        public T MiddleSimmetricElementTo(CellLocation key)
+        public CellLocation CenterSymmetricKey(CellLocation key)
         {
-            return this[new CellLocation(
+            return new (
                 column: Width - 1 - key.Column,
-                row: Height - 1 - key.Row)];
+                row: Height - 1 - key.Row);
         }
 
         public virtual void Clear()

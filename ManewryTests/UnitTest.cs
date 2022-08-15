@@ -149,7 +149,7 @@ namespace ManewryTests
                 .AddRange((4, 3).NextLocations(Ways.Bottom).Select(l => (l, l + Ways.Right)))
                 .AddRange((10, 2).NextLocations(Ways.Bottom).Select(l => (l, l + Ways.Left)))
                 .Add(((8, 1), (9, 1)))
-                .AddSimmetricBarriers()
+                .AddSymmetricBarriers()
                 .BuildBarriers();
 
             List<(CellLocation, Ways)> expected = new()

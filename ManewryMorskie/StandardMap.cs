@@ -47,7 +47,7 @@ namespace ManewryMorskie
                 .AddRange((4, 3).NextLocations(Ways.Bottom).Select(l => (l, l + Ways.Right)))
                 .AddRange((10, 2).NextLocations(Ways.Bottom).Select(l => (l, l + Ways.Left)))
                 .Add(((8, 1), (9, 1)))
-                .AddSimmetricBarriers()
+                .AddSymmetricBarriers()
                 .BuildBarriers();
 
             List<CellLocation> bottomTerritory = new();
@@ -59,7 +59,7 @@ namespace ManewryMorskie
             foreach (CellLocation location in bottomTerritory)
             {
                 this[location].Owner = players.BottomPlayer;
-                MiddleSimmetricElementTo(location).Owner = players.TopPlayer;
+                this[CenterSymmetricKey(location)].Owner = players.TopPlayer;
             }
 
             this.MarkInternationalWaters((5, 8).NextLocations(Ways.All));
