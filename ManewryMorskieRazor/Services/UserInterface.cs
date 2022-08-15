@@ -97,8 +97,12 @@ namespace ManewryMorskieRazor
                     else if(mv.IsMyMove)
                         await targetCell.TogglePawnLabel(toPawnColor);
                 }
+                else
+                {
+                    await Task.Delay(300);
+                }
 
-                //await Task.Delay(200);
+                await Task.Delay(200);
 
                 if (moveBuffer.Any())
                     mv = moveBuffer.Dequeue();

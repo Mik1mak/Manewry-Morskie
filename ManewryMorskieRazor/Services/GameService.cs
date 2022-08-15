@@ -70,6 +70,8 @@ namespace ManewryMorskieRazor
                 client.GameClosed -= Client_GameClosed;
                 await client.DisposeAsync();
             }
+
+            await ui.DisposeAsync();
         }
 
         public async Task RunGame()
@@ -83,13 +85,14 @@ namespace ManewryMorskieRazor
                 tokenSource = new();
 
                 await client.RunGame(tokenSource.Token);
-                await client.DisposeAsync();
             }
         }
 
         private async Task Client_GameClosed(string? arg)
         {
-            await client!.DisposeAsync();
+            client!.GameClosed -= Client_GameClosed;
+            await client.DisposeAsync();
+            await ui!.DisposeAsync();
         }
 
         private async void Manewry_TurnChanged(object? sender, int e)

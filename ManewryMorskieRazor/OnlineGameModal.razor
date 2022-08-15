@@ -15,7 +15,7 @@
             <BSForm Model="onlineModal">
                 <div class="modal-body">
                     @*<BSValidationSummary />*@
-                    <div class="mb-3">
+                    <div class="mb-3 @(onlineModal.RandomRoom?"text-muted":"")">
                         <BSLabel>Nazwa Pokoju</BSLabel>
                         <BSInput DisplayName="Nazwa Pokoju" @bind-Value="onlineModal.RoomName"
                                  IsDisabled="onlineModal.RandomRoom"
@@ -59,6 +59,6 @@
     {
         public string? RoomName { get; set; }
 
-        public bool RandomRoom { get; set; } = false;
+        public bool RandomRoom { get; set; } = true;
     }
 }
