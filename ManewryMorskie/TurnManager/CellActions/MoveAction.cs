@@ -3,9 +3,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ManewryMorskie
+namespace ManewryMorskie.TurnManagerComponents
 {
-    public class MoveAction : ICellAction
+    internal class MoveAction : ICellAction
     {
         public virtual string Name => "Przemieść się";
         public virtual MarkOptions MarkMode => MarkOptions.Moveable;

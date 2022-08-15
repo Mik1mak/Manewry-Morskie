@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ManewryMorskie.GameEndManagerComponents;
+using ManewryMorskie.TurnManagerComponents;
 
 namespace ManewryMorskie
 {
@@ -12,13 +14,12 @@ namespace ManewryMorskie
     {
         private InternationalWaterManager internationalWaterManager;
         private StandardMap map;
-        private GameEndDetector? endDetector;
+        private GameEndManager? endManager;
         private PlayerManager playerManager;
         private MoveExecutor executor;
         private PawnHider pawnHider;
 
         private readonly ILogger? logger;
-
         private readonly TurnCounter turnManager = new();
 
         public bool AsyncGame { get; set; }
@@ -48,28 +49,6 @@ namespace ManewryMorskie
         private void TurnCounter_TurnChanging(object sender, int e)
         {
             internationalWaterManager.Iterate();
-        }
-
-        private async void EndDetector_GameEnded(object sender, GameEnd e)
-        {
-            switch(e.GameEndReason)
-            {
-                case GameEndReason.DestroyedOkretDesantowy:
-                    await playerManager.WriteToPlayers(e.Winner!,
-                        msgToCurrent: "Zwycięstwo! Zniszczyłeś okręt desantowy przeciwnika!",
-                        msgToOthers: "Porażka! Przeciwnik zniszczył Twój okręt desantowy!");
-                    break;
-                case GameEndReason.DestroyedOkretyRakietowe:
-                    await playerManager.WriteToPlayers(e.Winner!,
-                        msgToCurrent: "Zwycięstwo! Zniszczyłeś okręty rakietowe przeciwnika utrzymując obronę portu!",
-                        msgToOthers: "Porażka! Przeciwnik zniszczył Twóje okręty rakietowe utrzymując obronę portu!");
-                    break;
-                case GameEndReason.OkretDesantowyReachedEnemyField:
-                    await playerManager.WriteToPlayers(e.Winner!,
-                        msgToCurrent: "Zwycięstwo! Twój okręt desantowy wpłynął do portu przeciwnika!",
-                        msgToOthers: "Porażka! Okręt desantowy przeciwnika wpłynął do Twojego portu!");
-                    break;
-            }
         }
 
         private async void InternationalWaterManager_InternedUnit(object sender, Unit e)
@@ -125,12 +104,11 @@ namespace ManewryMorskie
                 }
             }
 
-            endDetector = new GameEndDetector(map, turnManager, playerManager);
-            endDetector.GameEnded += EndDetector_GameEnded;
+            endManager = new GameEndManager(map, turnManager, playerManager, executor);
 
             using TurnManager turnMgr = new(map, playerManager, internationalWaterManager);
 
-            while (!endDetector.GameIsEnded)
+            while (!endManager.GameIsEnded)
             {
                 await playerManager.GetOpositePlayer()
                     .UserInterface.DisplayMessage("Poczekaj aż przeciwnik wykona ruch", MessageType.SideMessage);
@@ -139,6 +117,8 @@ namespace ManewryMorskie
                 turnManager.NextTurn();
                 token.ThrowIfCancellationRequested();
             }
+
+            await playerManager.WriteToPlayers("Gra zakończona", MessageType.SideMessage);
         }
     }
 }

@@ -3,11 +3,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ManewryMorskie
+namespace ManewryMorskie.TurnManagerComponents
 {
     public partial class TurnManager
     {
-        public class DiasrmAction : AttackAction, ICellAction
+        private class DiasrmAction : AttackAction, ICellAction
         {
             public override string Name => "Rozbrój";
 

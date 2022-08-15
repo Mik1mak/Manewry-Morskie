@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ManewryMorskie
+namespace ManewryMorskie.TurnManagerComponents
 {
     public interface IPathFinder
     {

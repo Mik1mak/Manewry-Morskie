@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Selectable = System.Collections.Generic.Dictionary<CellLib.CellLocation, (ManewryMorskie.MoveChecker? moveChecker, System.Collections.Generic.IList<ManewryMorskie.ICellAction> actions)>;
+using Selectable = System.Collections.Generic.Dictionary<CellLib.CellLocation, (ManewryMorskie.TurnManagerComponents.MoveChecker? moveChecker, System.Collections.Generic.IList<ManewryMorskie.TurnManagerComponents.ICellAction> actions)>;
 
-namespace ManewryMorskie
+namespace ManewryMorskie.TurnManagerComponents
 {
 
     public partial class TurnManager : IDisposable

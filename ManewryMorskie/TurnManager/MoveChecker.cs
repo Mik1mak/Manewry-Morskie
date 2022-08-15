@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ManewryMorskie
+namespace ManewryMorskie.TurnManagerComponents
 {
     public class MoveChecker
     {
@@ -15,12 +15,12 @@ namespace ManewryMorskie
         public CellLocation From { get; private set; }
 
 
-        public MoveChecker(StandardMap map, PlayerManager playerMgr, 
+        public MoveChecker(StandardMap map, PlayerManager playerMgr,
             CellLocation source, InternationalWaterManager internationalWaterManager)
         {
             this.map = map;
             this.playerMgr = playerMgr;
-            this.From = source;
+            From = source;
             this.internationalWaterManager = internationalWaterManager;
 
             UpdatePaths();
@@ -66,7 +66,7 @@ namespace ManewryMorskie
             if (map[From].Unit == null || map[From].Unit is not Tralowiec)
                 return Array.Empty<CellLocation>();
 
-            if(playerMgr.CurrentPlayer.Fleet.UsedMines >= Fleet.UnitLimits[typeof(Mina)])
+            if (playerMgr.CurrentPlayer.Fleet.UsedMines >= Fleet.UnitLimits[typeof(Mina)])
                 return Array.Empty<CellLocation>();
 
             if (map.AvaibleWaysFrom(From) == Ways.None)
@@ -77,10 +77,10 @@ namespace ManewryMorskie
 
         public IEnumerable<CellLocation> PathTo(CellLocation target)
         {
-            if(pathFinder == null)
+            if (pathFinder == null)
                 return Array.Empty<CellLocation>();
 
-            if(target.Equals(From))
+            if (target.Equals(From))
                 return Array.Empty<CellLocation>();
 
             return pathFinder!.Value.ShortestPathTo(target);

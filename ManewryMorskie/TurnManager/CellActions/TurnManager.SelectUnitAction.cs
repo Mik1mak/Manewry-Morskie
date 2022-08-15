@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ManewryMorskie
+namespace ManewryMorskie.TurnManagerComponents
 {
     public partial class TurnManager
     {

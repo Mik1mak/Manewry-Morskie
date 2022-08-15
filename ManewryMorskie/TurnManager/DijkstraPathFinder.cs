@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ManewryMorskie
+namespace ManewryMorskie.TurnManagerComponents
 {
     public class DijkstraPathFinder : IPathFinder
     {
@@ -19,7 +19,7 @@ namespace ManewryMorskie
         public DijkstraPathFinder(StandardMap map, CellLocation source)
         {
             this.map = map;
-            this.pivot = source;
+            pivot = source;
 
             Djikstra();
         }
@@ -32,7 +32,7 @@ namespace ManewryMorskie
             foreach (CellLocation location in pivot.SquereRegion((int)map[pivot].Unit!.Step)
                 .Where(l => map.LocationIsOnTheMap(l)))
             {
-                if(location != pivot)
+                if (location != pivot)
                 {
                     distances[location] = int.MaxValue;
                     previousCells[location] = null;
@@ -40,7 +40,7 @@ namespace ManewryMorskie
                 queue.Enqueue(location, distances[location]);
             }
 
-            while(queue.Count > 0)
+            while (queue.Count > 0)
             {
                 CellLocation tmp = queue.Dequeue();
                 Ways neighborhood = map.AvaibleWaysFrom(tmp);
@@ -65,7 +65,7 @@ namespace ManewryMorskie
 
         public IEnumerable<CellLocation> CellsWhereDistanceFromSourceIsLowerThan(uint distance)
         {
-            return distances.Where(kvp => kvp.Value > 0 && kvp.Value < distance*BASE_NODE_WEIGHT).Select(kvp => kvp.Key);
+            return distances.Where(kvp => kvp.Value > 0 && kvp.Value < distance * BASE_NODE_WEIGHT).Select(kvp => kvp.Key);
         }
 
         public IEnumerable<CellLocation> ShortestPathTo(CellLocation target)

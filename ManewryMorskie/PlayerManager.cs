@@ -31,16 +31,19 @@ namespace ManewryMorskie
         public Player GetOpositePlayer(Player current) => this.First(p => current != p);
         public Player GetOpositePlayer() => this.First(p => CurrentPlayer != p);
 
-        public async Task WriteToPlayers(Player current, string msgToCurrent, string msgToOthers)
+        public async Task WriteToPlayers(Player current, string msgToCurrent, string msgToOthers, MessageType messageType = MessageType.Standard)
         {
-            await current.UserInterface.DisplayMessage(msgToCurrent);
+            await current.UserInterface.DisplayMessage(msgToCurrent, messageType);
 
             foreach (Player other in GetOpositePlayers(current))
-                await other.UserInterface.DisplayMessage(msgToOthers);
+                await other.UserInterface.DisplayMessage(msgToOthers, messageType);
         }
 
-        public async Task WriteToPlayers(string msgToCurrent, string msgToOthers) => await WriteToPlayers(CurrentPlayer, msgToCurrent, msgToOthers);
+        public async Task WriteToPlayers(string msgToCurrent, string msgToOthers, MessageType messageType = MessageType.Standard) 
+            => await WriteToPlayers(CurrentPlayer, msgToCurrent, msgToOthers, messageType);
 
+        public async Task WriteToPlayers(string msgToAll, MessageType messageType = MessageType.Standard) 
+            => await WriteToPlayers(CurrentPlayer, msgToAll, msgToAll, messageType);
 
         public IEnumerable<IUserInterface> UniqueInferfaces => new HashSet<IUserInterface>(this.Select(p => p.UserInterface));
 

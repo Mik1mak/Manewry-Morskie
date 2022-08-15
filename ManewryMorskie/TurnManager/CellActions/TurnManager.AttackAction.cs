@@ -5,11 +5,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ManewryMorskie
+namespace ManewryMorskie.TurnManagerComponents
 {
     public partial class TurnManager
     {
-        public class AttackAction : MoveAction, ICellAction, IDisposable
+        private class AttackAction : MoveAction, ICellAction, IDisposable
         {
             private readonly SemaphoreSlim semaphore = new(0, 1);
             private readonly TurnManager parent;

@@ -71,6 +71,7 @@ namespace ManewryMorskie
             currentPlayer.UserInterface.ChoosenOptionId += ChoosePlacingOption;
 
             await semaphore.WaitAsync(token);
+            await currentPlayer.UserInterface.DisplayMessage("Zaczekaj aż przeciwnik ustawi pionki", MessageType.SideMessage);
         }
 
         private async ValueTask PlaceUnit(CellLocation location, Type typeOfUnit, Player player)
