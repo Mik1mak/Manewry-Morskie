@@ -39,14 +39,14 @@ namespace ManewryMorskie.Server
         public Task ChoosenOptionId(int optionId)
         {
             Client.NetworkUserInterface.InvokeChoosenOptionId(optionId);
-            logger.LogInformation("Client {0} choosed {1} loccation", Client.Id, optionId);
+            logger.LogInformation("Client {clientId} choosed {optionId} loccation", Client.Id, optionId);
             return Task.CompletedTask;
         }
 
         public Task ClickedLocation(CellLocation location)
         {
             Client.NetworkUserInterface.InvokeClickedLocation(location);
-            logger.LogInformation("Client {0} clicked {1} loccation", Client.Id, location);
+            logger.LogInformation("Client {clientId} clicked {location} loccation", Client.Id, location);
             return Task.CompletedTask;
         }
 
@@ -59,6 +59,9 @@ namespace ManewryMorskie.Server
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
+            if (exception != null)
+                logger.LogError("Client {clientId} disconnected with exeption {exception}.", Client.Id, exception!);
+
             await clients[Context.ConnectionId].Disconnect();
             rooms.ClearDisconnectedRooms();
             clients.Remove(Context.ConnectionId);

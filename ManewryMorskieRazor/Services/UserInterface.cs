@@ -90,7 +90,7 @@ namespace ManewryMorskieRazor
                     if (mv.Result.HasFlag(BattleResult.SourceDestroyed))
                         await toCell.TakeOffPawn();
                     else if (!mv.IsMyMove)
-                        await toCell.TogglePawnLabel(toPawnColor);
+                        await toCell.TogglePawnLabel(targetCell.Pawn.Value.Color);
 
                     if (mv.Result.HasFlag(BattleResult.TargetDestroyed))
                         await targetCell.TakeOffPawn();
@@ -98,7 +98,7 @@ namespace ManewryMorskieRazor
                         await targetCell.TogglePawnLabel(toPawnColor);
                 }
 
-                await Task.Delay(200);
+                //await Task.Delay(200);
 
                 if (moveBuffer.Any())
                     mv = moveBuffer.Dequeue();
