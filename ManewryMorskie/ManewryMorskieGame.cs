@@ -11,7 +11,7 @@ using ManewryMorskie.PlacingManagerComponents;
 
 namespace ManewryMorskie
 {
-    public class ManewryMorskieGame
+    public class ManewryMorskieGame : IDisposable
     {
         private InternationalWaterManager internationalWaterManager;
         private StandardMap map;
@@ -19,6 +19,7 @@ namespace ManewryMorskie
         private PlayerManager playerManager;
         private MoveExecutor executor;
         private PawnHider pawnHider;
+        private InternHandler internHandler;
 
         private readonly ILogger? logger;
         private readonly TurnCounter turnManager = new();
@@ -39,10 +40,9 @@ namespace ManewryMorskie
             map = StandardMap.DefaultMap(playerManager);
 
             internationalWaterManager = new InternationalWaterManager(map);
-
             turnManager.TurnChanging += TurnCounter_TurnChanging;
-            internationalWaterManager.InternedUnit += InternationalWaterManager_InternedUnit;
 
+            internHandler = new InternHandler(internationalWaterManager, map, playerManager);
             executor = new MoveExecutor(map, playerManager);
             pawnHider = new PawnHider(map, executor, playerManager, turnManager);
         }
@@ -52,35 +52,12 @@ namespace ManewryMorskie
             internationalWaterManager.Iterate();
         }
 
-        private async void InternationalWaterManager_InternedUnit(object sender, Unit e)
-        {
-            foreach (CellLocation location in internationalWaterManager.InternationalWaters)
-            {
-                MapField field = map[location];
-
-                if (field.Unit == e)
-                {
-                    Player player = playerManager.First(p => p.Fleet.Units.Contains(e));
-                    player.Fleet.Destroy(e);
-                    field.Unit = null;
-
-                    foreach (IUserInterface ui in playerManager.UniqueInferfaces)
-                    {
-                        await ui.TakeOffPawn(location);
-                        await ui.DisplayMessage($"Jednostka {e} została internowana, ponieważ przebywała przez " +
-                            "4 tury na wodach międzynarodowych!");
-                    }
-                    return;
-                }
-            }   
-        }
-
         public async Task Start(CancellationToken token)
         {
             pawnHider.RegisterEvents(AsyncGame, turnManager);
 
             logger?.LogInformation("Game Started.");
-            using (IPlacingManager currentPlacingMgr = new ManualPlacingManagerWithStandardPawns(map, playerManager, playerManager.CurrentPlayer, logger))
+            using (IPlacingManager currentPlacingMgr = new ComplexPlacingManager(map, playerManager, playerManager.CurrentPlayer, logger))
             {
                 Task currentPlayerPlacingTask = currentPlacingMgr.PlacePawns(token);
                 token.ThrowIfCancellationRequested();
@@ -95,7 +72,7 @@ namespace ManewryMorskie
                 }
 
                 using (IPlacingManager opositePlacingMgr =
-                    new ManualPlacingManagerWithStandardPawns(map, playerManager, opositePlayer, logger))
+                    new ComplexPlacingManager(map, playerManager, opositePlayer, logger))
                 {
                     Task opositePlayerPlacingTask = opositePlacingMgr.PlacePawns(token);
                     token.ThrowIfCancellationRequested();
@@ -120,6 +97,13 @@ namespace ManewryMorskie
             }
 
             await playerManager.WriteToPlayers("Gra zakończona", MessageType.SideMessage);
+        }
+
+        public void Dispose()
+        {
+            endManager?.Dispose();
+            pawnHider.Dispose();
+            internHandler.Dispose();
         }
     }
 }
