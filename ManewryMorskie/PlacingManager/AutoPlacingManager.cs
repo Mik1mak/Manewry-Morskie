@@ -20,6 +20,7 @@ namespace ManewryMorskie.PlacingManagerComponents
 
         public async Task PlacePawns(CancellationToken token)
         {
+            await PlaceDefaultBatteries(currentPlayer);
             while (unitsToPlace.Any(x => x.Value != 0))
             {
                 await PlaceUnit(map.Keys.First(l => map[l].Owner == currentPlayer && map[l].Unit == null),
