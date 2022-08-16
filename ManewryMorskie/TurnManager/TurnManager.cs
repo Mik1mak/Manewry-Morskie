@@ -69,12 +69,15 @@ namespace ManewryMorskie.TurnManagerComponents
             if (!ActionSelectionActive)
                 return;
 
+            ActionSelectionActive = false;
+
             if (selectable.TryGetValue(e, out var value))
             {
                 selectedUnitLocation = e;
 
                 if (value.actions.Count == 1)
                 {
+                    ActionSelectionActive = true;
                     await RealiseAction(value.actions.First());
                 }
                 else if (value.actions.Count > 1)
@@ -94,7 +97,9 @@ namespace ManewryMorskie.TurnManagerComponents
                 return;
 
             PlayerUi.ChoosenOptionId -= ChooseOption;
+            
             await RealiseAction(selectable[selectedUnitLocation!.Value].actions[e]);
+            ActionSelectionActive = true;
         }
 
         private async ValueTask RealiseAction(ICellAction action)

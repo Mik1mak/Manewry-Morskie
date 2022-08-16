@@ -109,8 +109,12 @@ namespace ManewryMorskieRazor
 
         public async Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode)
         {
+            HashSet<Task> tasks = new();
+
             foreach (CellLocation l in cells)
-                await boardService[l].MarkCell(mode);
+                tasks.Add(boardService[l].MarkCell(mode));
+
+            await Task.WhenAll(tasks);
         }
 
         public async Task PlacePawn(CellLocation location, int playerColor, bool battery = false, string pawnDescription = "")
@@ -131,15 +135,19 @@ namespace ManewryMorskieRazor
 
         public async ValueTask Clean()
         {
+            HashSet<Task> tasks = new();
+
             foreach (CellLocation l in boardService.Keys)
             {
                 if (boardService[l].Pawn.HasValue)
-                    await TakeOffPawn(l);
-                await boardService[l].DisplayContextMenu(Array.Empty<string>());
+                    tasks.Add(TakeOffPawn(l));
+                tasks.Add(boardService[l].DisplayContextMenu(Array.Empty<string>()));
             }
 
-            await MarkCells(boardService.Keys, MarkOptions.None);
-            await DisplayMessage(string.Empty, MessageType.Empty);
+            tasks.Add(MarkCells(boardService.Keys, MarkOptions.None));
+            tasks.Add(DisplayMessage(string.Empty, MessageType.Empty));
+
+            await Task.WhenAll(tasks);
         }
     }
 }

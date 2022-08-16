@@ -14,7 +14,7 @@
         <ul class="@DropdownCss">
             @foreach (var (i, opt) in options.Select((opt, i) => (i, opt)))
             {
-                <li @onclick="() => ChooseOption(i)">
+                <li @onclick="async () => await ChooseOption(i)">
                     <a class="dropdown-item" href="javascript:void(0);">
                         @opt
                     </a>
@@ -107,8 +107,6 @@
 
         if (options.Length != 0)
             await Bootstrap.ShowDropdown(dropdownRef);
-        else
-            await Bootstrap.HideDropdown(dropdownRef);
 
         lastOptionsLength = options.Length;
     }
@@ -175,15 +173,19 @@
 
     private async Task DiplayContextMenu(string[] options)
     {
-        await InvokeAsync(() =>
+        await InvokeAsync(async () =>
         {
             this.options = options;
             StateHasChanged();
+
+            if(!options.Any())
+                await Bootstrap.HideDropdown(dropdownRef);
         });
     }
 
-    private void ChooseOption(int optionId)
+    private async ValueTask ChooseOption(int optionId)
     {
+        await Bootstrap.HideDropdown(dropdownRef);
         DialogService.ChooseOption(optionId);
         options = Array.Empty<string>();
         StateHasChanged();

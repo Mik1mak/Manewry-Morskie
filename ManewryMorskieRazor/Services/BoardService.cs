@@ -29,7 +29,7 @@ namespace ManewryMorskieRazor
                 await PawnChanged.Invoke(Pawn);
         }
 
-        public async ValueTask MarkCell(MarkOptions option)
+        public async Task MarkCell(MarkOptions option)
         {
             if (CellMarked != null)
                 await CellMarked.Invoke(option);
@@ -49,7 +49,7 @@ namespace ManewryMorskieRazor
             return result;
         }
 
-        public async ValueTask DisplayContextMenu(string[] options)
+        public async Task DisplayContextMenu(string[] options)
         {
             if (ContextMenuDisplayed != null)
                 await ContextMenuDisplayed.Invoke(options);

@@ -2,17 +2,18 @@ var controllers = {};
 
 export function showDropdown(element) {
     bootstrap.Dropdown.getOrCreateInstance(element).show();
-    controllers[element] = new AbortController();
 
+    controllers[element] = true;
     element.addEventListener('hidden.bs.dropdown', function () {
-        bootstrap.Dropdown.getOrCreateInstance(element).show();
-    }, { signal: controllers[element].signal });
+        if (controllers[element]) {
+            bootstrap.Dropdown.getOrCreateInstance(element).show();
+        }
+    });
 }
 
 export function hideDropdown(element) {
-    controllers[element].abort();
+    controllers[element] = false;
     bootstrap.Dropdown.getOrCreateInstance(element).hide();
-    controllers[element] = new AbortController();
 }
 
 export function toggleDropdown(element) {
