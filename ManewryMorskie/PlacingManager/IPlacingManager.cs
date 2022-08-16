@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ManewryMorskie
+namespace ManewryMorskie.PlacingManagerComponents
 {
     public interface IPlacingManager : IDisposable
     {
