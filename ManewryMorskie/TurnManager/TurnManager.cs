@@ -69,15 +69,13 @@ namespace ManewryMorskie.TurnManagerComponents
             if (!ActionSelectionActive)
                 return;
 
-            ActionSelectionActive = false;
-
             if (selectable.TryGetValue(e, out var value))
             {
+                ActionSelectionActive = false;
                 selectedUnitLocation = e;
 
                 if (value.actions.Count == 1)
                 {
-                    ActionSelectionActive = true;
                     await RealiseAction(value.actions.First());
                 }
                 else if (value.actions.Count > 1)
@@ -99,14 +97,13 @@ namespace ManewryMorskie.TurnManagerComponents
             PlayerUi.ChoosenOptionId -= ChooseOption;
             
             await RealiseAction(selectable[selectedUnitLocation!.Value].actions[e]);
-            ActionSelectionActive = true;
         }
 
         private async ValueTask RealiseAction(ICellAction action)
         {
+            ActionSelectionActive = true;
             bool finishTurn = await action.Execute(result!, cancellationToken!.Value);
-            await marker.UpdateMarks();
-
+            
             if (finishTurn)
             {
                 PlayerUi.ClickedLocation -= SelectedLocation;
@@ -114,6 +111,10 @@ namespace ManewryMorskie.TurnManagerComponents
                 selectedUnitLocation = null;
                 result!.SourceUnitDescription = map[result.From].Unit!.ToString();
                 semaphore.Release();
+            }
+            else
+            {
+                await marker.UpdateMarks();
             }
         }
 

@@ -43,7 +43,7 @@
         {
             if(horizontal)
             {
-               return firstCellCss + " dropend";
+                return firstCellCss + " dropend";
             }
             else
             {
@@ -126,6 +126,8 @@
             switch(option)
             {
                 case MarkOptions.None:
+                    if (secondCellCss == secondBaseStr && firstCellCss == baseStr)
+                        return;
                     secondCellCss = secondBaseStr;
                     firstCellCss = baseStr;
                     break;
@@ -175,6 +177,9 @@
     {
         await InvokeAsync(async () =>
         {
+            if (this.options.SequenceEqual(options))
+                return;
+
             this.options = options;
             StateHasChanged();
 

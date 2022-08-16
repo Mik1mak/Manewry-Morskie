@@ -40,7 +40,7 @@ namespace ManewryMorskie
             foreach (IUserInterface ui in players.UniqueInferfaces)
                 await ui.ExecuteMove(move);
 
-            LastExecuted = move;
+            LastExecuted = new(move);
         }
 
         private BattleResult GetResult(Move move)

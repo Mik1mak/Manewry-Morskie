@@ -36,17 +36,14 @@ namespace ManewryMorskie.PlacingManagerComponents
 
             LocationSelectionHandler selectionHandler = new(Ui);
             OptionsHandler optionsHandler = new(Ui);
-            IEnumerable<CellLocation>? selectable = default;
+            List<CellLocation>? selectable = default;
+
+            selectable = map.Keys.Where(l => map[l].Owner == currentPlayer && map[l].Unit == null).ToList();
+            await Ui.MarkCells(selectable, MarkOptions.Selectable);
 
             do
             {
                 await Ui.DisplayMessage("Rozmieść swoje pionki na planszy", MessageType.SideMessage);
-
-                if (selectable?.Any() ?? false)
-                    await Ui.MarkCells(selectable, MarkOptions.None);
-
-                selectable = map.Keys.Where(l => map[l].Owner == currentPlayer && map[l].Unit == null).ToList();
-                await Ui.MarkCells(selectable, MarkOptions.Selectable);
 
                 CellLocation selected = await selectionHandler.WaitForCorectSelection(selectable, token);
                 await Ui.MarkCells(selected, MarkOptions.Selected);
@@ -60,7 +57,8 @@ namespace ManewryMorskie.PlacingManagerComponents
                      token: token);
 
                 await PlaceUnit(selected, chosenUnitType!, currentPlayer);
-
+                selectable.Remove(selected);
+                await currentPlayer.UserInterface.MarkCells(selected, MarkOptions.None);
             } while (unitsToPlace.Any(x => x.Value != 0));
 
             await currentPlayer.UserInterface.MarkCells(map.Keys, MarkOptions.None);

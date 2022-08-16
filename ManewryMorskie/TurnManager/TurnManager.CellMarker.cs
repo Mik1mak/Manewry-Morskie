@@ -1,5 +1,7 @@
 ﻿using CellLib;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,6 +13,7 @@ namespace ManewryMorskie.TurnManagerComponents
         private class CellMarker
         {
             private TurnManager parent;
+            private CellLocation? lastSelected;
 
             public Move? LastMove { get; set; }
 
@@ -21,8 +24,6 @@ namespace ManewryMorskie.TurnManagerComponents
 
             public async ValueTask UpdateMarks()
             {
-                await ClearAndMarkLastMove(new[]{parent.PlayerUi});
-
                 Dictionary<MarkOptions, HashSet<CellLocation>> buffer = new()
                 {
                     { MarkOptions.Selectable, new() },
@@ -36,18 +37,27 @@ namespace ManewryMorskie.TurnManagerComponents
                     foreach (ICellAction option in actions)
                         buffer[option.MarkMode].Add(location);
 
+                var toClear = parent.map.Keys.Except(buffer.SelectMany(x => x.Value));
+                toClear = lastSelected.HasValue ? toClear.Union(lastSelected.Value) : toClear;
+                await ClearAndMarkLastMove(new[] { parent.PlayerUi }, toClear);
+
                 foreach (var item in buffer)
                     await parent.PlayerUi.MarkCells(item.Value, item.Key);
 
                 if (parent.selectedUnitLocation.HasValue)
+                {
+                    lastSelected = parent.selectedUnitLocation.Value;
                     await parent.PlayerUi.MarkCells(parent.selectedUnitLocation.Value, MarkOptions.Selected);
+                }
             }
 
-            public async ValueTask ClearAndMarkLastMove(IEnumerable<IUserInterface> uis)
+            public async ValueTask ClearAndMarkLastMove(IEnumerable<IUserInterface> uis, IEnumerable<CellLocation>? cellsToClear = null)
             {
+                cellsToClear ??= parent.map.Keys;
+
                 foreach (IUserInterface ui in uis)
                 {
-                    await ui.MarkCells(parent.map.Keys, MarkOptions.None);
+                    await ui.MarkCells(cellsToClear, MarkOptions.None);
 
                     if (LastMove is not null)
                     {
