@@ -50,10 +50,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Remove="Resources\Raw\appsettings.json" />
-    </ItemGroup>
-
-    <ItemGroup>
       <MauiAsset Include="appsettings.json" />
     </ItemGroup>
 	

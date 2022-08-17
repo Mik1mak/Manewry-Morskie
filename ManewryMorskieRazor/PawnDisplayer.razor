@@ -1,12 +1,17 @@
-﻿@implements IDisposable
+﻿@using Microsoft.Extensions.Configuration
+
+@implements IDisposable
 
 @inject BoardService BoardService
+@inject IConfiguration config
 
 @if(pawn.HasValue)
 {
     <div class="@PawnCss" title="@(pawn.Value.LabelIsHidden ? string.Empty : pawn.Value.Label)">
         @if(!pawn.Value.LabelIsHidden)
-            @(pawn.Value.Label)
+        {
+            <div class="pawn-label" style="transform: scale(@(scale.ToString().Replace(',', '.'))">@(pawn.Value.Label)</div>
+        }
     </div>
 }
 
@@ -14,6 +19,7 @@
     [Parameter]
     public CellLocation Location { get; set; }
 
+    private string scale = "1";
     private Pawn? pawn;
 
     private string PawnCss
@@ -31,6 +37,7 @@
 
     protected override void OnInitialized()
     {
+        scale = config["PawnFontScale"];
         BoardService[Location].PawnChanged += PlacePawn;
     }
 

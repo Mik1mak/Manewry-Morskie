@@ -5,6 +5,7 @@
 @inject DialogService Dialogs
 @inject BoardTransformService BoardTransform
 @inject DialogService DialogService
+@inject IConfiguration config
 
 @if(splashScreen.HasValue)
 {
@@ -43,6 +44,7 @@
     public const int HEIGHT = 18;
 
     private string boardStyle = string.Empty;
+    private bool boardCentring = true;
 
     private SplashScreen? splashScreen;
     private string MainClass => splashScreen.HasValue ? "d-none" : "d-flex h-100 flex-column overflow-hidden";
@@ -52,6 +54,9 @@
     {
         BoardTransform.TransformationChanged += ApplyTransformations;
         DialogService.SplashScreenDisplayed += SetSplashScreen;
+        boardCentring = bool.Parse(config["BoardCentering"]);
+        if(!boardCentring)
+            boardStyle = "margin-left:0;margin-right:0;";
     }
 
     private async Task ApplyTransformations(int zoom, bool horizontal)
@@ -60,12 +65,15 @@
         {
             IFormatProvider fp = CultureInfo.InvariantCulture;
 
-            boardStyle = $"transform-origin: top {(horizontal?"left":"center")}; transform: scale({(zoom/100f).ToString(fp)})";
+            boardStyle = $"transform-origin: top {(horizontal||!boardCentring?"left":"center")}; transform: scale({(zoom/100f).ToString(fp)})";
 
             if (horizontal)
-                boardStyle += " rotate(90deg) translateY(-100%); margin-left:0;margin-right:0;";
+                boardStyle += " rotate(90deg) translateY(-100%);";
             else
                 boardStyle += ";";
+
+            if (horizontal || !boardCentring)
+                boardStyle += "margin-left:0;margin-right:0;";
 
             StateHasChanged();
         });
