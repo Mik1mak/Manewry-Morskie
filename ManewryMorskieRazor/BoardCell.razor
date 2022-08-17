@@ -41,7 +41,7 @@
     {
         get
         {
-            if(horizontal)
+            if (BoardTransform.Horizontal)
             {
                 return firstCellCss + " dropend";
             }
@@ -59,7 +59,7 @@
         get
         {
             string baseStr = "dropdown-menu dropdown-menu-dark ";
-            if(horizontal)
+            if (BoardTransform.Horizontal)
             {
                 if (Row > 8)
                     return baseStr + " dropdown-menu-end";
@@ -78,8 +78,7 @@
 
     private string secondCellCss = "board-cell-mark";
 
-    private bool horizontal = false;
-    private string cellStyle => horizontal ? "transform-origin: center; transform: rotate(-90deg)" : string.Empty;
+    private string cellStyle => BoardTransform.Horizontal ? "transform-origin: center; transform: rotate(-90deg)" : string.Empty;
 
     private string[] options = Array.Empty<string>();
     private int lastOptionsLength = 0;
@@ -168,7 +167,6 @@
     {
         await InvokeAsync(() =>
         {
-            this.horizontal = horizontal;
             StateHasChanged();
         });
     }
