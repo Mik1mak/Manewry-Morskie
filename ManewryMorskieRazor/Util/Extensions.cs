@@ -19,6 +19,7 @@ namespace ManewryMorskieRazor
             services.AddScoped<BoardService>();
             services.AddScoped<UserInterface>();
             services.AddScoped<GameService>();
+            services.AddScoped<DragToScrollService>();
 
             return services;
         }

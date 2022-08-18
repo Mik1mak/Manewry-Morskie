@@ -20,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryMorskie.Server", "Ma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryMorskie.Network", "ManewryMorskie.Network\ManewryMorskie.Network.csproj", "{E480EF15-DAF5-4FBB-8BB1-332630F3D632}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManewryMorskie.MAUI", "ManewryMorskie.MAUI\ManewryMorskie.MAUI.csproj", "{5C564C69-316B-42FB-934B-CDA1969279B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryMorskie.MAUI", "ManewryMorskie.MAUI\ManewryMorskie.MAUI.csproj", "{5C564C69-316B-42FB-934B-CDA1969279B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

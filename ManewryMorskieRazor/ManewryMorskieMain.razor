@@ -5,7 +5,8 @@
 @inject DialogService Dialogs
 @inject BoardTransformService BoardTransform
 @inject DialogService DialogService
-@inject IConfiguration config
+@inject DragToScrollService DtS
+@inject IConfiguration Config
 
 @if(splashScreen.HasValue)
 {
@@ -18,7 +19,7 @@
 <div class="@MainClass">
         <ManewryMorskieToolBar />
         <ManewryMorskieDialogs />
-        <div id="game-bg" class="w-100 flex-grow-1 text-light overflow-auto">
+        <div @ref="gameContainer" id="game-bg" class="w-100 flex-grow-1 text-light overflow-auto">
             <div id="board" style="@boardStyle">
                 <table>
                     @for (uint i = 1; i <= HEIGHT; i++)
@@ -43,6 +44,8 @@
     public const int WIDTH = 12;
     public const int HEIGHT = 18;
 
+    private ElementReference gameContainer;
+
     private string boardStyle = string.Empty;
     private bool boardCentring = true;
 
@@ -54,9 +57,15 @@
     {
         BoardTransform.TransformationChanged += ApplyTransformations;
         DialogService.SplashScreenDisplayed += SetSplashScreen;
-        boardCentring = bool.Parse(config["BoardCentering"]);
+        boardCentring = bool.Parse(Config["BoardCentering"]);
         if(!boardCentring)
             boardStyle = "margin-left:0;margin-right:0;";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+            await DtS.RegisterEvent(gameContainer);
     }
 
     private async Task ApplyTransformations(int zoom, bool horizontal)
