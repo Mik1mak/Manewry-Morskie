@@ -3,11 +3,12 @@
 @implements IDisposable
 
 @inject BoardService BoardService
+@inject PawnAnimatingService AnimatingService
 @inject IConfiguration config
 
 @if(pawn.HasValue)
 {
-    <div class="@PawnCss" title="@(pawn.Value.LabelIsHidden ? string.Empty : pawn.Value.Label)">
+    <div @ref="pawnRef" class="@PawnCss" title="@(pawn.Value.LabelIsHidden ? string.Empty : pawn.Value.Label)">
         @if(!pawn.Value.LabelIsHidden)
         {
             <div class="pawn-label" style="transform: scale(@(scale.ToString().Replace(',', '.'))">@(pawn.Value.Label)</div>
@@ -17,7 +18,9 @@
 
 @code {
     [Parameter]
-    public CellLocation Location { get; set; }
+    public CellLocation Location { get; init; }
+
+    private ElementReference pawnRef;
 
     private string scale = "1";
     private Pawn? pawn;
@@ -30,7 +33,6 @@
 
             if (pawn.Value.LabelIsHidden)
                 result += (pawn.Value.IsBattery ? "-art" : "-ship");
-
             return result;
         }
     }
@@ -39,6 +41,7 @@
     {
         scale = config["PawnFontScale"];
         BoardService[Location].PawnChanged += PlacePawn;
+        BoardService[Location].AnimatingPawn += AnimatePawn;
     }
 
     private async Task PlacePawn(Pawn? pawn)
@@ -50,8 +53,14 @@
         });
     }
 
+    private async Task AnimatePawn(IEnumerable<CellLocation> path, int duration)
+    {
+        await AnimatingService.MovePawn(pawnRef, path, duration);
+    }
+
     public void Dispose()
     {
         BoardService[Location].PawnChanged -= PlacePawn;
+        BoardService[Location].AnimatingPawn -= AnimatePawn;
     }
 }

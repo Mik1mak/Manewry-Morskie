@@ -65,15 +65,19 @@ namespace ManewryMorskieRazor
 
             while(true)
             {
+                int animationDuration = (mv.Path.Count() + 2) * 250;
+                await boardService[mv.From].AnimatePawn(mv.From.Concat(mv.Path).Concat(mv.To), animationDuration);
+                await Task.Delay(2000);
+
                 Pawn pawn = await boardService[mv.From].TakeOffPawn();
                 BoardCellService toCell = boardService[mv.To];
-
-                foreach (CellLocation l in mv.Path)
-                {
-                    await boardService[l].PlacePawn(pawn);
-                    await Task.Delay(250);
-                    await boardService[l].TakeOffPawn();
-                }
+                
+                //foreach (CellLocation l in mv.Path)
+                //{
+                //    await boardService[l].PlacePawn(pawn);
+                //    await Task.Delay(250);
+                //    await boardService[l].TakeOffPawn();
+                //}
 
                 await toCell.PlacePawn(pawn);
 

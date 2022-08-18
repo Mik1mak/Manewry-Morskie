@@ -18,6 +18,7 @@ namespace ManewryMorskieRazor
         public event Func<Pawn?, Task>? PawnChanged;
         public event Func<MarkOptions, Task>? CellMarked;
         public event Func<string[], Task>? ContextMenuDisplayed;
+        public event Func<IEnumerable<CellLocation>, int, Task>? AnimatingPawn;
 
         public Pawn? Pawn { get; private set; }
 
@@ -53,6 +54,12 @@ namespace ManewryMorskieRazor
         {
             if (ContextMenuDisplayed != null)
                 await ContextMenuDisplayed.Invoke(options);
+        }
+
+        public async Task AnimatePawn(IEnumerable<CellLocation> path, int duration)
+        {
+            if (AnimatingPawn != null)
+                await AnimatingPawn.Invoke(path, duration);
         }
     }
 }

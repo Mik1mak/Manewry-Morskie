@@ -3,6 +3,9 @@
     width: 100%;
     height: 100%;
     background-size: cover;
+    transition: 300ms ease;
+    z-index: 100;
+    position: relative;
 }
 
 .pawn-label {

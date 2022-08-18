@@ -9,12 +9,12 @@ namespace CellLib
         public override CellLocation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             string[] src = reader.GetString()!.Split(',');
-            return new(int.Parse(src[0]), int.Parse(src[1]));
+            return new(int.Parse(src[0].Split(':')[1]), int.Parse(src[1].Split(':')[1]));
         }
 
         public override void Write(Utf8JsonWriter writer, CellLocation value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue($"{value.Column},{value.Row}");
+            writer.WriteStringValue($"{{\"Column\":{value.Column},\"Row\":{value.Row}}}");
         }
     }
 }
