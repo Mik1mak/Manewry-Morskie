@@ -13,6 +13,7 @@ namespace ManewryMorskieRazor
         public event Func<string, string[], Task>? NewOptionsSet;
         public event Func<string, MessageType, Task>? NewMessage;
         public event Func<SplashScreen?, Task>? SplashScreenDisplayed;
+        public event Func<Task>? SplashScreenDismissed;
 
         public async Task DisplayMessage(string message, MessageType msgType = MessageType.Standard)
         {
@@ -35,6 +36,12 @@ namespace ManewryMorskieRazor
         {
             if(SplashScreenDisplayed != null)
                 await SplashScreenDisplayed.Invoke(splashScreen);
+        }
+
+        public async Task DismissSplashScreen()
+        {
+            if (SplashScreenDismissed != null)
+                await SplashScreenDismissed.Invoke();
         }
     }
 

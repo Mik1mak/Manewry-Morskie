@@ -18,7 +18,11 @@
 
 @code {
     [Parameter]
-    public CellLocation Location { get; init; }
+    public uint Column { get; init; }
+    [Parameter]
+    public uint Row { get; init; }
+
+    private CellLocation Location { get; set; }
 
     private ElementReference pawnRef;
 
@@ -40,6 +44,7 @@
     protected override void OnInitialized()
     {
         scale = config["PawnFontScale"];
+        Location = (CellLocation)(Column, Row);
         BoardService[Location].PawnChanged += PlacePawn;
         BoardService[Location].AnimatingPawn += AnimatePawn;
     }

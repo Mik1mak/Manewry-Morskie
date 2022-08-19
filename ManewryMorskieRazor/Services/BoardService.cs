@@ -59,7 +59,11 @@ namespace ManewryMorskieRazor
         public async Task AnimatePawn(IEnumerable<CellLocation> path, int duration)
         {
             if (AnimatingPawn != null)
+            {
                 await AnimatingPawn.Invoke(path, duration);
+                await Task.Delay(duration);
+            }
+                
         }
     }
 }

@@ -57,6 +57,7 @@ namespace CellLib
         public static bool operator !=(CellLocation a, CellLocation b) => a.Column != b.Column || a.Row != b.Row;
 
         public static implicit operator CellLocation((int column, int row) tuple) => new(tuple.column, tuple.row);
+        public static explicit operator CellLocation((uint column, uint row) tuple) => new((int)tuple.column, (int)tuple.row);
 
         public override string ToString() => $"({Column},{Row})";
         public override bool Equals(object obj)

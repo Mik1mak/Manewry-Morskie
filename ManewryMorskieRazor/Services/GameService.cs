@@ -46,6 +46,7 @@ namespace ManewryMorskieRazor
             networkClient.Reconnected += HideSplashScreen;
             networkClient.GameStarted += HideSplashScreen;
             networkClient.GameClosed += HideSplashScreen;
+            dialogService.SplashScreenDismissed += AbortGame; ;
             networkClient.SetRoom(create, roomName, randomRoom);
 
             client = networkClient;
@@ -63,6 +64,7 @@ namespace ManewryMorskieRazor
                 networkClient.Reconnected -= HideSplashScreen;
                 networkClient.GameStarted -= HideSplashScreen;
                 networkClient.GameClosed -= HideSplashScreen;
+                dialogService.SplashScreenDismissed -= HideSplashScreen;
             }
 
             if (client != null)
@@ -110,7 +112,13 @@ namespace ManewryMorskieRazor
         }
         private async Task HideSplashScreen()
         {
+            dialogService.SplashScreenDismissed -= AbortGame;
             await dialogService.DisplaySplashScreen(null);
+        }
+
+        private async Task AbortGame()
+        {
+            await Clean();
         }
     }
 }

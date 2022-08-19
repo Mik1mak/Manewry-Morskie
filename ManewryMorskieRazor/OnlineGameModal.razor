@@ -46,7 +46,7 @@
         await Game.SetUpOnline(createRoom, onlineModal.RoomName, onlineModal.RandomRoom);
 
         if (createRoom)
-            await DialogService.DisplaySplashScreen(new("Oczekiwanie na przeciwnika...", false));
+            await DialogService.DisplaySplashScreen(new("Oczekiwanie na przeciwnika... Kliknij, aby anulować", true));
         else
             await DialogService.DisplaySplashScreen(new("Łączenie...", false));
 

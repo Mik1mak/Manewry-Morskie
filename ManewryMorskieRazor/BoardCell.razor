@@ -9,7 +9,7 @@
 <td class="board-cell" @onclick="CellClicked">
     <div class="@FirstCellCss" style="@cellStyle">
         <div class="@secondCellCss" @ref="dropdownRef" @attributes="dropdownAtrs">    
-            <PawnDisplayer Location="@Location"/>
+            <PawnDisplayer Column="@Column" Row="@Row"/>
         </div>
         <ul class="@DropdownCss">
             @foreach (var (i, opt) in options.Select((opt, i) => (i, opt)))
@@ -34,7 +34,7 @@
     [Parameter]
     public uint Column { get; init; }
 
-    private CellLocation Location => ((int)Column, (int)Row);
+    private CellLocation Location { get; set; }
 
     private string firstCellCss = "board-cell-mark btn-group";
     private string FirstCellCss
@@ -94,6 +94,7 @@
 
     protected override void OnInitialized()
     {
+        Location = (CellLocation)(Column, Row);
         BoardService[Location].CellMarked += MarkCell;
         BoardService[Location].ContextMenuDisplayed += DiplayContextMenu;
         BoardTransform.TransformationChanged += Rotate;

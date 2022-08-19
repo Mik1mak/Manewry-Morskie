@@ -10,7 +10,7 @@
 
 @if(splashScreen.HasValue)
 {
-    <div class="splash-screen position-relative" style="@SplashStyle" @onclick="HideSplashScreen">
+    <div class="splash-screen position-relative" style="@SplashStyle" @onclick="async () => await HideSplashScreen()">
         <div class="position-absolute top-50 start-50 translate-middle">
             <h2>@splashScreen.Value.Message</h2>
         </div>
@@ -96,11 +96,14 @@
         });
     }
 
-    private void HideSplashScreen()
+    private async ValueTask HideSplashScreen()
     {
         if (splashScreen!.Value.IsDismisableByUser)
+        {
             splashScreen = null;
-        StateHasChanged();
+            StateHasChanged();
+            await DialogService.DismissSplashScreen();
+        }
     }
 
     public void Dispose()

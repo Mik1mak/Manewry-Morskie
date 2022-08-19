@@ -67,17 +67,9 @@ namespace ManewryMorskieRazor
             {
                 int animationDuration = (mv.Path.Count() + 2) * 250;
                 await boardService[mv.From].AnimatePawn(mv.From.Concat(mv.Path).Concat(mv.To), animationDuration);
-                await Task.Delay(2000);
 
                 Pawn pawn = await boardService[mv.From].TakeOffPawn();
                 BoardCellService toCell = boardService[mv.To];
-                
-                //foreach (CellLocation l in mv.Path)
-                //{
-                //    await boardService[l].PlacePawn(pawn);
-                //    await Task.Delay(250);
-                //    await boardService[l].TakeOffPawn();
-                //}
 
                 await toCell.PlacePawn(pawn);
 
@@ -87,13 +79,13 @@ namespace ManewryMorskieRazor
 
                     BoardCellService targetCell = boardService[(mv.Attack ?? mv.Disarm!).Value];
                     await targetCell.PlacePawn(targetCell.Pawn!.Value.Copy(mv.TargetUnitDescription!));
-                    await Task.Delay(2300);
+                    await Task.Delay(1800);
 
                     if (mv.Result.HasFlag(BattleResult.SourceDestroyed))
-                        await toCell.TakeOffPawn();
+                        await TakeOff(toCell, mv.To);
 
                     if (mv.Result.HasFlag(BattleResult.TargetDestroyed))
-                        await targetCell.TakeOffPawn();
+                        await TakeOff(targetCell, (mv.Attack ?? mv.Disarm!).Value);
                 }
                 else
                 {
@@ -109,6 +101,12 @@ namespace ManewryMorskieRazor
             }
 
             ActiveClickInput = true;
+        }
+
+        private async ValueTask TakeOff(BoardCellService srvice, CellLocation start)
+        {
+            await srvice.AnimatePawn(start.Concat(new CellLocation(15, 25)), 500);
+            await srvice.TakeOffPawn();
         }
 
         public async Task MarkCells(IEnumerable<CellLocation> cells, MarkOptions mode)
