@@ -123,7 +123,7 @@ namespace ManewryMorskie.Network
 #if DEBUG
                 await clientInterface.DisplayMessage($"Wystąpił nieoczekiwany błąd {ex}");
 #else
-                await clientInterface.DisplayMessage($"Wystąpił nieoczekiwany błąd. {ex}");
+                await clientInterface.DisplayMessage($"Wystąpił nieoczekiwany błąd.");
 #endif
             }
             finally
