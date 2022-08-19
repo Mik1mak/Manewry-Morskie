@@ -83,7 +83,7 @@ namespace ManewryMorskie.Server
             {
                 var disconnectedKeys = rooms.Where(kpv => kpv.Value.ClientDisconnected).Select(kpv => kpv.Key);
                 foreach (string key in disconnectedKeys)
-                    namedRooms.Remove(key);
+                    rooms.Remove(key);
             }
         }
     }

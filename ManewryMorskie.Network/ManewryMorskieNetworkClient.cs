@@ -97,7 +97,6 @@ namespace ManewryMorskie.Network
         {
             try
             {
-                //await StopAsync();
                 await connection.StartAsync(ct);
 
                 await connection.InvokeAsync(
@@ -121,7 +120,11 @@ namespace ManewryMorskie.Network
             catch(TaskCanceledException){}
             catch (Exception ex)
             {
+#if DEBUG
+                await clientInterface.DisplayMessage($"Wystąpił nieoczekiwany błąd {ex}");
+#else
                 await clientInterface.DisplayMessage($"Wystąpił nieoczekiwany błąd. {ex}");
+#endif
             }
             finally
             {

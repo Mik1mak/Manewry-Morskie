@@ -35,8 +35,11 @@
             ClientDisconnected = true;
 
             foreach (Client client in clients)
+            {
+                client.Disconnecting -= Client_Disconnecting;
                 if (!client.IsDisconnected)
                     await client.Kick("Przeciwnik rozłączył się.");
+            }
         }
 
         public async Task RunGame()

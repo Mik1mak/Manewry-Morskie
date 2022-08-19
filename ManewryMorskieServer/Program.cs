@@ -27,7 +27,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
 app.UseHttpsRedirection();
 app.MapHub<ManewryMorskieHub>("/ManewryMorskie");
 

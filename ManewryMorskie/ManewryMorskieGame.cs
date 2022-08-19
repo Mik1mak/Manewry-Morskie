@@ -57,7 +57,7 @@ namespace ManewryMorskie
             pawnHider.RegisterEvents(AsyncGame, turnManager);
 
             logger?.LogInformation("Game Started.");
-            using (IPlacingManager currentPlacingMgr = new ComplexPlacingManager(map, playerManager, playerManager.CurrentPlayer, logger))
+            using (IPlacingManager currentPlacingMgr = new ManualPlacingManagerWithStandardPawns(map, playerManager, playerManager.CurrentPlayer, logger))
             {
                 Task currentPlayerPlacingTask = currentPlacingMgr.PlacePawns(token);
                 token.ThrowIfCancellationRequested();
@@ -72,7 +72,7 @@ namespace ManewryMorskie
                 }
 
                 using (IPlacingManager opositePlacingMgr =
-                    new ComplexPlacingManager(map, playerManager, opositePlayer, logger))
+                    new ManualPlacingManagerWithStandardPawns(map, playerManager, opositePlayer, logger))
                 {
                     Task opositePlayerPlacingTask = opositePlacingMgr.PlacePawns(token);
                     token.ThrowIfCancellationRequested();
