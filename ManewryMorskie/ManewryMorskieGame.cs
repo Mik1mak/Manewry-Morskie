@@ -13,16 +13,16 @@ namespace ManewryMorskie
 {
     public class ManewryMorskieGame : IDisposable
     {
-        private InternationalWaterManager internationalWaterManager;
-        private StandardMap map;
-        private GameEndManager? endManager;
-        private PlayerManager playerManager;
-        private MoveExecutor executor;
-        private PawnHider pawnHider;
-        private InternHandler internHandler;
-
+        private readonly InternationalWaterManager internationalWaterManager;
+        private readonly StandardMap map;
+        private readonly PlayerManager playerManager;
+        private readonly MoveExecutor executor;
+        private readonly PawnHider pawnHider;
+        private readonly InternHandler internHandler;
         private readonly ILogger? logger;
         private readonly TurnCounter turnManager = new();
+        private GameEndManager? endManager;
+
 
         public bool AsyncGame { get; set; }
 
@@ -57,8 +57,13 @@ namespace ManewryMorskie
             pawnHider.RegisterEvents(AsyncGame, turnManager);
 
             logger?.LogInformation("Game Started.");
-            using (IPlacingManager currentPlacingMgr = new ManualPlacingManagerWithStandardPawns(map, playerManager, playerManager.CurrentPlayer, logger))
-            {
+            using (IPlacingManager currentPlacingMgr =
+#if DEBUG
+                new ComplexPlacingManager(map, playerManager, playerManager.CurrentPlayer, logger)
+#else
+                new ManualPlacingManagerWithStandardPawns(map, playerManager, playerManager.CurrentPlayer, logger)
+#endif
+            ){
                 Task currentPlayerPlacingTask = currentPlacingMgr.PlacePawns(token);
                 token.ThrowIfCancellationRequested();
 
@@ -72,8 +77,12 @@ namespace ManewryMorskie
                 }
 
                 using (IPlacingManager opositePlacingMgr =
-                    new ManualPlacingManagerWithStandardPawns(map, playerManager, opositePlayer, logger))
-                {
+#if DEBUG
+                    new ComplexPlacingManager(map, playerManager, opositePlayer, logger)
+#else
+                    new ManualPlacingManagerWithStandardPawns(map, playerManager, opositePlayer, logger)
+#endif
+                ){
                     Task opositePlayerPlacingTask = opositePlacingMgr.PlacePawns(token);
                     token.ThrowIfCancellationRequested();
                     await Task.WhenAll(currentPlayerPlacingTask, opositePlayerPlacingTask);

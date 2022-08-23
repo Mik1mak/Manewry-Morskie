@@ -1,7 +1,7 @@
 ﻿using CellLib;
 using ManewryMorskie;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +12,7 @@ namespace ManewryMorskieRazor
     {
         private readonly BoardService boardService;
         private readonly DialogService dialogService;
-        private readonly Queue<Move> moveBuffer = new();
+        private readonly ConcurrentQueue<Move> moveBuffer = new();
 
         public bool ActiveClickInput { get; set; } = true;
 
@@ -57,7 +57,7 @@ namespace ManewryMorskieRazor
         {
             ActiveClickInput = false;
 
-            if(moveBuffer.Count != 0)
+            if(!moveBuffer.IsEmpty)
             {
                 moveBuffer.Enqueue(mv);
                 return;
@@ -94,10 +94,10 @@ namespace ManewryMorskieRazor
 
                 await Task.Delay(200);
 
-                if (moveBuffer.Any())
-                    mv = moveBuffer.Dequeue();
-                else
+                if (moveBuffer.IsEmpty)
                     break;
+                else
+                    while(!moveBuffer.TryDequeue(out mv!));
             }
 
             ActiveClickInput = true;
