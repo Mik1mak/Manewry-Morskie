@@ -20,15 +20,23 @@ namespace CellLib
             Column = column;
         }
 
-        public CellLocation(Ways ways) : this()
+        private CellLocation(Ways ways) : this()
         {
             foreach (var (way, modifer) in rowModifier)
                 if (ways.HasFlag(way))
+                {
                     Row += modifer;
+                    break;
+                }
+                    
 
             foreach (var (way, modifer) in columnModifier)
                 if (ways.HasFlag(way))
+                {
                     Column += modifer;
+                    break;
+                }
+                    
         }
 
         private static readonly (Ways way, int modifier)[] rowModifier = new[]
@@ -51,8 +59,11 @@ namespace CellLib
             (Ways.TopLeft, -1),
         };
 
+        public static CellLocation operator *(CellLocation a, int b) => new(a.Row * b, a.Column * b);
         public static CellLocation operator +(CellLocation a, CellLocation b) => new(a.Column + b.Column, a.Row + b.Row);
         public static CellLocation operator +(CellLocation a, Ways way) => a + new CellLocation(way);
+        public static CellLocation operator +(CellLocation a, (Ways way, int length) b) => a + (new CellLocation(b.way) * b.length);
+
         public static bool operator ==(CellLocation a, CellLocation b) => a.Column == b.Column && a.Row == b.Row;
         public static bool operator !=(CellLocation a, CellLocation b) => a.Column != b.Column || a.Row != b.Row;
 

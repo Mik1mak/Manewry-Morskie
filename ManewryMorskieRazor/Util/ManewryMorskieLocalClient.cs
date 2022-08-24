@@ -1,5 +1,6 @@
 ﻿using ManewryMorskie;
 using ManewryMorskie.Network;
+using Microsoft.Extensions.Logging;
 
 namespace ManewryMorskieRazor
 {
@@ -16,7 +17,7 @@ namespace ManewryMorskieRazor
             remove => game.TurnChanged -= value;
         }
 
-        public ManewryMorskieLocalClient(IUserInterface ui)
+        public ManewryMorskieLocalClient(IUserInterface ui, ILogger? logger = null)
         {
             this.ui = ui;
 
@@ -30,7 +31,7 @@ namespace ManewryMorskieRazor
                 Color = 0,
             };
 
-            game = new(playerOne, playerTwo);
+            game = new(playerOne, playerTwo, logger);
         }
 
         public async Task RunGame(CancellationToken ct = default)

@@ -6,15 +6,13 @@ namespace ManewryMorskie.Server
     public class ManewryMorskieHub : Hub
     {
         private readonly Rooms rooms;
-        private readonly Dictionary<string, Client> clients;
         private readonly Client newClient;
         private readonly ILogger<ManewryMorskieHub> logger;
 
-        private Client Client => clients[Context.ConnectionId];
+        private Client Client => (Context.Items[nameof(Client)] as Client)!;
 
-        public ManewryMorskieHub(Rooms rooms, Dictionary<string, Client> clients, Client newClient, ILogger<ManewryMorskieHub> logger)
+        public ManewryMorskieHub(Rooms rooms, Client newClient, ILogger<ManewryMorskieHub> logger)
         {
-            this.clients = clients;
             this.rooms = rooms;
             this.newClient = newClient;
             this.logger = logger;
@@ -39,32 +37,34 @@ namespace ManewryMorskie.Server
         public Task ChoosenOptionId(int optionId)
         {
             Client.NetworkUserInterface.InvokeChoosenOptionId(optionId);
-            logger.LogInformation("Client {clientId} choosed {optionId} loccation", Client.Id, optionId);
+            logger.LogDebug("Client {clientId} choosed {optionId} loccation", Client.Id, optionId);
             return Task.CompletedTask;
         }
 
         public Task ClickedLocation(CellLocation location)
         {
             Client.NetworkUserInterface.InvokeClickedLocation(location);
-            logger.LogInformation("Client {clientId} clicked {location} loccation", Client.Id, location);
+            logger.LogDebug("Client {clientId} clicked {location} loccation", Client.Id, location);
             return Task.CompletedTask;
         }
 
         public override Task OnConnectedAsync()
         {
-            clients[Context.ConnectionId] = newClient;
+            Context.Items.Add(nameof(Client), newClient);
             Client.SetCallerContext(Context);
+            logger.LogInformation("Client {clientId} connected", Client.Id);
             return Task.CompletedTask;
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             if (exception != null)
-                logger.LogError("Client {clientId} disconnected with exeption {exception}.", Client.Id, exception!);
+                logger.LogError("Client {clientId} disconnected with exeption {exception}", Client.Id, exception!.Message);
+            else
+                logger.LogInformation("Client {clientId} disconnected", Client.Id);
 
-            await clients[Context.ConnectionId].Disconnect();
+            await Client.Disconnect();
             rooms.ClearDisconnectedRooms();
-            clients.Remove(Context.ConnectionId);
         }
     }
 }

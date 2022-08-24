@@ -4,8 +4,8 @@ namespace ManewryMorskie.Server
 {
     public class Rooms
     {
-        private Dictionary<string, Room> randomRooms = new();
-        private Dictionary<string, Room> namedRooms = new();
+        private readonly Dictionary<string, Room> randomRooms = new();
+        private readonly Dictionary<string, Room> namedRooms = new();
         private readonly int roomsLimits;
         private readonly ILogger<Rooms> logger;
 

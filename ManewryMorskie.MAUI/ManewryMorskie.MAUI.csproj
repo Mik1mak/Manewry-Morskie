@@ -61,6 +61,10 @@
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
     </ItemGroup>
 
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
+	</ItemGroup>
+	
     <ItemGroup>
       <ProjectReference Include="..\ManewryMorskieRazor\ManewryMorskieRazor.csproj" />
     </ItemGroup>

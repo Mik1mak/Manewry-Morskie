@@ -93,19 +93,22 @@ namespace ManewryMorskie
 
             endManager = new GameEndManager(map, turnManager, playerManager, executor);
 
-            using TurnManager turnMgr = new(map, playerManager, internationalWaterManager);
+            using TurnManager turnMgr = new(map, playerManager, internationalWaterManager, logger);
 
             while (!endManager.GameIsEnded)
             {
                 await playerManager.GetOpositePlayer()
                     .UserInterface.DisplayMessage("Poczekaj aż przeciwnik wykona ruch", MessageType.SideMessage);
                 Move move = await turnMgr.MakeMove(token);
+                logger?.LogInformation("Move Made.");
                 await executor.Execute(move);
+                logger?.LogInformation("Move Executed.");
                 turnManager.NextTurn();
                 token.ThrowIfCancellationRequested();
             }
 
             await playerManager.WriteToPlayers("Gra zakończona", MessageType.SideMessage);
+            logger?.LogInformation("Game Finished.");
         }
 
         public void Dispose()

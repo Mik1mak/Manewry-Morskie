@@ -3,6 +3,7 @@ using ManewryMorskie;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 
@@ -269,6 +270,40 @@ namespace ManewryTests
             if(location != deserializedLocation)
                 Assert.Fail();
             Assert.Pass();
+        }
+
+        [Test]
+        public void SquereRegionTest()
+        {
+            CellLocation z = (0,0);
+
+            List<(CellLocation pivot, int length, HashSet<CellLocation> expected)> tests = new()
+            {
+                (z, 0, new() {z}),
+                (z, 1, new() {(-1,1),(0,1),(1,1),(-1,0),z,(1,0),(-1,-1),(0,-1),(1,-1)}),
+            };
+
+            foreach (var (pivot, length, expected) in tests)
+            {
+                var result = pivot.SquereRegion(length);
+                if (!expected.SetEquals(result))
+                    Assert.Fail();
+            }
+                
+            Assert.Pass();
+        }
+
+        [Test]
+        public void CellLocationExtensionsPerformance()
+        {
+            Stopwatch watch = new();
+
+            watch.Start();
+            for (int i = 0; i < 200; i++)
+                _ = new CellLocation(0,0).SquereRegion(i);
+            watch.Stop();
+
+            Console.WriteLine($"SquereRegion operation {watch.ElapsedMilliseconds}ms");
         }
     }
 }

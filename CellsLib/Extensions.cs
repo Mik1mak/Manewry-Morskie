@@ -72,14 +72,8 @@ namespace CellLib
 
         public static IList<CellLocation> SquereRegion(this CellLocation from, int radius)
         {
-            CellLocation fromRegion = from;
-            CellLocation toRegion = from;
-
-            for (int i = 0; i < radius; i++)
-            {
-                fromRegion += Ways.TopLeft;
-                toRegion += Ways.BottomRight;
-            }
+            CellLocation fromRegion = from + (Ways.TopLeft, radius);
+            CellLocation toRegion = from + (Ways.BottomRight, radius);
 
             return fromRegion.Region(toRegion);
         }
@@ -103,7 +97,7 @@ namespace CellLib
         public static IEnumerable<CellLocation> TrimToMapSize<T>(this IEnumerable<CellLocation> region, RectangleCellMap<T> map) 
             where T : class, new() 
         {
-            return region.Where(location => location.Column >= 0 && location.Column < map.Width && location.Row >= 0 && location.Row < map.Height);
+            return region.Where(location => map.LocationIsOnTheMap(location));
         }
     }
 }

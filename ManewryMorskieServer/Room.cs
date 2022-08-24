@@ -60,15 +60,16 @@
             await player1.GameStarted();
             await player2.GameStarted();
 
-            var token = tokenSource.Token;
+            var token = tokenSource?.Token ?? CancellationToken.None;
 
             gameTask = Task.Run(async () => {
                 try
                 {
                     await game.Start(token);
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
+                    logger?.LogError("Exception {ex}", ex);
                     await Client_Disconnecting();
                 }
             }, token);

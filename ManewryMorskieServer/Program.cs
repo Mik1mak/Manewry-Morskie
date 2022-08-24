@@ -16,7 +16,6 @@ builder.Services.AddSignalR()
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-builder.Services.AddSingleton<Dictionary<string, Client>>();
 builder.Services.AddSingleton<Rooms>();
 builder.Services.AddScoped<Client>();
 

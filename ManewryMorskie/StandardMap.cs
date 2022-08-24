@@ -13,6 +13,9 @@ namespace ManewryMorskie
 
         public event EventHandler? MapChanged;
 
+        private readonly Dictionary<Unit, CellLocation> unitsLocations = new();
+        public IReadOnlyDictionary<Unit, CellLocation> UnitsLocations => unitsLocations;
+
         public bool TopEntrencesAreProtected => EntrencesIsProtected(DefaultTopEnterences);
         public bool BottomEntrecesAreProtected => EntrencesIsProtected(DefaultBottomEnterences);
 
@@ -66,12 +69,12 @@ namespace ManewryMorskie
             this.MarkInternationalWaters((6, 9).NextLocations(Ways.All));
             this.MarkInternationalWaters((6, 6), (5, 11));
 
-            foreach (MapField mapField in this)
-                mapField.PropertyChanged += MapField_PropertyChanged;
+            foreach (CellLocation key in Keys)
+            {
+                this[key].Location = key;
+                this[key].UnitsLocations = unitsLocations;
+            }
         }
-
-        private void MapField_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) 
-            => MapChanged?.Invoke(sender, EventArgs.Empty);
 
         public static StandardMap DefaultMap(PlayerManager players) => new(players);
 
@@ -108,8 +111,7 @@ namespace ManewryMorskie
 
         public IEnumerable<CellLocation> LocationsWithPlayersUnits(Player player)
         {
-            return Keys.Where(location => this[location].Unit != null 
-                && player.Fleet.Units.Contains(this[location].Unit));
+            return player.Fleet.Units.Select(u => UnitsLocations[u]);
         }
     }
 }

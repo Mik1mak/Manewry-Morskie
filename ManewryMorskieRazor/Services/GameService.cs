@@ -7,24 +7,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace ManewryMorskieRazor
 {
     public class GameService
     {
-        private readonly BoardService boardService;
         private readonly UserInterface ui;
         private readonly DialogService dialogService;
+        private readonly ILogger<GameService> logger;
         private readonly string serverUrl;
 
         private CancellationTokenSource? tokenSource;
         private IManewryMorskieClient? client;
 
-        public GameService(UserInterface ui, BoardService boardService, DialogService dialogService, IConfiguration Configuration)
+        public GameService(UserInterface ui, DialogService dialogService, IConfiguration Configuration, ILogger<GameService> logger)
         {
             this.ui = ui;
-            this.boardService = boardService;
             this.dialogService = dialogService;
+            this.logger = logger;
             serverUrl = Configuration["ManewryMorskieServerUrl"];
         }
 
@@ -32,7 +33,7 @@ namespace ManewryMorskieRazor
         {
             await Clean();
 
-            ManewryMorskieLocalClient localClient = new(ui);
+            ManewryMorskieLocalClient localClient = new(ui, logger);
             localClient.TurnChanged += Manewry_TurnChanged;
             client = localClient;
         }

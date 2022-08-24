@@ -1,6 +1,8 @@
 ﻿using CellLib;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +17,7 @@ namespace ManewryMorskie.TurnManagerComponents
         private readonly StandardMap map;
         private readonly PlayerManager playerManager;
         private readonly InternationalWaterManager internationalWaterManager;
+        private readonly ILogger? logger;
         private readonly SemaphoreSlim semaphore = new(0, 1);
         private readonly Selectable selectable = new();
         private readonly CellMarker marker;
@@ -27,16 +30,21 @@ namespace ManewryMorskie.TurnManagerComponents
 
         private IUserInterface PlayerUi => playerManager.CurrentPlayer.UserInterface;
 
-        public TurnManager(StandardMap map, PlayerManager playerManager, InternationalWaterManager internationalWaterManager)
+        public TurnManager(StandardMap map, PlayerManager playerManager, InternationalWaterManager internationalWaterManager, ILogger? logger = null)
         {
             this.map = map;
             this.playerManager = playerManager;
             this.internationalWaterManager = internationalWaterManager;
+            this.logger = logger;
             this.marker = new CellMarker(this);
         }
 
         public async Task<Move> MakeMove(CancellationToken token)
         {
+#if DEBUG
+            Stopwatch watch = new();
+            watch.Start();
+#endif
             selectable.Clear();
             result.Clear();
             cancellationToken = token;
@@ -45,15 +53,23 @@ namespace ManewryMorskie.TurnManagerComponents
                 selectable.Add(unitLocation, 
                     (new MoveChecker(map, playerManager, unitLocation, internationalWaterManager),
                     new List<ICellAction>()));
-
+#if DEBUG
+            logger?.LogInformation("MakeMove MoveCheckers added {ms}ms", watch.ElapsedMilliseconds);
+#endif
             foreach (var item in selectable.Where(kpv => kpv.Value.moveChecker?.UnitIsSelectable() ?? false))
                 item.Value.actions.Add(new SelectUnitAction(item.Key, this));
-
+#if DEBUG
+            logger?.LogInformation("MakeMove SelectCellAction added {ms}ms", watch.ElapsedMilliseconds);
+#endif
             await PlayerUi.DisplayMessage("Wybierz jednostkę", MessageType.SideMessage);
             await marker.UpdateMarks();
 
+            ActionSelectionActive = true;
             PlayerUi.ClickedLocation += SelectedLocation;
-
+#if DEBUG
+            watch.Stop();
+            logger?.LogInformation("MakeMove waiting for release {ms}ms", watch.ElapsedMilliseconds);
+#endif
             await semaphore.WaitAsync(token);
             token.ThrowIfCancellationRequested();
 
@@ -101,9 +117,18 @@ namespace ManewryMorskie.TurnManagerComponents
 
         private async ValueTask RealiseAction(ICellAction action)
         {
+#if DEBUG
+            Stopwatch watch = new();
+            watch.Start();
+            logger?.LogInformation("Realising Action Started.");
+#endif
             ActionSelectionActive = true;
             bool finishTurn = await action.Execute(result!, cancellationToken!.Value);
-            
+#if DEBUG
+            watch.Stop();
+            logger?.LogInformation("Realised Action \"{actionName}\" in {time}ms", action.Name, watch.ElapsedMilliseconds);
+#endif
+
             if (finishTurn)
             {
                 PlayerUi.ClickedLocation -= SelectedLocation;

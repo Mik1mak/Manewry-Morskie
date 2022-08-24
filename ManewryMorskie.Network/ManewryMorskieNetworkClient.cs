@@ -1,6 +1,7 @@
 ﻿using CellLib;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ManewryMorskie.Network
 {
@@ -11,6 +12,7 @@ namespace ManewryMorskie.Network
 
         private readonly HubConnection connection;
         private readonly IUserInterface clientInterface;
+        private readonly ILogger? logger;
 
         public event Func<string?, Task>? GameClosed;
         public event Func<Task>? GameStarted;
@@ -27,9 +29,10 @@ namespace ManewryMorskie.Network
             remove => connection.Reconnected -= value;
         }
 
-        public ManewryMorskieNetworkClient(IUserInterface ui, string url)
+        public ManewryMorskieNetworkClient(IUserInterface ui, string url, ILogger? logger = null)
         {
             this.clientInterface = ui;
+            this.logger = logger;
 
             connection = new HubConnectionBuilder()
                 .AddJsonProtocol(options => {
@@ -74,6 +77,9 @@ namespace ManewryMorskie.Network
 
         private async Task Connection_Closed(Exception? arg)
         {
+            if(arg != null)
+                logger?.LogError("Connection on client closed {exc}", arg);
+
             if(GameClosed != null)
                 await GameClosed.Invoke("Gra została zakończona.");
         }
@@ -97,7 +103,6 @@ namespace ManewryMorskie.Network
         {
             try
             {
-                await StopAsync();
                 await connection.StartAsync(ct);
 
                 await connection.InvokeAsync(
@@ -114,6 +119,7 @@ namespace ManewryMorskie.Network
             {
 #if DEBUG
                 await clientInterface.DisplayMessage($"Wystąpił błąd {ex}");
+                logger?.LogError("{ex}", ex);
 #else
                 await clientInterface.DisplayMessage($"Wystąpił błąd {ex.StatusCode?.ToString() ?? "nieznany"}.");
 #endif
@@ -123,6 +129,7 @@ namespace ManewryMorskie.Network
             {
 #if DEBUG
                 await clientInterface.DisplayMessage($"Wystąpił nieoczekiwany błąd {ex}");
+                logger?.LogError("{ex}", ex);
 #else
                 await clientInterface.DisplayMessage($"Wystąpił nieoczekiwany błąd.");
 #endif

@@ -2,6 +2,7 @@
 using ManewryMorskieRazor;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 
 namespace ManewryMorskie.MAUI
 {
@@ -19,7 +20,12 @@ namespace ManewryMorskie.MAUI
 
             builder.Services.AddMauiBlazorWebView();
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
+		    builder.Services.AddBlazorWebViewDeveloperTools();
+
+            builder.Services.AddLogging(configure =>
+            {
+                configure.AddDebug();
+            });
 #endif
             #region config
             Assembly a = Assembly.GetExecutingAssembly();
