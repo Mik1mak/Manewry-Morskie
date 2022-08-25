@@ -87,7 +87,7 @@ namespace ManewryMorskie.TurnManagerComponents
 
             if (selectable.TryGetValue(e, out var value))
             {
-                ActionSelectionActive = false;
+                //ActionSelectionActive = false;
                 selectedUnitLocation = e;
 
                 if (value.actions.Count == 1)

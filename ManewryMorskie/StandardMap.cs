@@ -22,8 +22,8 @@ namespace ManewryMorskie
         private bool EntrencesIsProtected(IEnumerable<CellLocation> entrecesLocations)
         {
             return entrecesLocations
-                .All(entrenceLocation => CellLib.Extensions.HorizontalDirections
-                    .Any(horizontalWay => this[entrenceLocation + horizontalWay].Unit != null));
+                .All(entrenceLocation => CellLib.Extensions.AllDirections
+                    .Any(way => this[entrenceLocation + way].Unit is Bateria));
         }
 
         public static IEnumerable<CellLocation> DefaultTopEnterences { get; } = new CellLocation[]
@@ -49,6 +49,9 @@ namespace ManewryMorskie
                 .AddRange((1, 3).NextLocations(Ways.Right).Select(l => (l, l + Ways.Right)))
                 .AddRange((4, 3).NextLocations(Ways.Bottom).Select(l => (l, l + Ways.Right)))
                 .AddRange((10, 2).NextLocations(Ways.Bottom).Select(l => (l, l + Ways.Left)))
+                .AddRange((5, 8).NextLocations(Ways.Right).Select(l => (l, l + Ways.Bottom)))
+                .Add(((6, 8), (7, 8)))
+                .Add(((4, 8), (5, 8)))
                 .Add(((8, 1), (9, 1)))
                 .AddSymmetricBarriers()
                 .BuildBarriers();
