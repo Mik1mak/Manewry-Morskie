@@ -13,6 +13,7 @@ namespace ManewryMorskie
             typeof(Eskortowiec),
             typeof(Pancernik),
             typeof(OkretRakietowy),
+            typeof(OkretPodwodny),
             typeof(Krazownik),
             typeof(Niszczyciel),
             typeof(Mina),
