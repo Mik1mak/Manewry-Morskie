@@ -1,4 +1,5 @@
 ﻿using CellLib;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,11 +37,18 @@ namespace ManewryMorskie.TurnManagerComponents
                 foreach (var (location, actions) in parent.selectable.Select(kpv => (kpv.Key, kpv.Value.actions)))
                     foreach (ICellAction option in actions)
                         buffer[option.MarkMode].Add(location);
-
+#if DEBUG
+                parent.logger?.LogInformation("Buffer prepared for update cell marks ({ms}ms since MakeMoveStarted)",
+                    parent.makeMoveWatch.ElapsedMilliseconds);
+#endif
                 var toClear = parent.map.Keys.Except(buffer.SelectMany(x => x.Value));
                 toClear = lastSelected.HasValue ? toClear.Union(lastSelected.Value) : toClear;
+                toClear = toClear.ToArray();
                 await ClearAndMarkLastMove(new[] { parent.PlayerUi }, toClear);
-
+#if DEBUG
+                parent.logger?.LogInformation("Clear and mark last move ({ms}ms since MakeMoveStarted)",
+                    parent.makeMoveWatch.ElapsedMilliseconds);
+#endif
                 foreach (var item in buffer)
                     await parent.PlayerUi.MarkCells(item.Value, item.Key);
 

@@ -39,11 +39,14 @@ namespace ManewryMorskie.TurnManagerComponents
             this.marker = new CellMarker(this);
         }
 
+#if DEBUG
+        Stopwatch makeMoveWatch = new();
+#endif
         public async Task<Move> MakeMove(CancellationToken token)
         {
 #if DEBUG
-            Stopwatch watch = new();
-            watch.Start();
+            makeMoveWatch = new();
+            makeMoveWatch.Start();
 #endif
             selectable.Clear();
             result.Clear();
@@ -54,12 +57,12 @@ namespace ManewryMorskie.TurnManagerComponents
                     (new MoveChecker(map, playerManager, unitLocation, internationalWaterManager),
                     new List<ICellAction>()));
 #if DEBUG
-            logger?.LogInformation("MakeMove MoveCheckers added {ms}ms", watch.ElapsedMilliseconds);
+            logger?.LogInformation("MakeMove MoveCheckers added {ms}ms", makeMoveWatch.ElapsedMilliseconds);
 #endif
             foreach (var item in selectable.Where(kpv => kpv.Value.moveChecker?.UnitIsSelectable() ?? false))
                 item.Value.actions.Add(new SelectUnitAction(item.Key, this));
 #if DEBUG
-            logger?.LogInformation("MakeMove SelectCellAction added {ms}ms", watch.ElapsedMilliseconds);
+            logger?.LogInformation("MakeMove SelectCellAction added {ms}ms", makeMoveWatch.ElapsedMilliseconds);
 #endif
             await PlayerUi.DisplayMessage("Wybierz jednostkę", MessageType.SideMessage);
             await marker.UpdateMarks();
@@ -67,8 +70,8 @@ namespace ManewryMorskie.TurnManagerComponents
             ActionSelectionActive = true;
             PlayerUi.ClickedLocation += SelectedLocation;
 #if DEBUG
-            watch.Stop();
-            logger?.LogInformation("MakeMove waiting for release {ms}ms", watch.ElapsedMilliseconds);
+            makeMoveWatch.Stop();
+            logger?.LogInformation("MakeMove waiting for release {ms}ms", makeMoveWatch.ElapsedMilliseconds);
 #endif
             await semaphore.WaitAsync(token);
             token.ThrowIfCancellationRequested();
