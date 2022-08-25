@@ -10,8 +10,8 @@ namespace ManewryMorskie.PlacingManagerComponents
 
     public class ManualPlacingManager : PlacingMangerBase, IPlacingManager, IDisposable
     {
-        private static readonly List<CellLocation> topBatteriesPlaces = new() { (1, 16), (1, 15), (3, 16), (8, 14), (10, 14) };
-        private static readonly List<CellLocation> bottomBatteriesPlaces = new() { (1, 3), (3, 3), (8, 1), (10, 1), (10, 2) };
+        private readonly List<CellLocation> topBatteriesPlaces = new() { (1, 16), (1, 15), (3, 16), (8, 14), (10, 14) };
+        private readonly List<CellLocation> bottomBatteriesPlaces = new() { (1, 3), (3, 3), (8, 1), (10, 1), (10, 2) };
 
         private readonly Dictionary<Type, string> unitsLabels = new();
         private readonly Player currentPlayer;
