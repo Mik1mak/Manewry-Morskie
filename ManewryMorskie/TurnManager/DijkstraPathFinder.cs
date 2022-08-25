@@ -13,14 +13,17 @@ namespace ManewryMorskie.TurnManagerComponents
         private StandardMap map;
         private CellLocation pivot;
 
+        private readonly IEnumerable<CellLocation> forbidden;
+
         private readonly Dictionary<CellLocation, int> distances = new();
         private readonly Dictionary<CellLocation, CellLocation?> previousCells = new();
 
-        public DijkstraPathFinder(StandardMap map, CellLocation source)
+        public DijkstraPathFinder(StandardMap map, CellLocation source, IEnumerable<CellLocation> forbidden)
         {
             this.map = map;
+            this.forbidden = forbidden;
             pivot = source;
-
+            
             Djikstra();
         }
 
@@ -43,7 +46,7 @@ namespace ManewryMorskie.TurnManagerComponents
             while (queue.Count > 0)
             {
                 CellLocation tmp = queue.Dequeue();
-                Ways neighborhood = map.AvaibleWaysFrom(tmp);
+                Ways neighborhood = map.AvaibleWaysFrom(tmp, forbidden);
 
                 foreach (var (neighbor, way) in neighborhood.EverySingleWay()
                     .Select(way => (tmp + way, way)).Where(l => queue.Contains(l.Item1)))

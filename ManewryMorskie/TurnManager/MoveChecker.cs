@@ -29,7 +29,14 @@ namespace ManewryMorskie.TurnManagerComponents
         public void UpdatePaths()
         {
             if (map[From].Unit != null)
-                pathFinder = new(() => new DijkstraPathFinder(map, From));
+            {
+                IEnumerable<CellLocation> forbidden =
+                    map[From].Unit is OkretRakietowy ?
+                        Array.Empty<CellLocation>() :
+                        map.CellsProtectedByBatteries(playerMgr.GetOpositePlayer());
+
+                pathFinder = new(() => new DijkstraPathFinder(map, From, forbidden));
+            }
         }
 
         public IEnumerable<CellLocation> Moveable()

@@ -111,6 +111,26 @@ namespace ManewryMorskie
 
             return output;
         }
+        
+        public Ways AvaibleWaysFrom(CellLocation location, IEnumerable<CellLocation> forbidden)
+        {
+            Ways output = Ways.None;
+
+            foreach (Ways way in AvaibleWaysFrom(location).EverySingleWay())
+                if (!forbidden.Contains(location + way))
+                    output |= way;
+
+            return output;
+        }
+
+        public HashSet<CellLocation> CellsProtectedByBatteries(Player batteriesOwner)
+        {
+            return new HashSet<CellLocation>(
+                    batteriesOwner.Fleet.Units
+                        .Where(u => u is Bateria)
+                        .Select(b => UnitsLocations[b])
+                        .SelectMany(l => l.SquereRegion(1)));
+        }
 
         public IEnumerable<CellLocation> LocationsWithPlayersUnits(Player player)
         {
