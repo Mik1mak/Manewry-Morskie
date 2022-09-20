@@ -11,7 +11,7 @@
         <UnitsPowerTable/>
     </Content>
 </MyBSModal>
-<MyBSModal Id="destroyed-units-modal" Header="Zniszczone Jednostki">
+<MyBSModal Id="destroyed-units-modal" Header="Stracone Jednostki">
     <Content>
         <DestroyedUnits Source="destroyedUnits"/>
     </Content>
@@ -53,7 +53,7 @@
                             <BSDropdownItem IsDisabled="!isGameOngoing"
                                 @onclick="async () => destroyedUnits = await Game.DestroyedUnits()"
                                 Attributes='ToggleAtributes("#destroyed-units-modal")'>
-                                Zniszczone jednostki
+                                Stracone jednostki
                             </BSDropdownItem>
                         </Content>
                     </BSDropdown>
