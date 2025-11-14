@@ -26,10 +26,12 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
+app.UseCors("AllowAny");
+
+// app.UseHttpsRedirection();
+
 app.MapHub<ManewryMorskieHub>("/ManewryMorskie");
 app.MapGet("/ping", () => Results.Ok());
 
-app.UseCors("AllowAny");
 
 app.Run();

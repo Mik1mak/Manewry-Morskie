@@ -31,7 +31,7 @@ namespace ManewryMorskieRazor
             CellLocation last = path.ElementAt(0);
             foreach (CellLocation l in path.Skip(1))
             {
-                if(boardTransformService.Horizontal)
+                if(boardTransformService.CurrentState.IsHorizontal)
                     diffPaths.Add(new { x = l.Row-last.Row, y = l.Column-last.Column });
                 else
                     diffPaths.Add(new { x = l.Column-last.Column, y = last.Row-l.Row });

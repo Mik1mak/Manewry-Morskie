@@ -1,13 +1,13 @@
 # Manewry Morskie
+[![en](https://img.shields.io/badge/lang-en-blue.svg)](https://github.com/Mik1mak/Manewry-Morskie/blob/master/README.md)
+[![pl](https://img.shields.io/badge/lang-pl-red.svg)](https://github.com/Mik1mak/Manewry-Morskie/blob/master/README.pl.md)
 
-Gra planszowa [*Manewry Morskie*](http://www.nostalgia.pl/manewry-morskie) odtworzona w formie aplikacji webowej oraz aplkacji multiplatformowej na systemy Android, iOS, macOS i Windows umożliwająca rozgrywkę online lub w trybie "Hot Seat".
-Rozwiązanie zaimplementowane przy pomocy technologii Blazor, ASP .NET Core, SignalR oraz MAUI Blazor Hybrid ze środowiska .NET
+The board game [*Manewry Morskie*](http://www.nostalgia.pl/manewry-morskie) recreated as a web application and a cross-platform app for Android and Windows, allowing gameplay either online or in "Hot Seat" mode. The solution is implemented using Blazor, ASP .NET Core, SignalR, and MAUI Blazor Hybrid technologies within the .NET ecosystem.
 
-[Web App Demo](https://manewry-morskie.pl)
+## Architecture
+![Solution Architecture](demo/architecture.svg)
 
-
-### Zrzuty ekranu
-
-![plansza po rozstawieniu pionków](demo/browser_screenshot_1.png)
-![plansza w trakcie rozgrywki](demo/browser_screenshot_2.png)
-![plansza w trakcie rozgrywki na telefonie](demo/android_app_screenshot_1.jpg)
+## Screenshots
+![Game board after setup](demo/browser_screenshot_1.png)
+![Game board during gameplay](demo/browser_screenshot_2.png)
+![Gameplay on mobile device](demo/android_app_screenshot_1.jpg)

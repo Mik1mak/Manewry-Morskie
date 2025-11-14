@@ -24,10 +24,10 @@ namespace ManewryMorskieRazor
             this.ui = ui;
             this.dialogService = dialogService;
             this.logger = logger;
-            serverUrl = Configuration["ManewryMorskieServerUrl"];
+            serverUrl = Configuration["ManewryMorskieServerUrl"] ?? throw new Exception("missing \"ManewryMorskieServerUrl\" config property");
         }
 
-        public async Task<Dictionary<string, int[]>> DestroyedUnits()
+        public async Task<Dictionary<string, int[]>> GetDestroyedUnits()
         {
             if (client == null)
                 return new();
@@ -39,7 +39,7 @@ namespace ManewryMorskieRazor
             await Clean();
 
             ManewryMorskieLocalClient localClient = new(ui, logger);
-            localClient.TurnChanged += Manewry_TurnChanged;
+            localClient.TurnChanged += TurnChanged;
             client = localClient;
         }
 
@@ -48,11 +48,11 @@ namespace ManewryMorskieRazor
             await Clean();
 
             ManewryMorskieNetworkClient networkClient = new(ui, serverUrl);
-            networkClient.Reconnecting += NetworkClient_Reconnecting;
+            networkClient.Reconnecting += DisplayReconnectingSplash;
             networkClient.Reconnected += HideSplashScreen;
             networkClient.GameStarted += HideSplashScreen;
             networkClient.GameClosed += HideSplashScreen;
-            dialogService.SplashScreenDismissed += AbortGame; ;
+            dialogService.SplashScreenDismissed += AbortGame;
             networkClient.SetRoom(create, roomName, randomRoom);
 
             client = networkClient;
@@ -62,11 +62,11 @@ namespace ManewryMorskieRazor
         {
             if (client is ManewryMorskieLocalClient localClient)
             {
-                localClient.TurnChanged -= Manewry_TurnChanged;
+                localClient.TurnChanged -= TurnChanged;
             }
             else if(client is ManewryMorskieNetworkClient networkClient)
             {
-                networkClient.Reconnecting -= NetworkClient_Reconnecting;
+                networkClient.Reconnecting -= DisplayReconnectingSplash;
                 networkClient.Reconnected -= HideSplashScreen;
                 networkClient.GameStarted -= HideSplashScreen;
                 networkClient.GameClosed -= HideSplashScreen;
@@ -75,7 +75,7 @@ namespace ManewryMorskieRazor
 
             if (client != null)
             {
-                client.GameClosed -= Client_GameClosed;
+                client.GameClosed -= ClientGameClosed;
                 client.GameClosed -= GameClosed;
                 client.GameStarted -= GameStarted;
                 await client.DisposeAsync();
@@ -88,31 +88,31 @@ namespace ManewryMorskieRazor
         {
             if (client != null)
             {
-                client.GameClosed += Client_GameClosed;
+                client.GameClosed += ClientGameClosed;
                 client.GameClosed += GameClosed;
                 client.GameStarted += GameStarted;
 
                 tokenSource?.Cancel();
-                await Task.Delay(5);
-                tokenSource = new();
+                await Task.Yield();
 
+                tokenSource = new();
                 await client.RunGame(tokenSource.Token);
             }
         }
 
-        private async Task Client_GameClosed(string? arg)
+        private async Task ClientGameClosed(string? arg)
         {
-            client!.GameClosed -= Client_GameClosed;
+            client!.GameClosed -= ClientGameClosed;
             await client.DisposeAsync();
             await ui!.Clean();
         }
 
-        private async void Manewry_TurnChanged(object? sender, int e)
+        private async void TurnChanged(object? sender, int e)
         {
             await dialogService.DisplaySplashScreen(new("Kliknij, aby kontynuować", true));
         }
 
-        private async Task NetworkClient_Reconnecting(Exception? arg)
+        private async Task DisplayReconnectingSplash(Exception? arg)
         {
             await dialogService.DisplaySplashScreen(new("Utracono połączenie. Próbujemy najwiązać je ponownie.", false));
         }

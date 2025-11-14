@@ -1,8 +1,11 @@
-﻿@inject BoardTransformService BoardTransform
+﻿@using ManewryMorskieRazor.Util
+@inject BoardTransformService BoardTransform
+
+@implements IDisposable
 
 <li class="nav-item dropdown">
     <button type="button" class="btn-outline-light btn mx-2"
-            @onclick="async () => await BoardTransform.Rotate(!BoardTransform.Horizontal)">
+            @onclick="async () => await BoardTransform.SetOrientation(!BoardTransform.CurrentState.IsHorizontal)">
         <span class="oi oi-loop-circular"></span>
         <span class="d-none d-lg-inline">  Obróć</span>
     </button>
@@ -10,16 +13,16 @@
 <li class="nav-item dropdown">
     <div class="btn-group mx-2">
         <button type="button" class="btn btn-outline-light @(CannotZoomOut?"disabled":string.Empty)"
-                @onclick="async () => await ChangeZoom(-15)">
+                @onclick="async () => await BoardTransform.ChangeZoom(-15)">
             <span class="oi oi-zoom-out"></span>
             <span class="d-none d-lg-inline"> Oddal</span>
         </button>
         <button type="button" class="btn btn-outline-light d-none d-sm-block" style="width:67px;"
-                @onclick="async () => await ChangeZoom(DEFAULT_ZOOM-Zoom)">
-            @Zoom%
+                @onclick="async () => await BoardTransform.ChangeState(new ())">
+            @BoardTransform.CurrentState.Zoom%
         </button>
         <button type="button" class="btn btn-outline-light @(CannotZoomIn?"disabled":string.Empty)"
-                @onclick="async () => await ChangeZoom(15)">
+                @onclick="async () => await BoardTransform.ChangeZoom(15)">
             <span class="oi oi-zoom-in"></span>
             <span class="d-none d-lg-inline"> Przybliż</span>
         </button>
@@ -28,21 +31,24 @@
 
 @code 
 {
-    private const int MAX_ZOOM = 190;
-    private const int MIN_ZOOM = 40;
-    private const int DEFAULT_ZOOM = 100;
+    private bool CannotZoomOut => BoardTransform.CurrentState.Zoom == BoardTransformService.MIN_ZOOM;
+    private bool CannotZoomIn => BoardTransform.CurrentState.Zoom == BoardTransformService.MAX_ZOOM;
 
-    public int Zoom { get; private set; } = DEFAULT_ZOOM;
-
-    private bool CannotZoomOut => Zoom == MIN_ZOOM;
-    private bool CannotZoomIn => Zoom == MAX_ZOOM;
-
-    private async ValueTask ChangeZoom(int step)
+    protected override void OnAfterRender(bool firstRender)
     {
-        if (Zoom + step <= MAX_ZOOM && Zoom + step >= MIN_ZOOM)
-        {
-            Zoom += step;
-            await BoardTransform.Zoom(Zoom);
-        }
+        base.OnAfterRender(firstRender);
+
+        if(firstRender)
+            BoardTransform.TransformationChanged += OnTransformationChanged;
+    }
+
+    private async Task OnTransformationChanged(BoardTransformations _)
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        BoardTransform.TransformationChanged -= OnTransformationChanged;
     }
 }

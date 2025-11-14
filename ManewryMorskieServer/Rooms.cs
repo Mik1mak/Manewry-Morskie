@@ -18,8 +18,8 @@ namespace ManewryMorskie.Server
 
         public Rooms(IConfiguration config, ILoggerFactory loggerFactory)
         {
-            roomsLimit = int.Parse(config["Rooms:Limit"]);
-            inactivityTolerance = TimeSpan.FromMinutes(double.Parse(config["Rooms:MaxPlayerInactivityMinutes"]));
+            roomsLimit = int.Parse(config["Rooms:Limit"] ?? "0");
+            inactivityTolerance = TimeSpan.FromMinutes(double.Parse(config["Rooms:MaxPlayerInactivityMinutes"] ?? "5"));
             this.logger = loggerFactory.CreateLogger<Rooms>();
             this.loggerFactory = loggerFactory;
             allRooms = new[] { randomRooms, namedRooms };

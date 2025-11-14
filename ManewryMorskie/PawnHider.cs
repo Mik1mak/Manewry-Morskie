@@ -1,5 +1,6 @@
 ﻿using CellLib;
 using System;
+using System.Collections.Generic;
 
 namespace ManewryMorskie
 {
@@ -55,24 +56,29 @@ namespace ManewryMorskie
             Player current = players.CurrentPlayer;
             Player enemy = players.GetOpositePlayer();
 
+            List<CellLocation> destroyedUnitsLocations = new();
+
             if (last.Result != BattleResult.None)
             {
-                IUserInterface ui = current.UserInterface;
-                if(!last.Result.HasFlag(BattleResult.TargetDestroyed))
-                {
-                    CellLocation l = (last.Attack ?? last.Disarm!).Value;
-                    await ui.PlacePawn(l, enemy.Color, map[l].Unit is Bateria);
-                }
-                if(!last.Result.HasFlag(BattleResult.SourceDestroyed))
-                    await enemy
-                        .UserInterface.PlacePawn(last.To, current.Color, map[last.To].Unit is Bateria);
+                CellLocation? targetLocation = (last.Attack ?? last.Disarm)!.Value;
+
+                if (last.Result.HasFlag(BattleResult.TargetDestroyed))
+                    destroyedUnitsLocations.Add(targetLocation.Value);
+                else
+                    await current.UserInterface.PlacePawn(targetLocation.Value, enemy.Color, map[targetLocation.Value].Unit is Bateria);
+
+                if (last.Result.HasFlag(BattleResult.SourceDestroyed))
+                    destroyedUnitsLocations.Add(last.To);
+                else
+                    await enemy.UserInterface.PlacePawn(last.To, current.Color, map[last.To].Unit is Bateria);
             }
 
             if (executor.PreviousLastExecuted == null)
                 return;
 
             foreach (CellLocation mineLocation in executor.PreviousLastExecuted.SetMines)
-                await current.UserInterface.PlacePawn(mineLocation, enemy.Color, false);
+                if (!destroyedUnitsLocations.Contains(mineLocation))
+                    await current.UserInterface.PlacePawn(mineLocation, enemy.Color, false);
         }
 
         private bool LocationIsExcluded(CellLocation l)

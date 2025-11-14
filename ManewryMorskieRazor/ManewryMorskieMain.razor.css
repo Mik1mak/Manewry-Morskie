@@ -1,5 +1,6 @@
 ﻿#game-bg {
     background-color: #6c757d;
+    scrollbar-width: none;
 }
 
 #board {

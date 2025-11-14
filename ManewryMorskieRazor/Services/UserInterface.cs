@@ -13,6 +13,7 @@ namespace ManewryMorskieRazor
         private readonly BoardService boardService;
         private readonly DialogService dialogService;
         private readonly ConcurrentQueue<Move> moveBuffer = new();
+        private readonly Guid serviceGuid = Guid.NewGuid();
 
         private CancellationTokenSource tokenSource = new();
 
@@ -70,7 +71,7 @@ namespace ManewryMorskieRazor
             {
                 while (true)
                 {
-                    int animationDuration = (mv.Path.Count() + 2) * 250;
+                    int animationDuration = (mv.Path.Count() + 2) * 200;
                     await boardService[mv.From].AnimatePawn(mv.From.Concat(mv.Path).Concat(mv.To), animationDuration);
 
                     Pawn pawn = await boardService[mv.From].TakeOffPawn();

@@ -4,12 +4,13 @@ using System;
 
 namespace ManewryMorskie
 {
+    [Flags]
     public enum BattleResult
     {
-        None,
-        TargetDestroyed,
-        SourceDestroyed,
-        Draw,
+        None = 0,
+        TargetDestroyed = 1,
+        SourceDestroyed = 2,
+        Draw = TargetDestroyed | SourceDestroyed,
     }
 
     public class Move

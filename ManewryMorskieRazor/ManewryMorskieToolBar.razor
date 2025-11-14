@@ -53,7 +53,7 @@
                         <li>
                             <a class="dropdown-item @(isGameOngoing?string.Empty:"disabled")" 
                                href="javascript:void(0)"
-                               @onclick="async () => destroyedUnits = await Game.DestroyedUnits()"
+                               @onclick="async () => destroyedUnits = await Game.GetDestroyedUnits()"
                                data-bs-toggle="modal" data-bs-target="#destroyed-units-modal">Stracone jednostki</a>
                         </li>
                     </ul>

@@ -44,7 +44,7 @@ namespace ManewryMorskie.Network
 
             clientInterface.ClickedLocation += InvokeClickedLocation;
             clientInterface.ChoosenOptionId += InvokeChoosenOptionId;
-            connection.Closed += Connection_Closed;
+            connection.Closed += ConnectionClosed;
 
             connection.On<string, string[]>(nameof(IUserInterface.DisplayOptionsMenu), async (title, options) =>
                 await clientInterface.DisplayOptionsMenu(title, options));
@@ -75,7 +75,7 @@ namespace ManewryMorskie.Network
             connection.On("Kick", async () => await StopAsync());
         }
 
-        private async Task Connection_Closed(Exception? arg)
+        private async Task ConnectionClosed(Exception? arg)
         {
             if(arg != null)
                 logger?.LogError("Connection on client closed {exc}", arg);
@@ -146,7 +146,7 @@ namespace ManewryMorskie.Network
             {
                 await connection.StopAsync(CancellationToken.None);
             }
-            await Connection_Closed(null);
+            await ConnectionClosed(null);
         }
 
         public async Task<Dictionary<string, int[]>> GetDestroyedUnitsTable()
@@ -157,7 +157,7 @@ namespace ManewryMorskie.Network
         public async ValueTask DisposeAsync()
         {
             await StopAsync();
-            connection.Closed -= Connection_Closed;
+            connection.Closed -= ConnectionClosed;
             clientInterface.ClickedLocation -= InvokeClickedLocation;
             clientInterface.ChoosenOptionId -= InvokeChoosenOptionId;
             await connection.DisposeAsync();

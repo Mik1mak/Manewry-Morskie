@@ -1,4 +1,5 @@
-﻿@implements IDisposable
+﻿@using ManewryMorskieRazor.Util
+@implements IDisposable
 
 @inject BoardService BoardService
 @inject UserInterface Ui
@@ -41,7 +42,7 @@
     {
         get
         {
-            if (BoardTransform.Horizontal)
+            if (BoardTransform.CurrentState.IsHorizontal)
             {
                 return firstCellCss + " dropend";
             }
@@ -59,7 +60,7 @@
         get
         {
             string baseStr = "dropdown-menu dropdown-menu-dark ";
-            if (BoardTransform.Horizontal)
+            if (BoardTransform.CurrentState.IsHorizontal)
             {
                 if (Row > 8)
                     return baseStr + " dropdown-menu-end";
@@ -78,7 +79,7 @@
 
     private string secondCellCss = "board-cell-mark";
 
-    private string cellStyle => BoardTransform.Horizontal ? "transform-origin: center; transform: rotate(-90deg)" : string.Empty;
+    private string cellStyle => BoardTransform.CurrentState.IsHorizontal ? "transform-origin: center; transform: rotate(-90deg)" : string.Empty;
 
     private string[] options = Array.Empty<string>();
     private int lastOptionsLength = 0;
@@ -165,7 +166,7 @@
         });
     }
 
-    private async Task Rotate(int zoom, bool horizontal)
+    private async Task Rotate(BoardTransformations _)
     {
         await InvokeAsync(() =>
         {

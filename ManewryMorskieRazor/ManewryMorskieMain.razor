@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using ManewryMorskieRazor.Util
 
 @implements IDisposable
 
@@ -44,7 +45,6 @@
     public const int WIDTH = 12;
     public const int HEIGHT = 18;
 
-    private IFormatProvider fp = CultureInfo.InvariantCulture;
     private ElementReference gameContainer;
 
     private string boardStyle = string.Empty;
@@ -66,21 +66,26 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender)
+        {
             await DtS.RegisterEvent(gameContainer);
+            await BoardTransform.InitializeAsync();
+        }
     }
 
-    private async Task ApplyTransformations(int zoom, bool horizontal)
+    private async Task ApplyTransformations(BoardTransformations transformations)
     {
         await InvokeAsync(() =>
         {
-            boardStyle = $"transform-origin: top {(horizontal || !boardCentring ? "left" : "center")}; transform: scale({(zoom / 100f).ToString(fp)})";
+            boardStyle = $"transform-origin: top {(transformations.IsHorizontal || !boardCentring ? "left" : "center")}; ";
+            boardStyle += $"transform: scale({(transformations.Zoom / 100f).ToString(CultureInfo.InvariantCulture)}) ";
+            boardStyle += $"translateX({transformations.TranslateXpixels.ToString(CultureInfo.InvariantCulture)}px) ";
 
-            if (horizontal)
-                boardStyle += " rotate(90deg) translateY(-100%);";
+            if (transformations.IsHorizontal)
+                boardStyle += $" rotate(90deg) translateY(calc(-100% + {transformations.TranslateYpixels.ToString(CultureInfo.InvariantCulture)}px));";
             else
-                boardStyle += ";";
+                boardStyle += $" translateY({transformations.TranslateYpixels.ToString(CultureInfo.InvariantCulture)}px);";
 
-            if (horizontal || !boardCentring)
+            if (transformations.IsHorizontal || !boardCentring)
                 boardStyle += "margin-left:0;margin-right:0;";
 
             StateHasChanged();

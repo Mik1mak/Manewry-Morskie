@@ -1,6 +1,7 @@
 ﻿using CellLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -52,8 +53,7 @@ namespace ManewryMorskie
                 SourceUnitDescription = move.Result == BattleResult.None ? "-" : move.SourceUnitDescription
             };
 
-            foreach (IUserInterface ui in players.UniqueInferfaces)
-                await ui.ExecuteMove(toSend);
+            await Task.WhenAll(players.UniqueInferfaces.Select(ui => ui.ExecuteMove(toSend)));
                 
             PreviousLastExecuted = LastExecuted;
             LastExecuted = new(move);
