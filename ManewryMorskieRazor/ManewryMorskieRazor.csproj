@@ -13,12 +13,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.21" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.21" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CellsLib\CellLib.csproj" />
-    <ProjectReference Include="..\ManewryMorskie.Network\ManewryMorskie.Network.csproj" />
     <ProjectReference Include="..\ManewryMorskie\ManewryMorskie.csproj" />
   </ItemGroup>
 
