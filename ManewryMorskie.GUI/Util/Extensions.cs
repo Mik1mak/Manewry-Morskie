@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace ManewryMorskieRazor
+namespace ManewryMorskie.GUI
 {
     public static class Extensions
     {

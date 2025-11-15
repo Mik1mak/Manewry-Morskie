@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.WebView.Maui;
-using ManewryMorskieRazor;
+using ManewryMorskie.GUI;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 using Microsoft.Extensions.Logging;

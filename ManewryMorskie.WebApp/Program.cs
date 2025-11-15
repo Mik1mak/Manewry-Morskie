@@ -1,5 +1,5 @@
 using ManewryMorskie.WebApp;
-using ManewryMorskieRazor;
+using ManewryMorskie.GUI;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 

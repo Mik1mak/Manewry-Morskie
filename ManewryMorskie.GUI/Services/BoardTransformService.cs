@@ -1,4 +1,4 @@
-﻿using ManewryMorskieRazor.Util;
+﻿using ManewryMorskie.GUI.Util;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ManewryMorskieRazor
+namespace ManewryMorskie.GUI
 {
     public class BoardTransformService : IDisposable
     {
@@ -34,7 +34,7 @@ namespace ManewryMorskieRazor
             if (thisService is not null)
                 return;
 
-            IJSObjectReference module = await js.InvokeAsync<IJSObjectReference>("import", "./_content/ManewryMorskieRazor/ScrollEventListener.js").AsTask();
+            IJSObjectReference module = await js.InvokeAsync<IJSObjectReference>("import", "./_content/ManewryMorskie.GUI/ScrollEventListener.js").AsTask();
             thisService = DotNetObjectReference.Create(this);
             await module.InvokeVoidAsync("registerScrollEventListener", thisService);
         }

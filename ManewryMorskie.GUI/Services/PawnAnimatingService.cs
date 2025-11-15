@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ManewryMorskieRazor
+namespace ManewryMorskie.GUI
 {
     public class PawnAnimatingService : IAsyncDisposable
     {
@@ -19,7 +19,7 @@ namespace ManewryMorskieRazor
         {
             this.boardTransformService = boardTransformService;
             moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-               "import", "./_content/ManewryMorskieRazor/PawnAnimations.js").AsTask());
+               "import", "./_content/ManewryMorskie.GUI/PawnAnimations.js").AsTask());
         }
 
         public async ValueTask MovePawn(ElementReference element, IEnumerable<CellLocation> path, int duration)

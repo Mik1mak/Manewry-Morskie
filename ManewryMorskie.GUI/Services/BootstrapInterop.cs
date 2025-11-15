@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace ManewryMorskieRazor
+namespace ManewryMorskie.GUI
 {
     public class BootstrapInterop : IAsyncDisposable
     {
@@ -10,7 +10,7 @@ namespace ManewryMorskieRazor
         public BootstrapInterop(IJSRuntime jsRuntime)
         {
             moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-               "import", "./_content/ManewryMorskieRazor/BootstrapInterop.js").AsTask());
+               "import", "./_content/ManewryMorskie.GUI/BootstrapInterop.js").AsTask());
         }
 
         public async ValueTask ToogleModal(string modalId, bool? show = null)

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ManewryMorskieRazor
+namespace ManewryMorskie.GUI
 {
     public class BoardService : RectangleCellMap<BoardCellService>
     {

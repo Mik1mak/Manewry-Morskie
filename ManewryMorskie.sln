@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32407.343
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryMorskie", "ManewryMorskie\ManewryMorskie.csproj", "{4C6CAB49-F592-4254-B5F0-FDCC713A39CC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryMorskieRazor", "ManewryMorskieRazor\ManewryMorskieRazor.csproj", "{981674E3-0ED4-4D4F-A6FD-9BCACC00F7A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryMorskie.GUI", "ManewryMorskie.GUI\ManewryMorskie.GUI.csproj", "{981674E3-0ED4-4D4F-A6FD-9BCACC00F7A5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManewryTests", "ManewryTests\ManewryTests.csproj", "{0625F1B8-EFD4-4CDA-8CED-B19838DE094F}"
 EndProject

@@ -46,8 +46,8 @@
 
     protected override void OnInitialized()
     {
-        scale = config["PawnFontScale"];
-        pawnLabelMargin = config["PawnLabelMargin"];
+        scale = config["PawnFontScale"] ?? "1";
+        pawnLabelMargin = config["PawnLabelMargin"] ?? "2px";
         Location = (CellLocation)(Column, Row);
         BoardService[Location].PawnChanged += PlacePawn;
         BoardService[Location].AnimatingPawn += AnimatePawn;

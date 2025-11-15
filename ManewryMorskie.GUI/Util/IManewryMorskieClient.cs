@@ -1,4 +1,4 @@
-﻿namespace ManewryMorskieRazor
+﻿namespace ManewryMorskie.GUI
 {
     public interface IManewryMorskieClient : IAsyncDisposable
     {

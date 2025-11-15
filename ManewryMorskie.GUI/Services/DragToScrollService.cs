@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ManewryMorskieRazor
+namespace ManewryMorskie.GUI
 {
     public class DragToScrollService : IAsyncDisposable
     {
@@ -15,7 +15,7 @@ namespace ManewryMorskieRazor
         public DragToScrollService(IJSRuntime jsRuntime)
         {
             moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-               "import", "./_content/ManewryMorskieRazor/DragToScroll.js").AsTask());
+               "import", "./_content/ManewryMorskie.GUI/DragToScroll.js").AsTask());
         }
 
         public async ValueTask RegisterEvent(ElementReference element)

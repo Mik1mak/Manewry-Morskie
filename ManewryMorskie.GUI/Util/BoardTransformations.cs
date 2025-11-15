@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ManewryMorskieRazor.Util
+namespace ManewryMorskie.GUI.Util
 {
     public record BoardTransformations
     {

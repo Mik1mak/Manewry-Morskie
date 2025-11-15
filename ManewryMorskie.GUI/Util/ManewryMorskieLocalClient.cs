@@ -1,7 +1,7 @@
 ﻿using ManewryMorskie;
 using Microsoft.Extensions.Logging;
 
-namespace ManewryMorskieRazor
+namespace ManewryMorskie.GUI
 {
     public class ManewryMorskieLocalClient : IManewryMorskieClient
     {

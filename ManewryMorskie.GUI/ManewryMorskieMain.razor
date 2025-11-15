@@ -1,5 +1,5 @@
 ﻿@using System.Globalization
-@using ManewryMorskieRazor.Util
+@using ManewryMorskie.GUI.Util
 
 @implements IDisposable
 
@@ -58,7 +58,7 @@
     {
         BoardTransform.TransformationChanged += ApplyTransformations;
         DialogService.SplashScreenDisplayed += SetSplashScreen;
-        boardCentring = bool.Parse(Config["BoardCentering"]);
+        boardCentring = bool.Parse(Config["BoardCentering"] ?? "true");
         if(!boardCentring)
             boardStyle = "margin-left:0;margin-right:0;";
     }

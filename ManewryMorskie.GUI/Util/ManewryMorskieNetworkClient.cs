@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace ManewryMorskieRazor
+namespace ManewryMorskie.GUI
 {
 
     public class ManewryMorskieNetworkClient : IManewryMorskieClient

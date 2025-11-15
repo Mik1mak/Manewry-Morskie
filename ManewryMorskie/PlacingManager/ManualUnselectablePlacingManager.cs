@@ -52,7 +52,7 @@ namespace ManewryMorskie.PlacingManager
                         selectable.Remove(selected);
                         await currentPlayer.UserInterface.MarkCells(selected, MarkOptions.None);
                     }
-                    catch (OperationCanceledException e)
+                    catch (OperationCanceledException)
                     {
                         await Ui.MarkCells(selected, MarkOptions.None);
                         await Ui.MarkCells(selected, MarkOptions.Selectable);

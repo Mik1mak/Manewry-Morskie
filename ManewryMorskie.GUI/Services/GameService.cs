@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace ManewryMorskieRazor
+namespace ManewryMorskie.GUI
 {
     public class GameService
     {
