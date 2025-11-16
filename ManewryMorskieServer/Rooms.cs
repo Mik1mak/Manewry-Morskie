@@ -53,7 +53,7 @@ namespace ManewryMorskie.Server
             else
             {
                 await creator.Kick("Osiągnięto maksymalną ilość pokoi utworzonych przez użytkowników. Proszę spróbować później.");
-                logger.LogCritical("Max room count reached ({limit}). Creation the {name} room rejected.", roomsLimit, name);
+                logger.LogWarning("Max room count reached ({limit}). Creation the {name} room rejected.", roomsLimit, name);
             }
         }
 

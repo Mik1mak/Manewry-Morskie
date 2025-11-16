@@ -21,17 +21,31 @@ builder.Services.AddScoped<Client>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAny", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+    options.AddPolicy("MAUI_AND_WEB_APP", policy =>
+        policy.WithOrigins(
+            "https://0.0.0.1"
+            ,"https://manewrymorskie.protoalea.dpdns.org"
+            ,"https://www.manewrymorskie.protoalea.dpdns.org"
+            ,"https://manewry-morskie.protoalea.dpdns.org"
+            ,"https://www.manewry-morskie.protoalea.dpdns.org"
+#if DEBUG
+            ,"https://localhost:7176"
+            ,"http://localhost:5244"
+#endif
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+    );
 });
 
 var app = builder.Build();
 
-app.UseCors("AllowAny");
+app.UseCors("MAUI_AND_WEB_APP");
 
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.MapHub<ManewryMorskieHub>("/ManewryMorskie");
 app.MapGet("/ping", () => Results.Ok());
-
 
 app.Run();

@@ -28,13 +28,13 @@ namespace ManewryMorskie.Server
                 throw new InvalidOperationException("Too many clients in Room!");
 
             clients.Add(client);
-            client.Disconnecting += Client_Disconnecting;
+            client.Disconnecting += ClientDisconnecting;
 
             contextItems.Add(nameof(Room), this);
             return this;
         }
 
-        private async Task Client_Disconnecting()
+        private async Task ClientDisconnecting()
         {
             await Terminate("Przeciwnik rozłączył się.");
         }
@@ -47,7 +47,7 @@ namespace ManewryMorskie.Server
 
             foreach (Client client in clients)
             {
-                client.Disconnecting -= Client_Disconnecting;
+                client.Disconnecting -= ClientDisconnecting;
                 if (!client.IsDisconnected)
                     await client.Kick(reason);
             }
