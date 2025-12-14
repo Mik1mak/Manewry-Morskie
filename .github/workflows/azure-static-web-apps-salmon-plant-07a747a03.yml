@@ -48,10 +48,11 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_PLANT_07A747A03 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "publish/wwwroot"
+          app_location: "ManewryMorskie.WebApp/publish/wwwroot"
           api_location: ""
-          output_location: "publish/wwwroot"
+          output_location: "ManewryMorskie.WebApp/publish/wwwroot"
           skip_api_build: true
           skip_app_build: true
           production_branch: 'master'
+
 
