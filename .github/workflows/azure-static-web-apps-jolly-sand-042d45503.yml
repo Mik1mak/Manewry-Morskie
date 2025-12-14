@@ -1,0 +1,58 @@
+name: Deploy ManewryMorskie to Azure
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_and_deploy_job:
+    runs-on: ubuntu-latest
+    name: Build and deploy ManewryMorskie
+    env:
+      DOTNET_VERSION: "net10.0"
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_NOLOGO: true
+      DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+      DOTNET_ADD_GLOBAL_TOOLS_TO_PATH: false
+      DOTNET_MULTILEVEL_LOOKUP: 0
+      PROJECT: "ManewryMorskie.WebApp/ManewryMorskie.WebApp.csproj"
+      BUILD_CONFIG: "Release"
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Setup .NET 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore ${{ env.PROJECT }}
+
+      - name: .NET Build
+        run: dotnet build ${{ env.PROJECT }} -c ${{ env.BUILD_CONFIG }} -f ${{ env.DOTNET_VERSION }} --no-restore
+
+      - name: .NET Publish
+        run: dotnet publish ${{ env.PROJECT }} -c ${{ env.BUILD_CONFIG }} -o publish -f ${{ env.DOTNET_VERSION }} --no-build
+
+      - name: Deploy ManewryMorskie to Azure Static Web App
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_JOLLY_SAND_042D45503 }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "publish/wwwroot"
+          api_location: ""
+          output_location: "publish/wwwroot"
+          skip_api_build: true
+          skip_app_build: true
+          production_branch: 'master'
+
+
