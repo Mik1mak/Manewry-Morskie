@@ -3,6 +3,7 @@
 ###############################################################################
 * text=auto
 ManewryMorskie.WebApp/wwwroot/lib/** linguist-vendored
+ManewryMorskie.GUI/wwwroot/lib/** linguist-vendored
 
 ###############################################################################
 # Set default behavior for command prompt diff.
